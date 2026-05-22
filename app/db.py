@@ -46,11 +46,11 @@ def test_connection(config: DatabaseConfig) -> dict[str, Any]:
     }
 
 
-def fetch_all(config: DatabaseConfig, sql: str, limit: int = 200) -> tuple[list[dict[str, Any]], float]:
+def fetch_all(config: DatabaseConfig, sql: str) -> tuple[list[dict[str, Any]], float]:
     started = time.perf_counter()
     with connect(config) as conn:
         with conn.cursor() as cursor:
             cursor.execute(sql)
-            rows = cursor.fetchmany(limit)
+            rows = cursor.fetchall()
     elapsed_ms = round((time.perf_counter() - started) * 1000, 2)
     return rows, elapsed_ms

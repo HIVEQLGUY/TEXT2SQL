@@ -4,6 +4,7 @@ const state = {
 };
 
 const $ = (id) => document.getElementById(id);
+const page = document.body.dataset.page;
 
 async function api(path, options = {}) {
   const response = await fetch(path, {
@@ -11,27 +12,43 @@ async function api(path, options = {}) {
     ...options,
   });
   const payload = await response.json();
-  if (!response.ok) {
-    throw new Error(payload.error || `HTTP_${response.status}`);
-  }
+  if (!response.ok) throw new Error(payload.error || `HTTP_${response.status}`);
   return payload;
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function formatNumber(value) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return String(value ?? "-");
+  return number.toLocaleString("zh-CN", { maximumFractionDigits: 4 });
 }
 
 function setStatus(ok, text) {
   const pill = $("statusPill");
+  if (!pill) return;
   pill.classList.toggle("ok", ok === true);
   pill.classList.toggle("bad", ok === false);
   $("statusText").textContent = text;
 }
 
 function renderConnection(payload) {
+  if (!$("connName")) return;
   $("connName").textContent = payload.config?.name || "-";
   $("connHost").textContent = payload.config ? `${payload.config.host}:${payload.config.port}/${payload.config.database}` : "-";
   $("connUser").textContent = payload.current_user || payload.config?.user || "-";
   $("connVersion").textContent = payload.version || "-";
   $("connLatency").textContent = payload.elapsed_ms ? `${payload.elapsed_ms} ms` : "-";
   $("connHeartbeat").textContent = new Date().toLocaleTimeString();
-  $("dbSubtitle").textContent = payload.config ? `${payload.config.database} · ${payload.config.user}` : "数据库连接与取数 Agent 测试台";
+  $("heartbeatCopy").textContent = `最近一次心跳正常，耗时 ${payload.elapsed_ms} ms`;
+  $("dbSubtitle").textContent = payload.config ? `${payload.config.database} · ${payload.config.user}` : "连接状态、连接信息和持续心跳检测";
 }
 
 async function testConnection({ heartbeat = false } = {}) {
@@ -41,25 +58,27 @@ async function testConnection({ heartbeat = false } = {}) {
     setStatus(true, "在线");
   } catch (error) {
     setStatus(false, "断联");
-    $("connHeartbeat").textContent = `${new Date().toLocaleTimeString()} · ${error.message}`;
+    if ($("heartbeatCopy")) $("heartbeatCopy").textContent = `连接异常：${error.message}`;
+    if ($("connHeartbeat")) $("connHeartbeat").textContent = new Date().toLocaleTimeString();
   }
+}
+
+function startHeartbeat() {
+  if (state.heartbeatTimer) clearInterval(state.heartbeatTimer);
+  state.heartbeatTimer = setInterval(() => testConnection({ heartbeat: true }), 10000);
 }
 
 function renderMetadata() {
   const metadata = state.metadata;
-  const query = $("metadataSearch").value.trim().toLowerCase();
-  if (!metadata) return;
-
+  const search = $("metadataSearch");
+  if (!metadata || !search) return;
+  const query = search.value.trim().toLowerCase();
   $("metadataSummary").textContent = `${metadata.database}：${metadata.table_count} 张表，加载耗时 ${metadata.elapsed_ms} ms`;
   const wrap = $("metadataList");
   wrap.innerHTML = "";
 
   const tables = metadata.tables.filter((table) => {
-    const text = [
-      table.name,
-      table.comment,
-      ...table.columns.flatMap((column) => [column.name, column.type, column.comment]),
-    ]
+    const text = [table.name, table.comment, ...table.columns.flatMap((column) => [column.name, column.type, column.comment])]
       .join(" ")
       .toLowerCase();
     return !query || text.includes(query);
@@ -73,7 +92,7 @@ function renderMetadata() {
         (column) => `
           <div class="column-item">
             <span class="column-name">${escapeHtml(column.name)}</span>
-            <span>${escapeHtml(column.type)} ${column.key ? `· ${escapeHtml(column.key)}` : ""}</span>
+            <span>${escapeHtml(column.type)}${column.key ? ` · ${escapeHtml(column.key)}` : ""}</span>
           </div>
         `
       )
@@ -90,75 +109,92 @@ function renderMetadata() {
 }
 
 async function loadMetadata() {
+  if (!$("metadataSummary")) return;
   $("metadataSummary").textContent = "加载中...";
   const metadata = await api("/api/metadata");
   state.metadata = metadata;
   renderMetadata();
 }
 
-function escapeHtml(value) {
-  return String(value ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
-
 function output(message, tone = "") {
   const box = $("agentOutput");
+  if (!box) return;
   box.className = `agent-output ${tone}`;
   box.textContent = message;
 }
 
+function renderKpis(report) {
+  const wrap = $("kpiWrap");
+  if (!wrap) return;
+  wrap.innerHTML = "";
+  for (const kpi of report.kpis || []) {
+    const card = document.createElement("div");
+    card.className = "kpi-card";
+    card.innerHTML = `
+      <h3>${escapeHtml(kpi.column)}</h3>
+      <div class="kpi-main">${formatNumber(kpi.sum)}</div>
+      <div class="kpi-sub">平均 ${formatNumber(kpi.avg)} · 最小 ${formatNumber(kpi.min)} · 最大 ${formatNumber(kpi.max)}</div>
+    `;
+    wrap.appendChild(card);
+  }
+}
+
+function renderCharts(report) {
+  const wrap = $("chartWrap");
+  if (!wrap) return;
+  wrap.innerHTML = "";
+  for (const chart of report.charts || []) {
+    const card = document.createElement("div");
+    card.className = "chart-card";
+    const max = Math.max(...chart.points.map((point) => Math.abs(Number(point.value)))) || 1;
+    const rows = chart.points
+      .map(
+        (point) => `
+          <div class="chart-row">
+            <div class="chart-label" title="${escapeHtml(point.label)}">${escapeHtml(point.label)}</div>
+            <div class="chart-track"><div class="chart-bar" style="width:${Math.max(2, (Math.abs(Number(point.value)) / max) * 100)}%"></div></div>
+            <div class="chart-value">${formatNumber(point.value)}</div>
+          </div>
+        `
+      )
+      .join("");
+    card.innerHTML = `<div class="chart-title">${escapeHtml(chart.title)}</div>${rows}`;
+    wrap.appendChild(card);
+  }
+}
+
 function renderRows(rows) {
   const wrap = $("resultTableWrap");
+  if (!wrap) return;
   wrap.innerHTML = "";
   if (!rows || rows.length === 0) {
     wrap.textContent = "无返回行。";
     return;
   }
-
-  const columns = Object.keys(rows[0]);
+  const previewRows = rows.slice(0, 300);
+  const columns = Object.keys(previewRows[0]);
   const table = document.createElement("table");
   table.innerHTML = `
     <thead><tr>${columns.map((column) => `<th>${escapeHtml(column)}</th>`).join("")}</tr></thead>
     <tbody>
-      ${rows
-        .map((row) => `<tr>${columns.map((column) => `<td>${escapeHtml(row[column])}</td>`).join("")}</tr>`)
-        .join("")}
+      ${previewRows.map((row) => `<tr>${columns.map((column) => `<td>${escapeHtml(row[column])}</td>`).join("")}</tr>`).join("")}
     </tbody>
   `;
   wrap.appendChild(table);
+  if (rows.length > previewRows.length) {
+    const note = document.createElement("p");
+    note.className = "muted";
+    note.textContent = `页面预览前 ${previewRows.length} 行，完整结果已用于本次报表统计和运行记录。`;
+    wrap.appendChild(note);
+  }
 }
 
-function renderChart(rows) {
-  const wrap = $("chartWrap");
-  wrap.innerHTML = "";
-  if (!rows || rows.length === 0) return;
-
-  const columns = Object.keys(rows[0]);
-  const numericColumn = columns.find((column) => rows.some((row) => Number.isFinite(Number(row[column]))));
-  const labelColumn = columns.find((column) => column !== numericColumn);
-  if (!numericColumn || !labelColumn) return;
-
-  const points = rows
-    .map((row) => ({ label: String(row[labelColumn]), value: Number(row[numericColumn]) }))
-    .filter((point) => Number.isFinite(point.value))
-    .slice(0, 12);
-  if (points.length === 0) return;
-
-  const max = Math.max(...points.map((point) => Math.abs(point.value))) || 1;
-  for (const point of points) {
-    const row = document.createElement("div");
-    row.className = "chart-row";
-    row.innerHTML = `
-      <div class="chart-label" title="${escapeHtml(point.label)}">${escapeHtml(point.label)}</div>
-      <div class="chart-track"><div class="chart-bar" style="width:${Math.max(2, (Math.abs(point.value) / max) * 100)}%"></div></div>
-      <div class="chart-value">${escapeHtml(point.value.toLocaleString())}</div>
-    `;
-    wrap.appendChild(row);
-  }
+function renderReport(payload) {
+  const report = payload.report || { kpis: [], charts: [], table_preview: payload.rows || [] };
+  $("reportMeta").textContent = `返回 ${payload.row_count} 行，查询耗时 ${payload.elapsed_ms} ms`;
+  renderKpis(report);
+  renderCharts(report);
+  renderRows(payload.rows || report.table_preview || []);
 }
 
 async function sendAgent() {
@@ -166,29 +202,33 @@ async function sendAgent() {
   const sql = $("sqlInput").value.trim();
   const forceRisk = $("forceRisk").checked;
   if (!question) {
-    output("请先输入问题。", "warn");
+    output("请先输入分析需求。", "warn");
     return;
   }
 
   $("sendBtn").disabled = true;
-  $("resultTableWrap").innerHTML = "";
+  $("kpiWrap").innerHTML = "";
   $("chartWrap").innerHTML = "";
-  output("处理中...");
+  $("resultTableWrap").innerHTML = "";
+  $("reportMeta").textContent = "处理中";
+  output("正在审查 SQL、执行查询并生成报表...");
   try {
     const payload = await api("/api/agent", {
       method: "POST",
       body: JSON.stringify({ question, sql, force_risk: forceRisk }),
     });
     if (payload.status === "executed") {
-      output(`执行成功，返回 ${payload.row_count} 行，耗时 ${payload.elapsed_ms} ms。\nSQL: ${payload.sql}`, "ok");
-      renderChart(payload.rows);
-      renderRows(payload.rows);
+      const riskText = payload.risks?.length ? `\n风险提示：${payload.risks.join(", ")}` : "";
+      output(`执行成功。${riskText}\nSQL: ${payload.sql}`, "ok");
+      renderReport(payload);
     } else {
       output(`${payload.message}\n\n${JSON.stringify(payload.suggestions || [], null, 2)}`, "ok");
+      $("reportMeta").textContent = "等待查询结果";
     }
     await loadRuns();
   } catch (error) {
     output(error.message, "bad");
+    $("reportMeta").textContent = "执行失败";
     await loadRuns();
   } finally {
     $("sendBtn").disabled = false;
@@ -213,6 +253,7 @@ async function reviewSql() {
 }
 
 async function loadRuns() {
+  if (!$("runsList")) return;
   const payload = await api("/api/runs");
   const wrap = $("runsList");
   wrap.innerHTML = "";
@@ -234,21 +275,20 @@ async function loadRuns() {
   }
 }
 
-function startHeartbeat() {
-  if (state.heartbeatTimer) clearInterval(state.heartbeatTimer);
-  state.heartbeatTimer = setInterval(() => testConnection({ heartbeat: true }), 10000);
-}
-
 window.addEventListener("DOMContentLoaded", async () => {
-  $("testConnectionBtn").addEventListener("click", () => testConnection());
-  $("refreshMetadataBtn").addEventListener("click", () => loadMetadata());
-  $("refreshRunsBtn").addEventListener("click", () => loadRuns());
-  $("sendBtn").addEventListener("click", sendAgent);
-  $("reviewBtn").addEventListener("click", reviewSql);
-  $("metadataSearch").addEventListener("input", renderMetadata);
+  if (page === "connection") {
+    $("testConnectionBtn").addEventListener("click", () => testConnection());
+    await testConnection();
+    startHeartbeat();
+  }
 
-  await testConnection();
-  await loadMetadata();
-  await loadRuns();
-  startHeartbeat();
+  if (page === "agent") {
+    $("refreshMetadataBtn").addEventListener("click", () => loadMetadata());
+    $("refreshRunsBtn").addEventListener("click", () => loadRuns());
+    $("sendBtn").addEventListener("click", sendAgent);
+    $("reviewBtn").addEventListener("click", reviewSql);
+    $("metadataSearch").addEventListener("input", renderMetadata);
+    await loadMetadata();
+    await loadRuns();
+  }
 });

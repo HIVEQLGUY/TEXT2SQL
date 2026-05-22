@@ -50,7 +50,7 @@ def strip_trailing_semicolon(sql: str) -> str:
     return sql[:-1].strip() if sql.strip().endswith(";") else sql.strip()
 
 
-def review_sql(sql: str, *, require_limit: bool = True) -> SQLReviewResult:
+def review_sql(sql: str) -> SQLReviewResult:
     normalized = normalize_sql(sql)
     lowered = normalized.lower()
     result = SQLReviewResult(allowed=True, normalized_sql=normalized)
@@ -73,8 +73,8 @@ def review_sql(sql: str, *, require_limit: bool = True) -> SQLReviewResult:
     if re.search(r"\bselect\s+\*", lowered):
         result.hard_blocks.append("SELECT_STAR_BLOCKED")
 
-    if require_limit and " limit " not in f" {lowered} ":
-        result.hard_blocks.append("LIMIT_REQUIRED")
+    if " limit " not in f" {lowered} ":
+        result.risks.append("NO_LIMIT_REVIEW_ONLY")
 
     sensitive_hits = [pattern for pattern in SENSITIVE_PATTERNS if pattern in lowered]
     if sensitive_hits:

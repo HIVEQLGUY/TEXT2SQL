@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>数据库连接 - Text2SQL</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body data-page="connection">
+    <header class="topbar">
+      <div>
+        <h1>数据库连接</h1>
+        <p id="dbSubtitle">连接状态、连接信息和持续心跳检测</p>
+      </div>
+      <nav class="nav">
+        <a class="active" href="/connection.html">数据库连接</a>
+        <a href="/agent.html">取数测试</a>
+      </nav>
+    </header>
+
+    <main class="page-grid connection-grid">
+      <section class="panel">
+        <div class="panel-header">
+          <h2>当前连接</h2>
+          <button id="testConnectionBtn" type="button">立即测试</button>
+        </div>
+        <div class="connection-state">
+          <div class="status-pill" id="statusPill">
+            <span class="dot"></span>
+            <span id="statusText">检测中</span>
+          </div>
+          <div class="heartbeat-copy" id="heartbeatCopy">等待心跳</div>
+        </div>
+        <dl class="kv large">
+          <div><dt>连接名称</dt><dd id="connName">-</dd></div>
+          <div><dt>数据库地址</dt><dd id="connHost">-</dd></div>
+          <div><dt>登录账号</dt><dd id="connUser">-</dd></div>
+          <div><dt>数据库版本</dt><dd id="connVersion">-</dd></div>
+          <div><dt>连接延迟</dt><dd id="connLatency">-</dd></div>
+          <div><dt>最近心跳</dt><dd id="connHeartbeat">-</dd></div>
+        </dl>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>后续多库扩展</h2>
+        </div>
+        <div class="info-block">
+          <p>当前版本读取默认 `.env` 连接。后续新增数据库时，会扩展为多连接配置列表，每个连接独立测试、独立心跳、独立记录评测结果。</p>
+          <p>业务查询默认使用只读账号；管理员账号只用于明确的数据库运维脚本。</p>
+        </div>
+      </section>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

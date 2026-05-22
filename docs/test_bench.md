@@ -8,10 +8,16 @@
 python app/server.py
 ```
 
-打开：
+打开数据库连接页：
 
 ```text
-http://127.0.0.1:8765
+http://127.0.0.1:8765/connection.html
+```
+
+打开取数测试页：
+
+```text
+http://127.0.0.1:8765/agent.html
 ```
 
 ## Features
@@ -20,8 +26,9 @@ http://127.0.0.1:8765
 - 心跳检测：网页每 10 秒调用一次 `/api/heartbeat`，断联会显示异常。
 - 元数据：读取 `information_schema.tables` 和 `information_schema.columns`。
 - 取数 Agent：支持元数据引导、SQL 审查、只读查询执行。
-- 风险控制：硬拦截危险 SQL，风险 SQL 默认不执行。
-- 图表：当结果包含维度列和数值列时自动绘制条形图。
+- 风险控制：硬拦截危险 SQL；笛卡尔积等高风险 SQL 默认不执行，需要勾选确认后执行。
+- 查询范围：不再强制 `LIMIT`，也不会自动给 SQL 追加 `LIMIT`。无 `LIMIT` 只作为审查提示。
+- 报表看板：返回结果会生成 KPI 卡片、条形图和结果表格预览。
 - 记录：每次问题、SQL、审查、执行耗时、行数、结果预览会保存到本地 SQLite。
 
 ## Runtime Files

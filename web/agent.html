@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>取数测试 - Text2SQL</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body data-page="agent">
+    <header class="topbar">
+      <div>
+        <h1>取数测试</h1>
+        <p id="dbSubtitle">元数据理解、SQL 审查、查询执行、报表输出和测试记录</p>
+      </div>
+      <nav class="nav">
+        <a href="/connection.html">数据库连接</a>
+        <a class="active" href="/agent.html">取数测试</a>
+      </nav>
+    </header>
+
+    <main class="page-grid agent-grid">
+      <section class="panel metadata-panel">
+        <div class="panel-header">
+          <h2>数据库元数据</h2>
+          <button id="refreshMetadataBtn" type="button">刷新</button>
+        </div>
+        <div class="search-row">
+          <input id="metadataSearch" type="search" placeholder="搜索表、字段、注释" />
+        </div>
+        <div id="metadataSummary" class="summary-line">等待加载</div>
+        <div id="metadataList" class="metadata-list"></div>
+      </section>
+
+      <section class="panel agent-panel">
+        <div class="panel-header">
+          <h2>取数 Agent 测试</h2>
+          <label class="risk-toggle">
+            <input id="forceRisk" type="checkbox" />
+            确认笛卡尔积等高风险后执行
+          </label>
+        </div>
+        <label class="field">
+          <span>分析需求</span>
+          <textarea id="questionInput" rows="4" placeholder="例如：按店铺统计销售额，并分析头部店铺贡献"></textarea>
+        </label>
+        <label class="field">
+          <span>SQL（当前阶段可选；复杂 SQL 可先让 Codex 生成后粘贴）</span>
+          <textarea id="sqlInput" rows="7" placeholder="SELECT shop_name, SUM(actual_sales_amt) AS sales_amt FROM dws_tmall_sales_link_summary GROUP BY shop_name ORDER BY sales_amt DESC"></textarea>
+        </label>
+        <div class="actions">
+          <button id="sendBtn" type="button">生成报表</button>
+          <button id="reviewBtn" type="button">只审查 SQL</button>
+        </div>
+        <div id="agentOutput" class="agent-output"></div>
+      </section>
+
+      <section class="panel report-panel">
+        <div class="panel-header">
+          <h2>报表看板</h2>
+          <span id="reportMeta" class="muted">等待查询结果</span>
+        </div>
+        <div id="kpiWrap" class="kpi-grid"></div>
+        <div id="chartWrap" class="chart-wrap"></div>
+        <div id="resultTableWrap" class="table-wrap"></div>
+      </section>
+
+      <section class="panel history-panel">
+        <div class="panel-header">
+          <h2>测试记录</h2>
+          <button id="refreshRunsBtn" type="button">刷新</button>
+        </div>
+        <div id="runsList" class="runs-list"></div>
+      </section>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import re
 import sys
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -16,25 +15,15 @@ from app.config import load_database_config
 from app.db import fetch_all, test_connection
 from app.log_store import list_runs, save_run
 from app.metadata import build_analysis_guidance, load_metadata
+from app.report import build_report
 
 
 STATIC_DIR = ROOT / "web"
+BLOCKING_RISKS = {"JOIN_WITHOUT_ON_RISK", "COMMA_JOIN_CARTESIAN_RISK"}
 
 
 def json_bytes(payload: object) -> bytes:
     return json.dumps(payload, ensure_ascii=False, default=str).encode("utf-8")
-
-
-def ensure_limit(sql: str, limit: int = 200) -> str:
-    stripped = sql.strip().rstrip(";")
-    if re.search(r"\blimit\s+\d+\b", stripped, flags=re.IGNORECASE):
-        return stripped
-    return f"{stripped} LIMIT {limit}"
-
-
-def is_aggregate_query(sql: str) -> bool:
-    lowered = sql.lower()
-    return bool(re.search(r"\b(count|sum|avg|min|max)\s*\(", lowered) or " group by " in f" {lowered} ")
 
 
 class Handler(SimpleHTTPRequestHandler):
@@ -89,7 +78,7 @@ class Handler(SimpleHTTPRequestHandler):
             payload = self.read_json()
             if path == "/api/review":
                 sql = payload.get("sql", "")
-                review = review_sql(sql, require_limit=not is_aggregate_query(sql))
+                review = review_sql(sql)
                 self.send_json(
                     {
                         "allowed": review.allowed,
@@ -125,9 +114,10 @@ class Handler(SimpleHTTPRequestHandler):
                     self.send_json({"ok": True, "run_id": run_id, **answer})
                     return
 
-                sql_to_review = ensure_limit(sql)
-                review = review_sql(sql_to_review, require_limit=not is_aggregate_query(sql_to_review))
-                if review.hard_blocks or (review.risks and not force_risk):
+                sql_to_review = sql.strip().rstrip(";")
+                review = review_sql(sql_to_review)
+                blocking_risks = [risk for risk in review.risks if risk in BLOCKING_RISKS]
+                if review.hard_blocks or (blocking_risks and not force_risk):
                     run_id = save_run(
                         database_name=config.database,
                         question=question,
@@ -146,11 +136,13 @@ class Handler(SimpleHTTPRequestHandler):
                             "sql": sql_to_review,
                             "hard_blocks": review.hard_blocks,
                             "risks": review.risks,
+                            "blocking_risks": blocking_risks,
                         }
                     )
                     return
 
                 rows, query_ms = fetch_all(config, sql_to_review)
+                report = build_report(rows)
                 preview = rows[:20]
                 run_id = save_run(
                     database_name=config.database,
@@ -174,6 +166,7 @@ class Handler(SimpleHTTPRequestHandler):
                         "elapsed_ms": query_ms,
                         "row_count": len(rows),
                         "rows": rows,
+                        "report": report,
                     }
                 )
                 return
