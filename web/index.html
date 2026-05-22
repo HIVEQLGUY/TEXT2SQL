@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Text2SQL Test Bench</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <h1>Text2SQL Test Bench</h1>
+        <p id="dbSubtitle">数据库连接与取数 Agent 测试台</p>
+      </div>
+      <div class="status-pill" id="statusPill">
+        <span class="dot"></span>
+        <span id="statusText">检测中</span>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel connection-panel">
+        <div class="panel-header">
+          <h2>连接</h2>
+          <button id="testConnectionBtn" type="button">测试</button>
+        </div>
+        <dl class="kv">
+          <div><dt>名称</dt><dd id="connName">-</dd></div>
+          <div><dt>地址</dt><dd id="connHost">-</dd></div>
+          <div><dt>账号</dt><dd id="connUser">-</dd></div>
+          <div><dt>版本</dt><dd id="connVersion">-</dd></div>
+          <div><dt>延迟</dt><dd id="connLatency">-</dd></div>
+          <div><dt>心跳</dt><dd id="connHeartbeat">-</dd></div>
+        </dl>
+      </section>
+
+      <section class="panel metadata-panel">
+        <div class="panel-header">
+          <h2>元数据</h2>
+          <button id="refreshMetadataBtn" type="button">刷新</button>
+        </div>
+        <div class="search-row">
+          <input id="metadataSearch" type="search" placeholder="搜索表、字段、注释" />
+        </div>
+        <div id="metadataSummary" class="summary-line">等待加载</div>
+        <div id="metadataList" class="metadata-list"></div>
+      </section>
+
+      <section class="panel agent-panel">
+        <div class="panel-header">
+          <h2>取数 Agent</h2>
+          <label class="risk-toggle">
+            <input id="forceRisk" type="checkbox" />
+            风险确认后执行
+          </label>
+        </div>
+        <label class="field">
+          <span>问题</span>
+          <textarea id="questionInput" rows="4" placeholder="例如：帮我看看当前库有哪些表，或者说明你想分析的业务问题"></textarea>
+        </label>
+        <label class="field">
+          <span>SQL（可选，留空则只做元数据引导）</span>
+          <textarea id="sqlInput" rows="6" placeholder="SELECT column_a, column_b FROM table_name LIMIT 50"></textarea>
+        </label>
+        <div class="actions">
+          <button id="sendBtn" type="button">发送</button>
+          <button id="reviewBtn" type="button">只审查 SQL</button>
+        </div>
+        <div id="agentOutput" class="agent-output"></div>
+        <div id="chartWrap" class="chart-wrap"></div>
+        <div id="resultTableWrap" class="table-wrap"></div>
+      </section>
+
+      <section class="panel history-panel">
+        <div class="panel-header">
+          <h2>记录</h2>
+          <button id="refreshRunsBtn" type="button">刷新</button>
+        </div>
+        <div id="runsList" class="runs-list"></div>
+      </section>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
