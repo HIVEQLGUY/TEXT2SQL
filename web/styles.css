@@ -115,6 +115,7 @@ h2 {
 }
 
 .report-panel,
+.timeline-panel,
 .history-panel {
   min-height: 280px;
 }
@@ -225,6 +226,7 @@ dd {
 .kpi-grid,
 .chart-wrap,
 .table-wrap,
+.timeline-wrap,
 .runs-list {
   margin: 12px 14px;
 }
@@ -442,6 +444,84 @@ th {
 .runs-list {
   max-height: 360px;
   overflow: auto;
+}
+
+.timeline-wrap {
+  display: grid;
+  gap: 10px;
+}
+
+.timeline-item {
+  position: relative;
+}
+
+.timeline-gap {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 0 0 6px 18px;
+}
+
+.timeline-node {
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--muted);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #fbfcfe;
+}
+
+.timeline-item.success .timeline-node,
+.timeline-item.executed .timeline-node,
+.timeline-item.metadata .timeline-node,
+.timeline-item.analysis_plan .timeline-node {
+  border-left-color: var(--ok);
+}
+
+.timeline-item.failed .timeline-node,
+.timeline-item.blocked .timeline-node {
+  border-left-color: var(--danger);
+}
+
+.timeline-item.risk_pending .timeline-node {
+  border-left-color: var(--warn);
+}
+
+.timeline-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.timeline-status {
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 12px;
+  color: var(--muted);
+  background: #eef2f7;
+  white-space: nowrap;
+}
+
+.timeline-time {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+.timeline-summary-line {
+  margin-top: 8px;
+}
+
+.timeline-node pre {
+  max-height: 180px;
+  overflow: auto;
+  margin: 8px 0 0;
+  padding: 8px;
+  border-radius: 6px;
+  background: #f4f7fb;
+  color: var(--muted);
 }
 
 .run-item {

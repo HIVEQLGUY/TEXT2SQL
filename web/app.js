@@ -31,6 +31,35 @@ function formatNumber(value) {
   return number.toLocaleString("zh-CN", { maximumFractionDigits: 4 });
 }
 
+function formatDuration(ms) {
+  const value = Number(ms);
+  if (!Number.isFinite(value)) return "-";
+  if (value < 1000) return `${Math.round(value)} 毫秒`;
+  if (value < 60000) return `${(value / 1000).toFixed(value < 10000 ? 1 : 0)} 秒`;
+  const totalSeconds = Math.round(value / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  if (minutes < 60) return `${minutes} 分 ${seconds} 秒`;
+  const hours = Math.floor(minutes / 60);
+  const restMinutes = minutes % 60;
+  return `${hours} 小时 ${String(restMinutes).padStart(2, "0")} 分`;
+}
+
+function statusText(status) {
+  const map = {
+    success: "成功",
+    running: "执行中",
+    failed: "失败",
+    blocked: "被拦截",
+    risk_pending: "等待确认",
+    executed: "成功",
+    needs_sql: "等待 SQL",
+    metadata: "元数据引导",
+    analysis_plan: "分析建议",
+  };
+  return map[status] || status || "-";
+}
+
 function setStatus(ok, text) {
   const pill = $("statusPill");
   if (!pill) return;
@@ -45,9 +74,9 @@ function renderConnection(payload) {
   $("connHost").textContent = payload.config ? `${payload.config.host}:${payload.config.port}/${payload.config.database}` : "-";
   $("connUser").textContent = payload.current_user || payload.config?.user || "-";
   $("connVersion").textContent = payload.version || "-";
-  $("connLatency").textContent = payload.elapsed_ms ? `${payload.elapsed_ms} ms` : "-";
+  $("connLatency").textContent = payload.elapsed_ms ? formatDuration(payload.elapsed_ms) : "-";
   $("connHeartbeat").textContent = new Date().toLocaleTimeString();
-  $("heartbeatCopy").textContent = `最近一次心跳正常，耗时 ${payload.elapsed_ms} ms`;
+  $("heartbeatCopy").textContent = `最近一次心跳正常，耗时 ${formatDuration(payload.elapsed_ms)}`;
   $("dbSubtitle").textContent = payload.config ? `${payload.config.database} · ${payload.config.user}` : "连接状态、连接信息和持续心跳检测";
 }
 
@@ -73,7 +102,7 @@ function renderMetadata() {
   const search = $("metadataSearch");
   if (!metadata || !search) return;
   const query = search.value.trim().toLowerCase();
-  $("metadataSummary").textContent = `${metadata.database}：${metadata.table_count} 张表，加载耗时 ${metadata.elapsed_ms} ms`;
+  $("metadataSummary").textContent = `${metadata.database}：${metadata.table_count} 张表，加载耗时 ${formatDuration(metadata.elapsed_ms)}`;
   const wrap = $("metadataList");
   wrap.innerHTML = "";
 
@@ -121,6 +150,52 @@ function output(message, tone = "") {
   if (!box) return;
   box.className = `agent-output ${tone}`;
   box.textContent = message;
+}
+
+function renderTimeline(timeline) {
+  const summary = $("timelineSummary");
+  const wrap = $("timelineWrap");
+  if (!summary || !wrap) return;
+
+  if (!timeline || !timeline.nodes) {
+    summary.textContent = "等待本次运行开始";
+    wrap.innerHTML = "";
+    return;
+  }
+
+  const nodes = timeline.nodes || [];
+  const slowest = timeline.slowest_node;
+  const sqlNode = nodes.find((node) => node.key === "execute_sql");
+  const sqlShare = sqlNode?.duration_ms && timeline.total_ms ? Math.round((sqlNode.duration_ms / timeline.total_ms) * 100) : null;
+  const parts = [`总耗时 ${formatDuration(timeline.total_ms)}`];
+  if (slowest) parts.push(`最慢节点：${slowest.label}，${formatDuration(slowest.duration_ms)}`);
+  if (sqlNode) parts.push(`SQL 执行 ${formatDuration(sqlNode.duration_ms)}${sqlShare !== null ? `，占 ${sqlShare}%` : ""}`);
+  summary.textContent = parts.join(" · ");
+
+  wrap.innerHTML = "";
+  for (const node of nodes) {
+    const item = document.createElement("div");
+    item.className = `timeline-item ${node.status || ""}`;
+    const transition = node.transition_ms > 0 ? `<div class="timeline-gap">节点间隔 ${formatDuration(node.transition_ms)}</div>` : "";
+    const details = node.details && Object.keys(node.details).length ? `<pre>${escapeHtml(JSON.stringify(node.details, null, 2))}</pre>` : "";
+    item.innerHTML = `
+      ${transition}
+      <div class="timeline-node">
+        <div class="timeline-main">
+          <strong>${escapeHtml(node.label)}</strong>
+          <span class="timeline-status">${escapeHtml(statusText(node.status))}</span>
+        </div>
+        <div class="timeline-time">
+          <span>开始 ${escapeHtml(node.started_at || "-")}</span>
+          <span>结束 ${escapeHtml(node.ended_at || "-")}</span>
+          <span>耗时 ${formatDuration(node.duration_ms)}</span>
+        </div>
+        ${node.summary ? `<div class="timeline-summary-line">${escapeHtml(node.summary)}</div>` : ""}
+        ${details}
+      </div>
+    `;
+    wrap.appendChild(item);
+  }
 }
 
 function renderKpis(report) {
@@ -191,7 +266,7 @@ function renderRows(rows) {
 
 function renderReport(payload) {
   const report = payload.report || { kpis: [], charts: [], table_preview: payload.rows || [] };
-  $("reportMeta").textContent = `返回 ${payload.row_count} 行，查询耗时 ${payload.elapsed_ms} ms`;
+  $("reportMeta").textContent = `返回 ${payload.row_count} 行，查询耗时 ${formatDuration(payload.elapsed_ms)}`;
   renderKpis(report);
   renderCharts(report);
   renderRows(payload.rows || report.table_preview || []);
@@ -211,12 +286,23 @@ async function sendAgent() {
   $("chartWrap").innerHTML = "";
   $("resultTableWrap").innerHTML = "";
   $("reportMeta").textContent = "处理中";
+  renderTimeline(null);
   output("正在审查 SQL、执行查询并生成报表...");
   try {
     const payload = await api("/api/agent", {
       method: "POST",
       body: JSON.stringify({ question, sql, force_risk: forceRisk }),
     });
+
+    renderTimeline(payload.timeline);
+    if (payload.ok === false) {
+      const blocks = payload.hard_blocks?.length ? `硬拦截：${payload.hard_blocks.join(", ")}` : "";
+      const risks = payload.risks?.length ? `风险提示：${payload.risks.join(", ")}` : "";
+      output([blocks, risks, `SQL: ${payload.sql || "-"}`].filter(Boolean).join("\n"), payload.status === "risk_pending" ? "warn" : "bad");
+      $("reportMeta").textContent = "未执行查询";
+      return;
+    }
+
     if (payload.status === "executed") {
       const riskText = payload.risks?.length ? `\n风险提示：${payload.risks.join(", ")}` : "";
       output(`执行成功。${riskText}\nSQL: ${payload.sql}`, "ok");
@@ -252,6 +338,21 @@ async function reviewSql() {
   );
 }
 
+function summarizeRun(run) {
+  const timeline = run.timings?.timeline;
+  if (!timeline) return `rows ${run.row_count} · ${escapeHtml(JSON.stringify(run.timings))}`;
+  const sqlNode = timeline.nodes?.find((node) => node.key === "execute_sql");
+  const slowest = timeline.slowest_node;
+  return [
+    `总耗时 ${formatDuration(timeline.total_ms)}`,
+    sqlNode ? `SQL ${formatDuration(sqlNode.duration_ms)}` : "",
+    slowest ? `最慢：${slowest.label}` : "",
+    `返回 ${run.row_count} 行`,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+}
+
 async function loadRuns() {
   if (!$("runsList")) return;
   const payload = await api("/api/runs");
@@ -263,9 +364,9 @@ async function loadRuns() {
     item.innerHTML = `
       <div class="run-title">
         <strong>#${run.id} ${escapeHtml(run.question || "-")}</strong>
-        <span class="badge ${escapeHtml(run.status)}">${escapeHtml(run.status)}</span>
+        <span class="badge ${escapeHtml(run.status)}">${escapeHtml(statusText(run.status))}</span>
       </div>
-      <div class="muted">${escapeHtml(run.created_at)} · rows ${run.row_count} · ${escapeHtml(JSON.stringify(run.timings))}</div>
+      <div class="muted">${escapeHtml(run.created_at)} · ${escapeHtml(summarizeRun(run))}</div>
       ${run.sql_text ? `<div><code>${escapeHtml(run.sql_text)}</code></div>` : ""}
       ${run.hard_blocks.length ? `<div class="muted">blocks: ${escapeHtml(run.hard_blocks.join(", "))}</div>` : ""}
       ${run.risks.length ? `<div class="muted">risks: ${escapeHtml(run.risks.join(", "))}</div>` : ""}
