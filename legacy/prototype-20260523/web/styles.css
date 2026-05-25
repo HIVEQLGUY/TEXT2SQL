@@ -144,6 +144,19 @@ button:disabled {
   cursor: wait;
 }
 
+.quick-prompts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.quick-prompts button {
+  min-height: 30px;
+  border-color: var(--line);
+  background: #fff;
+  color: var(--text);
+}
+
 .connection-state {
   display: flex;
   align-items: center;
@@ -221,6 +234,7 @@ dd {
 .summary-line,
 .metadata-list,
 .field,
+.quick-prompts,
 .actions,
 .agent-output,
 .kpi-grid,

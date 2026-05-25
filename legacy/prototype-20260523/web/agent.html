@@ -41,10 +41,18 @@
         </div>
         <label class="field">
           <span>分析需求</span>
-          <textarea id="questionInput" rows="4" placeholder="例如：按店铺统计销售额，并分析头部店铺贡献"></textarea>
+          <textarea id="questionInput" rows="4" placeholder="直接输入业务问题，例如：按店铺统计销售额"></textarea>
         </label>
+        <div class="quick-prompts">
+          <button type="button" data-prompt="按店铺统计销售额">店铺销售排行</button>
+          <button type="button" data-prompt="最近30天销售趋势">最近30天趋势</button>
+          <button type="button" data-prompt="按商品统计销售额 Top 10">商品销售 Top 10</button>
+          <button type="button" data-prompt="分析店铺退款情况">退款分析</button>
+          <button type="button" data-prompt="分析推广花费和ROI">推广 ROI</button>
+          <button type="button" data-prompt="整体经营概览">经营概览</button>
+        </div>
         <label class="field">
-          <span>SQL（当前阶段可选；复杂 SQL 可先让 Codex 生成后粘贴）</span>
+          <span>SQL 预览（可选；留空时系统会先尝试自动生成）</span>
           <textarea id="sqlInput" rows="7" placeholder="SELECT shop_name, SUM(actual_sales_amt) AS sales_amt FROM dws_tmall_sales_link_summary GROUP BY shop_name ORDER BY sales_amt DESC"></textarea>
         </label>
         <div class="actions">

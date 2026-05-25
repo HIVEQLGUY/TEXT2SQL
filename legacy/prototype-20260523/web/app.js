@@ -305,7 +305,10 @@ async function sendAgent() {
 
     if (payload.status === "executed") {
       const riskText = payload.risks?.length ? `\n风险提示：${payload.risks.join(", ")}` : "";
-      output(`执行成功。${riskText}\nSQL: ${payload.sql}`, "ok");
+      const planText = payload.generated_plan ? `\n识别为：${payload.generated_plan.title}（置信度 ${payload.generated_plan.confidence}）` : "";
+      const assumptionText = payload.generated_plan?.assumptions?.length ? `\n口径假设：${payload.generated_plan.assumptions.join("；")}` : "";
+      output(`执行成功。${planText}${assumptionText}${riskText}\nSQL: ${payload.sql}`, "ok");
+      if (!$("sqlInput").value.trim()) $("sqlInput").value = payload.sql;
       renderReport(payload);
     } else {
       output(`${payload.message}\n\n${JSON.stringify(payload.suggestions || [], null, 2)}`, "ok");
@@ -389,6 +392,12 @@ window.addEventListener("DOMContentLoaded", async () => {
     $("sendBtn").addEventListener("click", sendAgent);
     $("reviewBtn").addEventListener("click", reviewSql);
     $("metadataSearch").addEventListener("input", renderMetadata);
+    document.querySelectorAll("[data-prompt]").forEach((button) => {
+      button.addEventListener("click", () => {
+        $("questionInput").value = button.dataset.prompt;
+        $("sqlInput").value = "";
+      });
+    });
     await loadMetadata();
     await loadRuns();
   }
