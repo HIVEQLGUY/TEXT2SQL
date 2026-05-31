@@ -74,7 +74,19 @@ SSH 私钥: local/ssh/text2sql_codex_ed25519_v2
 RDS：
 
 ```text
-类型: 阿里云 RDS MySQL
+元数据库: 旧阿里云 RDS MySQL
+host: rm-bp1mx4778wjne596xko.mysql.rds.aliyuncs.com
+port: 3306
+database: youmei_ai
+账号: baoyan
+密码: 见 local/SECRETS-实际账号.md
+状态: 从云服务器 mysql 客户端已连接成功
+```
+
+问数执行数据库：
+
+```text
+类型: 新阿里云 RDS MySQL，高读写 DB
 host: rm-2zea6b6dcxxq17753zo.mysql.rds.aliyuncs.com
 port: 3306
 database: chatsql_ai
@@ -82,6 +94,12 @@ database: chatsql_ai
 密码: 见 local/SECRETS-实际账号.md
 状态: 从本地 FastAPI/PyMySQL 和云服务器 mysql 客户端均已连接成功
 ```
+
+账号策略：
+
+- 当前只是测试流程，新 RDS 暂不强制单独只读账号。
+- 后续进入健壮性和安全收敛阶段，再重新配置只读问数执行账号。
+- M2 元数据库表结构应建在旧 RDS `youmei_ai` 中。
 
 MySQL 认证注意事项：
 
@@ -119,7 +137,8 @@ DB_MYSQL_GET_SERVER_PUBLIC_KEY=true
 python -m compileall app 通过
 GET /api/ready 返回 ok=true
 GET /api/health/db 返回 ok=true
-metadata_db 和 warehouse_db 均连接 RDS 成功
+metadata_db 连接旧 RDS youmei_ai 成功，用户 baoyan@%
+warehouse_db 连接新 RDS chatsql_ai 成功，用户 chat_ai_duckdb_2@%
 ```
 
 本地 API：
@@ -140,6 +159,14 @@ http://127.0.0.1:8000
 .runtime/uvicorn.pid
 .runtime/uvicorn.err.log
 .runtime/uvicorn.out.log
+```
+
+当前本地 `.env` 状态：
+
+```text
+META_DB_* -> 旧 RDS youmei_ai
+DW_DB_* -> 新 RDS chatsql_ai
+DB_* -> 新 RDS chatsql_ai，兼容旧原型脚本
 ```
 
 ## 5. 重要约定
@@ -180,9 +207,7 @@ http://127.0.0.1:8000
 
 建议顺序：
 
-1. 确认 `chat_ai_duckdb_2` 的权限边界。
-   - 如果它是问数执行账号，应保持只读。
-   - 如果需要写元数据库，建议另建 `meta_app` 写账号。
+1. 复测本地 `.env` 中 `META_DB_*` 指向旧 RDS、`DW_DB_*` 指向新 RDS 后的 `GET /api/health/db`。
 2. 设计第一版元数据库表结构：
    - `meta_table`
    - `meta_field`
@@ -192,7 +217,7 @@ http://127.0.0.1:8000
    - `meta_sync_change_log`
    - `query_run`
    - `query_step`
-3. 建立初始化脚本。
+3. 在旧 RDS `youmei_ai` 中建立初始化脚本。
 4. 建立 Repository 层。
 5. 增加 `GET /api/metadata/tables` 和 `GET /api/metadata/fields` 的空实现或数据库实现。
 6. 后续再进入 M3：钉钉 AI 表格同步。

@@ -34,18 +34,18 @@ local/SECRETS-实际账号.md
 
 ## 2. 元数据库
 
-状态：服务器端连接成功，新账号 `chat_ai_duckdb_2` 已通过 `SELECT 1` 测试。
+状态：改用旧 RDS 作为元数据库；服务器端使用 `baoyan` 已通过 `SELECT 1` 测试。
 
 | 项目 | 内容 |
 | --- | --- |
 | 数据库类型 | 阿里云 RDS MySQL |
-| host | `rm-2zea6b6dcxxq17753zo.mysql.rds.aliyuncs.com` |
+| host | `rm-bp1mx4778wjne596xko.mysql.rds.aliyuncs.com` |
 | port | `3306` |
-| database / schema | `chatsql_ai` |
+| database / schema | `youmei_ai` |
 | 网络访问方式 | 已从云服务器端测试 |
-| 管理员账号 | 未提供 |
-| 应用账号 | `chat_ai_duckdb_2`，密码见本地密钥文件 |
-| 只读账号 | `chat_ai_duckdb_2`，密码见本地密钥文件 |
+| 管理员账号 | `baoyan`，密码见本地密钥文件 |
+| 应用账号 | 待创建，建议 `meta_app` |
+| 只读账号 | 待创建，建议 `meta_readonly` |
 | 密钥保存位置 | `local/SECRETS-实际账号.md` |
 
 账号原则：
@@ -54,20 +54,30 @@ local/SECRETS-实际账号.md
 - 应用账号用于读写项目元数据。
 - 问数执行 SQL 默认使用只读账号。
 
-## 3. 抖音主题域数据源
+## 3. 问数执行数据库
 
-状态：待确认。
+状态：新 RDS 作为高读写问数执行数据库，当前用于测试流程，不强制只读账号。
 
 | 项目 | 内容 |
 | --- | --- |
-| 数据库类型 | 待填写 |
-| host | 待填写 |
-| port | 待填写 |
-| database / schema | 待填写 |
+| 数据库类型 | 阿里云 RDS MySQL |
+| host | `rm-2zea6b6dcxxq17753zo.mysql.rds.aliyuncs.com` |
+| port | `3306` |
+| database / schema | `chatsql_ai` |
 | 第一批表清单 | 待填写 |
-| 只读账号 | 账号名可填，密码见本地密钥文件 |
-| 是否需要白名单 | 待确认 |
+| 当前测试账号 | `chat_ai_duckdb_2`，密码见本地密钥文件 |
+| 是否需要白名单 | 已加入服务器公网 IP |
 | 分区字段 / 大表限制 | 待确认 |
+
+说明：
+
+- 用户说明该新 RDS 是高读写 DB，适合作为问数执行数据库。
+- 当前阶段为了测试流程，暂不强制单独创建只读账号。
+- 后续进入健壮性和安全收敛阶段时，再配置只读执行账号。
+
+## 3.1 抖音主题域数据源
+
+状态：尚未接入元数据表，等元数据库连接稳定后再导入/接入。
 
 ## 4. 钉钉 AI 表格
 
@@ -119,7 +129,8 @@ local/SECRETS-实际账号.md
 当前状态：
 
 - `.env` 已更新为新 RDS，并同时包含 `META_DB_*`、`DW_DB_*` 和兼容旧原型的 `DB_*` 配置。
-- `.env.reader` 已更新为新 RDS。
+- `.env` 需要调整为：`META_DB_*` 指向旧 RDS 元数据库，`DW_DB_*` 指向新 RDS 问数执行数据库。
+- `.env.reader` 已更新为新 RDS 问数执行数据库。
 - `.env.admin` 已删除，避免旧 RDS 管理账号误导后续会话。
 - 如需元数据库写账号或管理员账号，应重新创建并记录到 `local/SECRETS-实际账号.md`。
 - `.venv/` 已创建并被 `.gitignore` 忽略。
@@ -178,3 +189,16 @@ local/ssh/text2sql_codex_ed25519_v2
 - MySQL 8 `caching_sha2_password` 连接需使用客户端参数 `--get-server-public-key`，当前 RDS 不支持 `--ssl-mode=REQUIRED`。
 - 本地 `.env` 已设置 `META_DB_MYSQL_GET_SERVER_PUBLIC_KEY=true` 和 `DW_DB_MYSQL_GET_SERVER_PUBLIC_KEY=true`。
 - 本地 FastAPI `GET /api/health/db` 已通过 PyMySQL 直连 RDS 验证。
+
+## 10. 元数据库调整记录
+
+最近调整日期：2026-06-01
+
+- 用户决定旧 RDS 用作元数据库。
+- 旧 RDS：`rm-bp1mx4778wjne596xko.mysql.rds.aliyuncs.com:3306/youmei_ai`。
+- 旧 RDS 账号：`baoyan`，真实密码见 `local/SECRETS-实际账号.md`。
+- Codex 从云服务器端使用旧 RDS 执行 `SELECT 1` 成功。
+- 新 RDS `chatsql_ai` 继续作为问数执行数据库。
+- 本地 FastAPI `GET /api/health/db` 已验证双库配置：
+  - `metadata_db` -> `youmei_ai` / `baoyan@%`
+  - `warehouse_db` -> `chatsql_ai` / `chat_ai_duckdb_2@%`

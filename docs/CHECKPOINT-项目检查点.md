@@ -191,6 +191,76 @@
 - `app/core/config.py`
 - `.runtime/uvicorn.pid`
 
+## 2026-06-01 元数据库改用旧 RDS
+
+类型：资源 / 决策
+
+摘要：
+
+- 用户说明旧 RDS 可作为元数据库。
+- 新 RDS `chatsql_ai` 是高读写 DB，更适合作为问数执行数据库。
+- 当前测试流程阶段暂不强制只读账号；后续健壮性和安全收敛阶段再重新配置账号。
+- 旧 RDS 连接信息来自历史配置：`rm-bp1mx4778wjne596xko.mysql.rds.aliyuncs.com:3306/youmei_ai`，用户 `baoyan`。
+- Codex 使用当前已知密码从云服务器端连接旧 RDS 并执行 `SELECT 1` 成功。
+
+影响：
+
+- `META_DB_*` 应指向旧 RDS。
+- `DW_DB_*` 应指向新 RDS。
+- M2 元数据库表结构应建在旧 RDS `youmei_ai` 中。
+- 新 RDS `chatsql_ai` 保持为问数执行数据库。
+
+后续动作：
+
+- 更新本地 `local/SECRETS-实际账号.md` 和 `.env`。
+- 复测本地 FastAPI `GET /api/health/db` 是否两组 DB 都通过。
+- 进入 M2 元数据库表结构设计和初始化。
+
+关联文件：
+
+- `docs/RESOURCE-资源登记.md`
+- `local/SECRETS-实际账号.md`
+- `.env`
+
+## 2026-06-01 本地 API 双库配置验证通过
+
+类型：资源 / 测试
+
+摘要：
+
+- 本地 `local/SECRETS-实际账号.md` 已更新：
+  - 元数据库：旧 RDS `youmei_ai`，用户 `baoyan`。
+  - 问数执行数据库：新 RDS `chatsql_ai`，用户 `chat_ai_duckdb_2`。
+- 本地 `.env` 已更新：
+  - `META_DB_*` 指向旧 RDS。
+  - `DW_DB_*` 指向新 RDS。
+  - 兼容旧原型的 `DB_*` 指向新 RDS。
+- 本地 `.env.reader` 指向新 RDS。
+- 已重启 Uvicorn。
+- `GET /api/health/db` 验证通过：
+  - `metadata_db.database_name = youmei_ai`
+  - `metadata_db.current_user = baoyan@%`
+  - `warehouse_db.database_name = chatsql_ai`
+  - `warehouse_db.current_user = chat_ai_duckdb_2@%`
+
+影响：
+
+- 本地 API 已按“旧 RDS 元数据库 + 新 RDS 问数执行库”运行。
+- 下一步可以在旧 RDS `youmei_ai` 中推进 M2 元数据库表结构。
+
+后续动作：
+
+- 设计 M2 表结构。
+- 建初始化脚本和 Repository。
+- 当前测试阶段新 RDS 不强制只读账号；后续安全收敛再配置。
+
+关联文件：
+
+- `docs/NEXT-AI-切换API接续包.md`
+- `docs/RESOURCE-资源登记.md`
+- `local/SECRETS-实际账号.md`
+- `.env`
+
 ## 2026-06-01 RDS 新账号
 
 类型：资源

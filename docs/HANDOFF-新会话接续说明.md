@@ -118,17 +118,19 @@ local/SECRETS-实际账号.md
 - SSH 用户：`root`
 - SSH 登录方式：Codex 本地生成 v2 公钥，用户已配置到阿里云实例，测试成功。
 - SSH 私钥路径：`local/ssh/text2sql_codex_ed25519_v2`
-- RDS：阿里云 RDS MySQL，服务器端使用新账号 `chat_ai_duckdb_2` 已连接成功。
+- 元数据库：旧阿里云 RDS MySQL，`youmei_ai`，服务器端使用 `baoyan` 已连接成功。
+- 问数执行数据库：新阿里云 RDS MySQL，`chatsql_ai`，服务器端和本地 API 均已连接成功。
 - 真实密码记录在本地 `local/SECRETS-实际账号.md`，不要提交 Git。
-- 本地 `.env` 和 `.env.reader` 已更新为新 RDS；旧 `.env.admin` 已删除。
+- 本地 `.env` 应保持 `META_DB_*` 指向旧 RDS，`DW_DB_*` 指向新 RDS；`.env.reader` 指向新 RDS。
 - M1 工程骨架已启动并通过本地 API/RDS 健康检查，详见 `docs/CHECKPOINT-项目检查点.md`。
 - 本地 API 地址：`http://127.0.0.1:8000`。
+- `GET /api/health/db` 已验证：`metadata_db=youmei_ai/baoyan@%`，`warehouse_db=chatsql_ai/chat_ai_duckdb_2@%`。
 
 下一步动作：
 
-1. 确认 `chat_ai_duckdb_2` 的权限边界：只读账号还是可写元数据库账号。
-2. 如需元数据写入，建议另建 `meta_app` 账号；问数执行继续使用只读账号。
-3. 进入 M2：设计元数据库表结构和 Repository。
+1. 复测本地 `.env` 调整后 `GET /api/health/db` 是否元数据库和问数执行数据库都通过。
+2. 进入 M2：在旧 RDS `youmei_ai` 设计元数据库表结构和 Repository。
+3. 当前测试阶段新 RDS 暂不强制只读账号，后续健壮性阶段再收敛权限。
 
 连通性确认后，从 `docs/PLAN-第一阶段落地方案.md` 的 M1 开始：
 
