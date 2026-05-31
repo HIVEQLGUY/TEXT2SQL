@@ -1,0 +1,23 @@
+[project]
+name = "text2sql"
+version = "0.1.0"
+description = "Business Text2SQL service foundation"
+requires-python = ">=3.12,<3.15"
+dependencies = [
+  "fastapi>=0.115.0",
+  "uvicorn[standard]>=0.30.0",
+  "pymysql>=1.1.1",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+exclude = ["legacy*", "web*", "local*", "config*", "docs*"]

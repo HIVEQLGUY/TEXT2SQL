@@ -4,14 +4,31 @@
 
 新会话接手后，请优先阅读以下文件：
 
-1. `docs/CHAT-沟通记录摘要.md`
-2. `docs/PRD-智能问数项目概览.md`
-3. `docs/ARCH-智能问数系统架构草案.md`
-4. `docs/READING-教程阅读路线.md`
-5. `docs/PLAN-第一阶段落地方案.md`
-6. `docs/CHECKLIST-资源与权限确认.md`
+1. `docs/NEXT-AI-切换API接续包.md`
+2. `docs/CHECKPOINT-项目检查点.md`
+3. `docs/RESOURCE-资源登记.md`
+4. `docs/MEMORY-重要信息记录规范.md`
+5. `docs/CHAT-沟通记录摘要.md`
+6. `docs/PRD-智能问数项目概览.md`
+7. `docs/ARCH-智能问数系统架构草案.md`
+8. `docs/READING-教程阅读路线.md`
+9. `docs/PLAN-第一阶段落地方案.md`
+10. `docs/CHECKLIST-资源与权限确认.md`
 
 这些文件包含本项目目前的上下文、教程阅读结论、业务差异、架构方向、第一阶段计划和资源需求。
+
+`docs/NEXT-AI-切换API接续包.md` 是唯一固定接续包。后续开发只覆盖更新该文件，不创建多份会话归档，避免多头信息源。
+
+如需登录服务器、连接数据库或调用外部服务，再读取本地文件：
+
+```text
+local/SECRETS-实际账号.md
+.env
+.env.admin
+.env.reader
+```
+
+`local/` 和 `.env*` 不提交到 Git，用于保存真实账号密码。Git 中只保存资源索引和凭证位置。
 
 ## 2. 当前项目定位
 
@@ -85,6 +102,7 @@
 当前重点目录：
 
 - `docs/`：项目规划、架构、阅读路线、沟通摘要和资源清单。
+- `local/`：本机真实账号密码和敏感信息，已被 `.gitignore` 忽略，不提交。
 - `legacy/prototype-20260523/`：旧测试原型归档。
 - `config/`：已有配置模板。
 
@@ -92,20 +110,27 @@
 
 ## 7. 下一步建议
 
-下一步不要直接写功能代码，应先完成资源确认。
+下一步不要直接写功能代码，应先完成新服务器和新 RDS 的连通性确认。
 
-请让用户按 `docs/CHECKLIST-资源与权限确认.md` 提供或确认：
+当前已提供的新资源见 `docs/RESOURCE-资源登记.md`：
 
-- 云服务器 SSH/root 权限。
-- 元数据库类型和管理员账号。
-- 抖音主题域数据源连接信息。
-- 抖音主题域第一批表清单。
-- 钉钉开放平台应用凭证和 AI 表格标识。
-- 大模型 API Key、base URL 和模型选择。
-- 是否部署 Qdrant、Elasticsearch/OpenSearch、Embedding 服务。
-- 是否需要远程部署、域名和 HTTPS。
+- 云服务器公网 IP：`114.55.148.140`
+- SSH 用户：`root`
+- SSH 登录方式：Codex 本地生成 v2 公钥，用户已配置到阿里云实例，测试成功。
+- SSH 私钥路径：`local/ssh/text2sql_codex_ed25519_v2`
+- RDS：阿里云 RDS MySQL，服务器端使用新账号 `chat_ai_duckdb_2` 已连接成功。
+- 真实密码记录在本地 `local/SECRETS-实际账号.md`，不要提交 Git。
+- 本地 `.env` 和 `.env.reader` 已更新为新 RDS；旧 `.env.admin` 已删除。
+- M1 工程骨架已启动并通过本地 API/RDS 健康检查，详见 `docs/CHECKPOINT-项目检查点.md`。
+- 本地 API 地址：`http://127.0.0.1:8000`。
 
-资源确认后，从 `docs/PLAN-第一阶段落地方案.md` 的 M1 开始：
+下一步动作：
+
+1. 确认 `chat_ai_duckdb_2` 的权限边界：只读账号还是可写元数据库账号。
+2. 如需元数据写入，建议另建 `meta_app` 账号；问数执行继续使用只读账号。
+3. 进入 M2：设计元数据库表结构和 Repository。
+
+连通性确认后，从 `docs/PLAN-第一阶段落地方案.md` 的 M1 开始：
 
 1. 建立 FastAPI 后端结构。
 2. 建立配置加载和环境变量模板。
@@ -115,9 +140,11 @@
 ## 8. 注意事项
 
 - 不要提交 `.env`、`.env.admin`、`.env.reader` 或任何真实密钥。
+- 真实账号密码固定记录在 `local/SECRETS-实际账号.md` 或 `.env.*`，不要只留在聊天记录里。
+- Git 中的资源状态固定更新 `docs/RESOURCE-资源登记.md`，阶段结论固定更新 `docs/CHECKPOINT-项目检查点.md`。
+- 后续开发途中确认的重要信息默认更新固定记录文件，不要为每次对话新建零散记录文件。
 - 超级管理员账号只能用于初始化、建库、授权、排障和迁移。
 - 问数执行 SQL 必须使用只读账号。
 - 不要把教程里的电商教学表当作实际业务模型。
 - 不要把旧原型恢复到根目录继续开发。
 - 用户希望 Codex 从系统工程角度主动提建议，而不是只按教程逐步实现。
-

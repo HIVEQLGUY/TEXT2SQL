@@ -4,5 +4,8 @@
 !*.example.env
 .codex_deps/
 .runtime/
+local/
+.venv/
+*.egg-info/
 __pycache__/
 *.pyc
