@@ -134,7 +134,8 @@ local/SECRETS-实际账号.md
 4. 当前测试阶段新 RDS 暂不强制只读账号，后续健壮性阶段再收敛权限。
 5. M2 第一优先级已完成：用户调整表结构后，已确认 `metric_dictionary.ssscb = table_dictionary.bbs` 是真实主关联键。
 6. M2 初版只读 API 已新增并验证：`GET /api/metadata/summary`、`GET /api/metadata/tables`、`GET /api/metadata/fields`、`GET /api/metadata/tables/{table_id}/fields`。
-7. 下一步继续做元数据召回服务和问数上下文构建，并确认元数据库表名与问数执行库物理表名的映射策略。
+7. M2 元数据召回服务初版已新增并验证：`GET /api/metadata/retrieve?question=...`。
+8. 下一步继续做问数上下文构建，并在用户更新元数据表名后确认元数据库表名与问数执行库物理表名的映射策略。
 
 连通性确认后，从 `docs/PLAN-第一阶段落地方案.md` 的 M1 开始：
 

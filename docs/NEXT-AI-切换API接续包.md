@@ -316,3 +316,52 @@ GET /api/metadata/fields?table_id=hKrBQ2zwwG&limit=3 能返回该表字段
 1. 在 M2 内继续做元数据召回服务，输入自然语言问题，输出候选表、候选字段、业务定义、计算公式和注意事项。
 2. 确认元数据库表名与问数执行库物理表名之间的映射策略。当前元数据中 `DWS_抖音_SPU销售明细` 的英文名是 `ud_3418004512502203_dyxsjyzhb`，问数执行库中测试物理表是 `dws_douyin_spu_sales_detail`，两者不完全一致。
 3. 召回上下文稳定后，再进入 SQL 生成、SQL 安全校验和执行闭环。
+
+## 9. 2026-06-01 最新进展：M2 元数据召回服务初版
+
+已新增召回服务：
+
+```text
+app/services/metadata_retrieval_service.py
+```
+
+已新增接口：
+
+```text
+GET /api/metadata/retrieve?question=&table_limit=&field_limit=&fields_per_table=
+```
+
+当前实现：
+
+- 从自然语言问题中抽取英文/数字 token 和中文 ngram。
+- 使用元数据库 LIKE 检索表字典和字段/指标字典。
+- 在服务层做轻量打分，输出候选表、候选字段和每张表的字段上下文。
+- 明确表名词权重较高，例如问题中出现 `SPU` 时，`DWS_抖音_SPU销售明细` 会排在第一候选。
+- 已优化为批量查询，避免按词或按表循环创建 RDS 连接。
+- metadata API 已把 PyMySQL 异常包装成 HTTP 503，避免 RDS 外网抖动时裸抛内部堆栈。
+
+验证样例：
+
+```text
+GET /api/metadata/retrieve?question=SPU 销售金额 店铺&table_limit=3&field_limit=8&fields_per_table=5
+```
+
+返回第一候选表：
+
+```text
+table_id: hKrBQ2zwwG
+table_name: ud_3418004512502203_dyxsjyzhb
+table_display_name: DWS_抖音_SPU销售明细
+```
+
+注意：
+
+- 本地 PowerShell 输出中文 JSON 时可能显示乱码，但 API 实际返回为 UTF-8。
+- RDS 外网连接偶发超时，健康检查中 metadata/warehouse DB 连接耗时约 3-4 秒，后续若变严重应考虑连接池、服务端部署或内网连接。
+- 用户说明元数据表名明天会更新；当前“元数据表名与执行库物理表名不一致”暂不阻塞 M2 召回。
+
+下一步建议：
+
+1. 增加上下文构建服务，把候选表/字段整理成 LLM 生成 SQL 前可直接消费的结构。
+2. 用户更新元数据表名后，复测物理表映射。
+3. 在上下文稳定后进入 SQL 生成节点和 SQL 安全执行闭环。

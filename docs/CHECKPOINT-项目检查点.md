@@ -111,6 +111,64 @@
 - `app/api/main.py`
 - `docs/NEXT-AI-切换API接续包.md`
 
+## 2026-06-01 M2 元数据召回服务初版
+
+类型：开发 / 测试
+
+摘要：
+
+- 新增 `app/services/metadata_retrieval_service.py`，提供从自然语言问题到候选表、候选字段和上下文片段的轻量召回服务。
+- 新增接口 `GET /api/metadata/retrieve`。
+- 当前实现先使用元数据库 LIKE 检索 + 服务层打分，不引入 ES/OpenSearch/向量库；后续可以替换服务内部实现，保持 API 形状稳定。
+- 召回服务会抽取问题中的英文/数字 token 和中文 ngram，分别检索表字典、字段/指标字典。
+- 已优化为批量检索：一次查候选表、一次查候选字段、一次批量补候选表字段，避免按关键词或按表循环建立 RDS 连接。
+- 明确表名词权重更高，例如问题中出现 `SPU` 时，`DWS_抖音_SPU销售明细` 会优先排在相关字段命中表之前。
+- metadata API 已对 PyMySQL 异常做 503 包装，避免 RDS 外网抖动时裸抛内部堆栈。
+
+接口：
+
+```text
+GET /api/metadata/retrieve?question=&table_limit=&field_limit=&fields_per_table=
+```
+
+返回结构：
+
+```text
+question
+terms
+candidate_tables[]:
+  table
+  score
+  fields[]
+candidate_fields[]
+```
+
+验证：
+
+- `python -m compileall app` 通过。
+- 本地 `GET /api/health/db` 通过，但 RDS 外网连接耗时约 3-4 秒，偶发连接超时需后续关注。
+- `GET /api/metadata/retrieve?question=SPU 销售金额 店铺&table_limit=3&field_limit=8&fields_per_table=5` 返回：
+  - 第一候选表：`hKrBQ2zwwG / ud_3418004512502203_dyxsjyzhb / DWS_抖音_SPU销售明细`
+  - 后续候选包括订单销售明细、小件销售经营综合表等相关表。
+
+影响：
+
+- M2 已从“元数据读取 API”推进到“可用于 SQL 生成前置上下文的召回雏形”。
+- 后续可以在此基础上继续做上下文压缩、候选字段去重、物理表名映射和 SQL 生成节点。
+
+后续动作：
+
+- 等用户明天更新元数据表名后，复测元数据表名与问数执行库物理表名的一致性。
+- 增加上下文构建服务，将候选表/字段整理成 LLM prompt 可直接消费的短文本或结构化 schema。
+- 后续接 ES/OpenSearch/向量库时，优先替换 `MetadataRetrievalService` 内部召回实现。
+
+关联文件：
+
+- `app/services/metadata_retrieval_service.py`
+- `app/repositories/metadata_repository.py`
+- `app/api/routers/metadata.py`
+- `docs/NEXT-AI-切换API接续包.md`
+
 ## 2026-06-01 RDS 新账号连接成功
 
 类型：测试
