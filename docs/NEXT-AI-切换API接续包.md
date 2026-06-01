@@ -207,19 +207,42 @@ DB_* -> 新 RDS chatsql_ai，兼容旧原型脚本
 
 下一步进入 M2：现有元数据库结构发现、字段映射与 Repository。
 
+用户已说明：
+
+- 数仓元数据已经由用户自己的工具写入元数据库。
+- 当前元数据核心表共两张：
+  - `table_dictionary`：数仓字典 / 表字典。
+  - `metric_dictionary`：指标字典 / 字段指标字典。
+- 用户理解这两张表足够支撑召回，后续如不够再调整表结构。
+- 问数执行数据库中已新增一张测试表，表结构已存在，数据可能不完整。
+
+Codex 已初步读取到：
+
+- 元数据库 `youmei_ai`：
+  - `table_dictionary`：41 行。
+  - `metric_dictionary`：1394 行。
+  - 另有一张 `dws_tmall_sales_link_summary`，看起来是旧/示例数据表，不属于当前两张核心字典。
+- 问数执行库 `chatsql_ai`：
+  - `dws_douyin_spu_sales_detail`：表结构已存在，当前约 87579 行。
+
+当前重要疑点：
+
+- `table_dictionary.bywm` 是表英文名。
+- `table_dictionary.bzwm` 是表中文名。
+- `metric_dictionary.zdywmc` 是字段英文名称。
+- `metric_dictionary.zdzwmc` 是字段中文名称。
+- `metric_dictionary.ssscb` 字段注释为“所属数仓表”，但当前值看起来像内部标识，不直接等于 `table_dictionary.bywm`。
+- 尝试 `metric_dictionary.ssscb = table_dictionary.bywm`，匹配数为 0。
+- 尝试 `FIND_IN_SET(metric_dictionary.ssscb, table_dictionary.bhzd)`，匹配数也为 0。
+- 因此 M2 第一件事不是写复杂代码，而是确认两张字典的真实关联键：`ssscb` 到底关联哪一列，或是否需要额外映射。
+
 建议顺序：
 
 1. 复测本地 `.env` 中 `META_DB_*` 指向旧 RDS、`DW_DB_*` 指向新 RDS 后的 `GET /api/health/db`。
 2. 读取旧 RDS `youmei_ai` 中现有元数据表清单和字段结构。
-3. 判断已有工具写入的表是否已经覆盖：
-   - `meta_table`
-   - `meta_field`
-   - `meta_field_dependency`
-   - `meta_field_value`
-   - `query_run`
-   - `query_step`
-4. 若已有表名/字段名和项目建议模型不同，优先做适配层，不急着改上游表。
-5. 建立 Repository 层，先支持读取表元数据、字段元数据、字段依赖。
+3. 确认 `table_dictionary` 和 `metric_dictionary` 的真实关联键。
+4. 若关联键不在现有字段中，先做文本召回适配，或请用户补充一个稳定关联字段。
+5. 建立 Repository 层，先支持读取表字典、指标字典、按关键词检索。
 6. 增加 `GET /api/metadata/tables` 和 `GET /api/metadata/fields`。
 7. 原 M3 改为“元数据索引刷新”：基于元数据库写入 ES/OpenSearch/向量库，而不是接钉钉 API。
 

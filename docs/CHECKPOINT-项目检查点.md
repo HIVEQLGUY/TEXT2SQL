@@ -291,6 +291,59 @@
 - `docs/PLAN-第一阶段落地方案.md`
 - `docs/RESOURCE-资源登记.md`
 
+## 2026-06-01 元数据字典表初步探查
+
+类型：资源 / 分析
+
+摘要：
+
+- 用户确认数仓元数据已经由自己的工具写入元数据库。
+- 当前核心元数据表为两张：
+  - `table_dictionary`：数仓字典 / 表字典。
+  - `metric_dictionary`：指标字典 / 字段指标字典。
+- 元数据库 `youmei_ai` 当前表：
+  - `table_dictionary`：41 行。
+  - `metric_dictionary`：1394 行。
+  - `dws_tmall_sales_link_summary`：约 549633 行，看起来像旧/示例数据表，不是当前核心元数据字典。
+- 问数执行库 `chatsql_ai` 当前测试表：
+  - `dws_douyin_spu_sales_detail`：约 87579 行，表结构已存在。
+
+字段理解：
+
+- `table_dictionary.bywm`：表英文名。
+- `table_dictionary.bzwm`：表中文名。
+- `table_dictionary.bhzd`：包含字段，当前表现为逗号分隔内部标识。
+- `metric_dictionary.zdywmc`：字段英文名称。
+- `metric_dictionary.zdzwmc`：字段中文名称。
+- `metric_dictionary.ssscb`：注释为“所属数仓表”，但当前值表现为内部标识。
+- `metric_dictionary.jsgs`：计算公式。
+- `metric_dictionary.ywdy`：业务定义。
+- `metric_dictionary.syzysx`：使用注意事项。
+
+关键发现：
+
+- 尝试 `metric_dictionary.ssscb = table_dictionary.bywm`，匹配数为 0。
+- 尝试 `FIND_IN_SET(metric_dictionary.ssscb, table_dictionary.bhzd)`，匹配数为 0。
+- 因此两张字典可以作为召回基础，但真实关联键尚未确认。
+
+影响：
+
+- M2 应先做“现有表结构适配和关联键确认”，而不是从零设计新元数据表。
+- 在关联键确认前，可以先做表字典和指标字典的独立关键词召回。
+- SQL 生成需要可靠地从指标/字段定位到实际执行表，因此关联键是 M2 的第一优先级。
+
+后续动作：
+
+- 请用户确认 `metric_dictionary.ssscb` 应该关联 `table_dictionary` 的哪一列，或是否存在未导入的 ID 映射字段。
+- 如果现有结构无法稳定关联，建议在上游工具中补充稳定字段，例如 `table_name` 或 `table_id`。
+- 建立 Repository 时先保留适配层，不直接绑定死字段名。
+
+关联文件：
+
+- `docs/NEXT-AI-切换API接续包.md`
+- `docs/RESOURCE-资源登记.md`
+- `app/clients/mysql.py`
+
 ## 2026-06-01 RDS 新账号
 
 类型：资源
