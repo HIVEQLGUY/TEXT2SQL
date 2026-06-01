@@ -52,8 +52,8 @@
 - `meta_field`：字段元数据，包含普通字段、度量字段、时间字段、技术字段和带计算公式的业务字段。
 - `meta_field_dependency`：字段直接依赖和血缘关系。
 - `meta_field_value`：字段示例值、枚举值或高频候选值的结构化缓存。
-- `meta_sync_job`：钉钉同步任务记录。
-- `meta_sync_change_log`：元数据变更记录。
+- `metadata_source` / `meta_index_job`：外部元数据来源、版本和索引刷新记录。
+- `meta_sync_change_log`：元数据变更记录，可来自用户已有同步工具或本项目索引刷新流程。
 - `query_run`：问数运行记录。
 - `query_step`：问数流程节点记录。
 

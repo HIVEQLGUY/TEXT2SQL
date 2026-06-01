@@ -29,7 +29,8 @@ codex/bootstrap-foundation
 第一阶段优先跑通抖音主题域：
 
 - 用户自然语言提问。
-- 系统基于元数据、字段含义、计算口径、字段依赖和真实字段值召回上下文。
+- 数仓元数据由用户已有工具从钉钉维护侧定期写入元数据库，本项目不再重复实现钉钉同步链路。
+- 系统基于元数据库中的字段含义、计算口径、字段依赖和真实字段值召回上下文。
 - 大模型生成 SQL。
 - SQL 经过安全审查、语法/执行计划校验和风险校验。
 - 使用只读账号执行 SQL。
@@ -188,46 +189,46 @@ DB_* -> 新 RDS chatsql_ai，兼容旧原型脚本
 - 后端：FastAPI。
 - 流式协议：SSE。
 - 工作流：LangGraph 或至少保持同等节点化结构。
-- 元数据入口：钉钉 AI 表格。
+- 元数据入口：钉钉 AI 表格由用户已有工具负责维护和定期写入元数据库。
 - 运行时元数据：项目自己的元数据库。
 - 检索：字段语义检索 + 字段值检索 + 字段依赖/计算公式上下文。
 - 未来可接 Elasticsearch/OpenSearch 或 Qdrant/pgvector，第一阶段先保留可插拔接口。
 - SQL：生成后必须经过安全审查、语法校验、风险校验，再执行。
 - 日志：从第一阶段引入 `request_id`、`run_id`、`step_id`。
 
-关于 ES/OpenSearch：
+关于元数据同步和 ES/OpenSearch：
 
+- 钉钉到元数据库的定期写入已由用户自己的工具完成，本项目当前不实现 M3 钉钉同步。
 - 元数据未来可能写入 ES/OpenSearch，用于字段值检索、关键词检索或混合检索。
 - 这不阻塞当前 M1/M2。
-- 当前应先把关系型元数据库表结构、Repository 和同步边界建好。
+- 当前应先读取/适配已有元数据库表结构，建立 Repository 和索引刷新边界。
 
 ## 7. 下一步该做什么
 
-下一步进入 M2：元数据库表结构与 Repository。
+下一步进入 M2：现有元数据库结构发现、字段映射与 Repository。
 
 建议顺序：
 
 1. 复测本地 `.env` 中 `META_DB_*` 指向旧 RDS、`DW_DB_*` 指向新 RDS 后的 `GET /api/health/db`。
-2. 设计第一版元数据库表结构：
+2. 读取旧 RDS `youmei_ai` 中现有元数据表清单和字段结构。
+3. 判断已有工具写入的表是否已经覆盖：
    - `meta_table`
    - `meta_field`
    - `meta_field_dependency`
    - `meta_field_value`
-   - `meta_sync_job`
-   - `meta_sync_change_log`
    - `query_run`
    - `query_step`
-3. 在旧 RDS `youmei_ai` 中建立初始化脚本。
-4. 建立 Repository 层。
-5. 增加 `GET /api/metadata/tables` 和 `GET /api/metadata/fields` 的空实现或数据库实现。
-6. 后续再进入 M3：钉钉 AI 表格同步。
+4. 若已有表名/字段名和项目建议模型不同，优先做适配层，不急着改上游表。
+5. 建立 Repository 层，先支持读取表元数据、字段元数据、字段依赖。
+6. 增加 `GET /api/metadata/tables` 和 `GET /api/metadata/fields`。
+7. 原 M3 改为“元数据索引刷新”：基于元数据库写入 ES/OpenSearch/向量库，而不是接钉钉 API。
 
 建议不要现在直接做大模型 SQL 生成。当前优先级是：
 
 ```text
 资源与连接稳定
--> 元数据库结构
--> 元数据同步
+-> 现有元数据库结构适配
+-> 元数据读取 API
 -> 检索上下文
 -> 问数工作流
 -> SQL 生成与执行闭环

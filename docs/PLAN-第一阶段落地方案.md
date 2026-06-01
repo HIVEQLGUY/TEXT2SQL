@@ -7,7 +7,7 @@
 阶段完成标准：
 
 - 抖音主题域真实数据源可连接、可读取、可安全查询。
-- 钉钉 AI 表格中的表元数据和字段元数据可同步到项目元数据库。
+- 钉钉 AI 表格中的表元数据和字段元数据已由用户自己的工具定期写入项目元数据库，本项目负责读取和适配。
 - 元数据库可以支撑字段理解、计算公式、直接依赖、业务含义和使用注意事项。
 - 用户输入自然语言问题后，系统能完成召回、上下文构建、SQL 生成、SQL 校验、SQL 执行和结果返回。
 - 每次问数都有运行记录、节点耗时、生成 SQL、校验结果、执行结果和错误信息。
@@ -48,7 +48,7 @@
 
 钉钉 AI 表格
         |
-        | 定时同步
+        | 用户已有工具定期写入
         v
 元数据数据库
         |
@@ -82,7 +82,7 @@ app/
     routers/
       query.py
       metadata.py
-      sync.py
+      index.py
     schemas/
   core/
     config.py
@@ -98,7 +98,7 @@ app/
     meta_table.py
     meta_field.py
     meta_field_dependency.py
-    sync_job.py
+    metadata_source.py
     query_run.py
   entities/
     metadata.py
@@ -110,7 +110,7 @@ app/
     value_search_repository.py
     run_repository.py
   services/
-    dingding_sync_service.py
+    metadata_index_service.py
     metadata_index_service.py
     query_service.py
     sql_safety_service.py
@@ -120,7 +120,7 @@ app/
     graph.py
     nodes/
   scripts/
-    sync_dingding_metadata.py
+    inspect_meta_db.py
     init_meta_db.py
 config/
   app.example.yaml
@@ -220,30 +220,33 @@ web/
 - `hit_count`
 - `updated_at`
 
-### 5.5 sync_job / sync_change_log
+### 5.5 metadata_source / sync_change_log
 
-记录钉钉同步任务和变更。
+记录外部元数据写入来源、版本、变更和索引刷新状态。钉钉到元数据库的同步由用户已有工具负责，本项目当前不重复实现。
 
 ### 5.6 query_run / query_step
 
 记录问数运行和节点过程。
 
-## 6. 钉钉同步流程
+## 6. 外部元数据接入方式
 
-第一阶段同步流程：
+当前关键调整：
 
-1. 读取钉钉 AI 表格中的表元数据和字段元数据。
-2. 校验必填字段：主题域、库名、表名、字段名、字段类型等。
-3. 标准化字段类型和字段 ID。
-4. 与元数据库现有版本做差异比对。
-5. 在事务中写入 `meta_table`、`meta_field`、`meta_field_dependency`。
-6. 记录同步任务结果和变更日志。
-7. 根据变更字段更新检索索引。
+- 钉钉 AI 表格仍是元数据协作入口。
+- 钉钉到元数据库的定期写入已由用户自己的工具完成。
+- 本项目不再把“接入钉钉开放平台并同步元数据”作为第一阶段主任务。
+- 本项目优先读取旧 RDS `youmei_ai` 中已有元数据表，建立适配层和 Repository。
+- 后续如需检索，基于元数据库内容刷新 ES/OpenSearch、向量库或字段值索引。
 
-需要保留手动触发和定时触发两种方式：
+第一阶段接入流程调整为：
 
-- 手动触发：开发和排障时使用。
-- 定时触发：生产运行使用。
+1. 读取元数据库现有表清单和字段结构。
+2. 识别用户工具写入的表元数据、字段元数据、字段依赖和字段值表。
+3. 将现有表结构映射到项目内部统一实体。
+4. 如果已有表结构和建议模型不一致，优先做适配层，不急于改上游。
+5. 建立 Repository 层读取元数据。
+6. 建立基础 metadata API。
+7. 后续根据元数据库变更刷新检索索引。
 
 ## 7. 问数工作流
 
@@ -273,7 +276,7 @@ web/
 第一阶段接口：
 
 - `POST /api/query`：提交自然语言问题，SSE 返回进度和结果。
-- `POST /api/metadata/sync`：手动触发钉钉元数据同步。
+- `POST /api/metadata/index/refresh`：手动触发元数据检索索引刷新，后续实现。
 - `GET /api/metadata/tables`：查看已同步表元数据。
 - `GET /api/metadata/fields`：查看已同步字段元数据。
 - `GET /api/runs`：查看问数运行历史。
@@ -326,22 +329,24 @@ SSE 消息类型：
 - 建立 request_id 日志。
 - 保留当前原型可运行。
 
-### M2：元数据库
+### M2：元数据库适配
 
-- 建立元数据库表结构。
-- 编写初始化脚本。
+- 读取旧 RDS `youmei_ai` 中现有元数据表结构。
+- 梳理外部工具写入的表/字段/依赖/字段值。
+- 建立字段映射和内部实体。
 - 建立元数据 Repository。
 
-### M3：钉钉同步
+### M3：元数据索引刷新
 
-- 接入钉钉开放平台。
-- 同步表元数据和字段元数据。
-- 记录同步任务和变更日志。
+- 基于元数据库内容构建字段元数据检索。
+- 基于元数据库内容构建字段值检索。
+- 后续接 ES/OpenSearch、Qdrant 或 pgvector。
+- 保留索引刷新记录和错误记录。
 
 ### M4：检索上下文
 
-- 建立字段元数据检索。
-- 建立字段值检索。
+- 组装字段元数据检索结果。
+- 组装字段值检索结果。
 - 建立依赖和公式上下文组装。
 
 ### M5：问数闭环
@@ -362,8 +367,7 @@ SSE 消息类型：
 建议下一步先做资源确认和现有数据库梳理：
 
 1. 确认抖音主题域数据源连接方式。
-2. 确认元数据库使用 MySQL 还是 PostgreSQL。
-3. 确认钉钉 AI 表格字段和接口权限。
+2. 读取旧 RDS `youmei_ai` 的现有元数据表结构。
+3. 确认哪些表由用户已有工具定期写入。
 4. 确认云服务器是否可部署 Docker 服务。
-5. 再进入 M1 工程骨架改造。
-
+5. 进入 M2 元数据库适配和 Repository。
