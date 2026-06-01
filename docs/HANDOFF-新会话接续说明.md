@@ -135,7 +135,9 @@ local/SECRETS-实际账号.md
 5. M2 第一优先级已完成：用户调整表结构后，已确认 `metric_dictionary.ssscb = table_dictionary.bbs` 是真实主关联键。
 6. M2 初版只读 API 已新增并验证：`GET /api/metadata/summary`、`GET /api/metadata/tables`、`GET /api/metadata/fields`、`GET /api/metadata/tables/{table_id}/fields`。
 7. M2 元数据召回服务初版已新增并验证：`GET /api/metadata/retrieve?question=...`。
-8. 下一步继续做问数上下文构建，并在用户更新元数据表名后确认元数据库表名与问数执行库物理表名的映射策略。
+8. M2 问数上下文构建服务初版已新增并验证：`GET /api/metadata/context?question=...`，输出 `tables`、`candidate_fields`、`prompt_context`、`warnings`。
+9. 用户确认最终服务部署在阿里云云服务器上，本地直连 RDS 慢不作为当前架构阻塞；后续上云后复测真实延迟。
+10. 下一步进入 SQL 生成前工作流节点设计，并在用户更新元数据表名后确认元数据库表名与问数执行库物理表名的映射策略。
 
 连通性确认后，从 `docs/PLAN-第一阶段落地方案.md` 的 M1 开始：
 

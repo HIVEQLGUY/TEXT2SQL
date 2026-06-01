@@ -169,6 +169,56 @@ candidate_fields[]
 - `app/api/routers/metadata.py`
 - `docs/NEXT-AI-切换API接续包.md`
 
+## 2026-06-01 M2 问数上下文构建服务初版
+
+类型：开发 / 测试
+
+摘要：
+
+- 新增 `app/services/metadata_context_service.py`，在元数据召回结果之上构建 SQL 生成前可消费的上下文。
+- 新增接口 `GET /api/metadata/context`。
+- 当前上下文输出包含：
+  - `tables`：压缩后的候选表、候选字段、粒度、主键、说明、注意事项。
+  - `candidate_fields`：召回层的字段候选，供调试或后续二次选择。
+  - `prompt_context`：可直接喂给后续 LLM/SQL 生成节点的短文本上下文。
+  - `warnings`：元数据缺失或映射风险提示。
+- 该服务不直接生成 SQL，只负责把元数据整理成下一节点可用的输入。
+
+接口：
+
+```text
+GET /api/metadata/context?question=&table_limit=&field_limit=&fields_per_table=
+```
+
+验证：
+
+- `python -m compileall app` 通过。
+- 本地 Uvicorn 已重启并加载新路由。
+- `GET /api/metadata/context?question=SPU 销售金额 店铺&table_limit=2&field_limit=8&fields_per_table=5` 返回：
+  - 第一候选表：`hKrBQ2zwwG / ud_3418004512502203_dyxsjyzhb / DWS_抖音_SPU销售明细`
+  - 第一候选表字段数：5
+  - `warnings` 为空
+  - `prompt_context` 包含候选表、表名、字段英文名、字段中文名和类型。
+
+部署判断：
+
+- 当前本地测试直连阿里云外网 RDS 偶发较慢，不代表最终服务链路。
+- 用户确认后续服务部署在阿里云云服务器上，从云服务器发起查询；当前无需因本地测试延迟改变架构。
+- 后续部署到云服务器后，应复测 API 到 metadata DB 和 warehouse DB 的实际延迟。
+
+后续动作：
+
+- 用户明天更新元数据表名后，复测 `table_name` 与问数执行库物理表名的映射。
+- 下一步进入 SQL 生成前的工作流节点设计：把 `metadata/context` 输出作为 SQL 生成输入。
+- 同时补齐 SQL 执行前的物理表白名单、只读 SQL 安全校验和 LIMIT 策略。
+
+关联文件：
+
+- `app/services/metadata_context_service.py`
+- `app/services/metadata_retrieval_service.py`
+- `app/api/routers/metadata.py`
+- `docs/NEXT-AI-切换API接续包.md`
+
 ## 2026-06-01 RDS 新账号连接成功
 
 类型：测试

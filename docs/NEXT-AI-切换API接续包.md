@@ -365,3 +365,51 @@ table_display_name: DWS_抖音_SPU销售明细
 1. 增加上下文构建服务，把候选表/字段整理成 LLM 生成 SQL 前可直接消费的结构。
 2. 用户更新元数据表名后，复测物理表映射。
 3. 在上下文稳定后进入 SQL 生成节点和 SQL 安全执行闭环。
+
+## 10. 2026-06-01 最新进展：M2 问数上下文构建服务初版
+
+已新增上下文构建服务：
+
+```text
+app/services/metadata_context_service.py
+```
+
+已新增接口：
+
+```text
+GET /api/metadata/context?question=&table_limit=&field_limit=&fields_per_table=
+```
+
+当前职责：
+
+- 调用 `MetadataRetrievalService` 获取候选表和候选字段。
+- 压缩元数据为后续 SQL 生成节点可消费的结构。
+- 输出 `prompt_context` 文本，包含候选表、表名、表中文名、分数、字段英文名、字段中文名、类型、业务定义、计算公式和注意事项。
+- 输出 `warnings`，用于提示元数据缺失或映射风险。
+- 不直接生成 SQL。
+
+验证样例：
+
+```text
+GET /api/metadata/context?question=SPU 销售金额 店铺&table_limit=2&field_limit=8&fields_per_table=5
+```
+
+返回第一候选表：
+
+```text
+table_id: hKrBQ2zwwG
+table_name: ud_3418004512502203_dyxsjyzhb
+table_display_name: DWS_抖音_SPU销售明细
+warnings: []
+```
+
+部署判断：
+
+- 当前慢连接来自本地直连阿里云外网 RDS 的测试路径，不作为架构阻塞。
+- 用户确认最终服务会部署在阿里云云服务器上，从云服务器发起查询；后续应在云服务器部署后复测真实链路。
+
+下一步建议：
+
+1. 等用户更新元数据表名后复测物理表名映射。
+2. 设计 SQL 生成前的工作流节点，输入为 `/api/metadata/context` 的输出。
+3. 同步补齐 SQL 安全校验、物理表白名单和默认 LIMIT 策略。
