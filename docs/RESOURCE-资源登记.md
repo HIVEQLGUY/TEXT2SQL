@@ -202,3 +202,32 @@ local/ssh/text2sql_codex_ed25519_v2
 - 本地 FastAPI `GET /api/health/db` 已验证双库配置：
   - `metadata_db` -> `youmei_ai` / `baoyan@%`
   - `warehouse_db` -> `chatsql_ai` / `chat_ai_duckdb_2@%`
+
+## 11. 元数据库字典表关联
+
+元数据库：旧 RDS `youmei_ai`。
+
+当前核心字典表：
+
+```text
+table_dictionary: 数仓表字典
+metric_dictionary: 字段/指标字典
+```
+
+当前稳定关联键：
+
+```text
+table_dictionary.bbs = 表标识
+metric_dictionary.zdbs = 字段标识
+metric_dictionary.ssscb = 所属表标识
+主关联：metric_dictionary.ssscb = table_dictionary.bbs
+辅助校验：metric_dictionary.zdbs 可出现在 table_dictionary.bhzd 的逗号分隔字段标识列表中
+```
+
+当前样例：
+
+```text
+table_id: hKrBQ2zwwG
+table_name: ud_3418004512502203_dyxsjyzhb
+table_display_name: DWS_抖音_SPU销售明细
+```

@@ -256,3 +256,63 @@ Codex 已初步读取到：
 -> 问数工作流
 -> SQL 生成与执行闭环
 ```
+
+## 8. 2026-06-01 最新进展：M2 元数据读取 API 已启动
+
+用户已重新调整元数据库中的两张字典表，现在可以稳定关联：
+
+```text
+table_dictionary.bbs = 表标识
+metric_dictionary.zdbs = 字段标识
+metric_dictionary.ssscb = 所属表标识
+主关联关系：metric_dictionary.ssscb = table_dictionary.bbs
+```
+
+当前探查结果：
+
+```text
+table_dictionary: 41 行
+metric_dictionary: 1394 行
+带非空所属表标识的字段: 1261 条
+按 ssscb -> bbs 可匹配字段: 1261 条
+未匹配字段: 0 条
+```
+
+当前可用于后续测试的抖音 SPU 销售明细元数据：
+
+```text
+table_id: hKrBQ2zwwG
+table_name: ud_3418004512502203_dyxsjyzhb
+table_display_name: DWS_抖音_SPU销售明细
+```
+
+已新增 M2 初版代码：
+
+```text
+app/repositories/metadata_repository.py
+app/api/routers/metadata.py
+```
+
+已挂载接口：
+
+```text
+GET /api/metadata/summary
+GET /api/metadata/tables?q=&limit=
+GET /api/metadata/fields?q=&table_id=&table_name=&limit=
+GET /api/metadata/tables/{table_id}/fields
+```
+
+已验证：
+
+```text
+python -m compileall app 通过
+GET /api/metadata/summary 返回 table_count=41, field_count=1394, associated_field_count=1261
+GET /api/metadata/tables?q=SPU&limit=5 能找到 DWS_抖音_SPU销售明细
+GET /api/metadata/fields?table_id=hKrBQ2zwwG&limit=3 能返回该表字段
+```
+
+下一步建议：
+
+1. 在 M2 内继续做元数据召回服务，输入自然语言问题，输出候选表、候选字段、业务定义、计算公式和注意事项。
+2. 确认元数据库表名与问数执行库物理表名之间的映射策略。当前元数据中 `DWS_抖音_SPU销售明细` 的英文名是 `ud_3418004512502203_dyxsjyzhb`，问数执行库中测试物理表是 `dws_douyin_spu_sales_detail`，两者不完全一致。
+3. 召回上下文稳定后，再进入 SQL 生成、SQL 安全校验和执行闭环。

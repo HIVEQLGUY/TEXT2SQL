@@ -132,7 +132,9 @@ local/SECRETS-实际账号.md
 2. 进入 M2：读取旧 RDS `youmei_ai` 中现有元数据表结构，做字段映射和 Repository。
 3. 原 M3 钉钉同步不再作为项目内任务；后续改做元数据库到 ES/OpenSearch/向量库的索引刷新。
 4. 当前测试阶段新 RDS 暂不强制只读账号，后续健壮性阶段再收敛权限。
-5. M2 第一优先级：确认 `metric_dictionary.ssscb` 与 `table_dictionary` 的真实关联键；当前直接按 `bywm` 或 `bhzd` 匹配均为 0。
+5. M2 第一优先级已完成：用户调整表结构后，已确认 `metric_dictionary.ssscb = table_dictionary.bbs` 是真实主关联键。
+6. M2 初版只读 API 已新增并验证：`GET /api/metadata/summary`、`GET /api/metadata/tables`、`GET /api/metadata/fields`、`GET /api/metadata/tables/{table_id}/fields`。
+7. 下一步继续做元数据召回服务和问数上下文构建，并确认元数据库表名与问数执行库物理表名的映射策略。
 
 连通性确认后，从 `docs/PLAN-第一阶段落地方案.md` 的 M1 开始：
 

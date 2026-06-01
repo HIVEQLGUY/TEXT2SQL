@@ -54,6 +54,63 @@
 - `docs/RESOURCE-资源登记.md`
 - `local/SECRETS-实际账号.md`
 
+## 2026-06-01 M2 元数据字典关联键确认与只读 API 初版
+
+类型：开发 / 测试
+
+摘要：
+
+- 用户重新调整了元数据库中的两张字典表结构，新增/修正了可稳定关联的内部标识。
+- `table_dictionary` 当前 41 行，核心表标识列为 `bbs`。
+- `metric_dictionary` 当前 1394 行，核心字段标识列为 `zdbs`，所属表标识列为 `ssscb`。
+- 已确认主关联关系：`metric_dictionary.ssscb = table_dictionary.bbs`。
+- 带非空 `ssscb` 的字段共 1261 条，按上述主关联可全部匹配，未匹配数为 0。
+- `table_dictionary.bhzd` 中也包含字段标识列表，可用 `FIND_IN_SET(metric_dictionary.zdbs, table_dictionary.bhzd)` 辅助校验，但不作为主关联键。
+- 问数执行库 `chatsql_ai` 中存在测试表 `dws_douyin_spu_sales_detail`，元数据库中对应表元数据为：
+  - `table_id = hKrBQ2zwwG`
+  - `table_name = ud_3418004512502203_dyxsjyzhb`
+  - `table_display_name = DWS_抖音_SPU销售明细`
+
+已落地代码：
+
+- 新增 `app/repositories/metadata_repository.py`，封装现有元数据字典表的只读访问和字段名适配。
+- 新增 `app/api/routers/metadata.py`。
+- 新增接口：
+  - `GET /api/metadata/summary`
+  - `GET /api/metadata/tables?q=&limit=`
+  - `GET /api/metadata/fields?q=&table_id=&table_name=&limit=`
+  - `GET /api/metadata/tables/{table_id}/fields`
+- `app/api/main.py` 已挂载 metadata router。
+
+验证：
+
+- `python -m compileall app` 通过。
+- 本地 Uvicorn 已重启并加载新路由。
+- `GET /api/metadata/summary` 返回：
+  - `table_count = 41`
+  - `field_count = 1394`
+  - `associated_field_count = 1261`
+- `GET /api/metadata/tables?q=SPU&limit=5` 可返回 `hKrBQ2zwwG / ud_3418004512502203_dyxsjyzhb / DWS_抖音_SPU销售明细`。
+- `GET /api/metadata/fields?table_id=hKrBQ2zwwG&limit=3` 可返回该表字段。
+
+影响：
+
+- M2 的第一阶段可以继续基于现有元数据表做召回上下文构建，不再阻塞于字典关联键。
+- 后续检索层、ES/OpenSearch/向量索引层应优先依赖 API 层归一化后的字段名，而不是在多处硬编码上游中文缩写列名。
+
+后续动作：
+
+- 基于元数据 Repository 增加召回服务，先支持关键词召回表和字段。
+- 建立自然语言问题到候选表/候选字段的上下文构建结构。
+- 在进入 SQL 生成前，补充问数执行库真实表名和元数据库表名之间的映射策略；当前 `DWS_抖音_SPU销售明细` 的元数据英文名与执行库物理表名不完全一致，需要后续确认映射来源或规则。
+
+关联文件：
+
+- `app/repositories/metadata_repository.py`
+- `app/api/routers/metadata.py`
+- `app/api/main.py`
+- `docs/NEXT-AI-切换API接续包.md`
+
 ## 2026-06-01 RDS 新账号连接成功
 
 类型：测试
