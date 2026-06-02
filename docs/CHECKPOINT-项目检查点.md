@@ -284,6 +284,76 @@ SELECT `bhssjxsje`, `shop_name1`, `bhsdrsjxsje`, `sjxsje`, `sjxsjexbm`, `sjxsjej
 - `app/clients/mysql.py`
 - `docs/NEXT-AI-切换API接续包.md`
 
+## 2026-06-02 SQL 执行闭环初版
+
+类型：开发 / 测试
+
+摘要：
+
+- 新增 `app/services/sql_execution_service.py`。
+- `WarehouseRepository` 新增 `execute_select`，用于执行只读 SELECT 并返回结构化结果。
+- `GET /api/query/execute-draft` 已新增。
+- 执行边界会对最终 SQL 再次调用 `review_sql`，只有 `allowed = true` 才执行。
+- 当前执行节点复用 `draft-sql` 的确定性 SELECT 草稿，后续接入 LLM SQL 生成后也应复用同一安全执行边界。
+
+新增接口：
+
+```text
+GET /api/query/execute-draft?question=&table_limit=&field_limit=&fields_per_table=&limit=
+```
+
+验证：
+
+- `python -m compileall app` 通过。
+- 本地 Uvicorn 已重启并加载新路由。
+- `GET /api/query/execute-draft?question=SPU 销售金额 店铺&table_limit=2&field_limit=30&fields_per_table=20&limit=100` 执行成功。
+- 执行 SQL：
+
+```sql
+SELECT `bhssjxsje`, `shop_name1`, `bhsdrsjxsje`, `sjxsje`, `sjxsjexbm`, `sjxsjejbm`, `drsjxsje`, `ygsjxsje`, `bhssjssjeqtqs`, `qtfyje`, `sjssje`, `zje` FROM `dws_douyin_spu_sales_detail` LIMIT 100
+```
+
+- 返回：
+  - `executed = true`
+  - `execution_review.allowed = true`
+  - `row_count = 100`
+  - `elapsed_ms ~= 3560.94`
+  - `columns = bhssjxsje, shop_name1, bhsdrsjxsje, sjxsje, sjxsjexbm, sjxsjejbm, drsjxsje, ygsjxsje, bhssjssjeqtqs, qtfyje, sjssje, zje`
+
+重要发现：
+
+- `information_schema.TABLES.TABLE_ROWS` 对 `dws_douyin_spu_sales_detail` 的估算为 0，但实际 SELECT 能返回 100 行，说明该估算不可靠，不能作为是否有数据的硬判断。
+- 当前 warning 中“Physical table has no estimated rows” 只是统计信息提示，不代表真实无数据。
+
+影响：
+
+- 第一阶段最小闭环已经形成：
+
+```text
+自然语言问题
+-> 元数据召回
+-> 上下文构建
+-> 执行库 schema 匹配
+-> SELECT 草稿
+-> SQL 安全审查
+-> SQL 执行
+-> 结构化结果返回
+```
+
+后续动作：
+
+- 增加正式 `query/run` 工作流接口，整合 prepare/draft/execute，返回面向前端的一体化结果。
+- 接入 LLM SQL 生成节点时，仍必须复用当前执行边界的 `review_sql`。
+- 优化 warning：把 `TABLE_ROWS=0` 改为弱提示，避免误导为真实无数据。
+- 后续部署到阿里云服务器后复测端到端延迟。
+
+关联文件：
+
+- `app/services/sql_execution_service.py`
+- `app/repositories/warehouse_repository.py`
+- `app/api/routers/query.py`
+- `docs/NEXT-AI-切换API接续包.md`
+
 ## 2026-06-01 RDS 新账号连接成功
 
 类型：测试

@@ -485,3 +485,73 @@ risks = []
 1. 增加 SQL 执行节点，只执行 safety review 通过的 SELECT。
 2. 执行结果返回 `columns`、`rows`、`row_count`、`elapsed_ms`、`warnings`。
 3. 后续接入 LLM SQL 生成时，继续复用 `query/prepare`、schema 校验和 `review_sql`。
+
+## 12. 2026-06-02 最新进展：SQL 执行闭环初版已跑通
+
+已新增执行服务：
+
+```text
+app/services/sql_execution_service.py
+```
+
+已新增接口：
+
+```text
+GET /api/query/execute-draft?question=&table_limit=&field_limit=&fields_per_table=&limit=
+```
+
+当前执行链路：
+
+```text
+question
+-> draft_select
+-> review_sql 草稿审查
+-> execution boundary 再次 review_sql
+-> warehouse execute_select
+-> columns / rows / row_count / elapsed_ms
+```
+
+验证样例：
+
+```text
+GET /api/query/execute-draft?question=SPU 销售金额 店铺&table_limit=2&field_limit=30&fields_per_table=20&limit=100
+```
+
+执行 SQL：
+
+```sql
+SELECT `bhssjxsje`, `shop_name1`, `bhsdrsjxsje`, `sjxsje`, `sjxsjexbm`, `sjxsjejbm`, `drsjxsje`, `ygsjxsje`, `bhssjssjeqtqs`, `qtfyje`, `sjssje`, `zje` FROM `dws_douyin_spu_sales_detail` LIMIT 100
+```
+
+返回结果：
+
+```text
+executed = true
+execution_review.allowed = true
+row_count = 100
+elapsed_ms ~= 3560.94
+```
+
+重要发现：
+
+- `information_schema.TABLES.TABLE_ROWS` 当前对 `dws_douyin_spu_sales_detail` 估算为 0，但实际 SELECT 返回了 100 行。
+- 因此 `TABLE_ROWS` 只能作为弱提示，不能作为真实无数据判断。
+
+当前最小闭环：
+
+```text
+自然语言问题
+-> 元数据召回
+-> 上下文构建
+-> 执行库 schema 匹配
+-> SELECT 草稿
+-> SQL 安全审查
+-> SQL 执行
+-> 结构化结果返回
+```
+
+下一步建议：
+
+1. 增加正式 `GET /api/query/run` 或 `POST /api/query/run`，把 prepare/draft/execute 包成一个前端可用接口。
+2. 优化 warning，把 TABLE_ROWS=0 改为弱提示。
+3. 接入 LLM SQL 生成节点前，先固化当前执行边界，确保任何 SQL 都必须过 `review_sql`。

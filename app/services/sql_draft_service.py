@@ -151,7 +151,7 @@ class SQLDraftService:
         warnings = list(plan["warnings"])
         warehouse_table = selected_table.get("warehouse_table") or {}
         if warehouse_table.get("table_rows") == 0:
-            warnings.append(f"Physical table has no estimated rows: {table_name}")
+            warnings.append(f"Physical table row estimate is 0; statistics may be stale: {table_name}")
 
         return {
             "question": question,

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import time
 from typing import Any
 
 from app.clients.mysql import mysql_connection
@@ -86,3 +87,19 @@ class WarehouseRepository:
                 columns = list(cursor.fetchall())
 
         return {"table": table, "columns": columns}
+
+    def execute_select(self, sql: str, max_rows: int = 1000) -> dict[str, Any]:
+        started = time.perf_counter()
+        with mysql_connection(self._db_settings) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(sql)
+                rows = list(cursor.fetchmany(max_rows))
+                columns = [description[0] for description in cursor.description or []]
+
+        elapsed_ms = round((time.perf_counter() - started) * 1000, 2)
+        return {
+            "columns": columns,
+            "rows": rows,
+            "row_count": len(rows),
+            "elapsed_ms": elapsed_ms,
+        }
