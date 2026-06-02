@@ -7,7 +7,7 @@ from collections.abc import Awaitable, Callable
 
 from fastapi import FastAPI, Request, Response
 
-from app.api.routers import health, metadata
+from app.api.routers import health, metadata, query
 from app.core.config import get_settings
 from app.core.logging import configure_logging
 from app.core.request_context import reset_request_id, set_request_id
@@ -20,6 +20,7 @@ def create_app() -> FastAPI:
     app = FastAPI(title=settings.app_name)
     app.include_router(health.router)
     app.include_router(metadata.router)
+    app.include_router(query.router)
 
     @app.middleware("http")
     async def request_context_middleware(

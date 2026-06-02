@@ -30,6 +30,18 @@ def _field_line(field: dict[str, Any]) -> str:
     return " | ".join(part for part in parts if part)
 
 
+def _dedupe_fields(fields: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    seen: set[tuple[str, str]] = set()
+    unique_fields = []
+    for field in fields:
+        key = (_text(field.get("field_name")).lower(), _text(field.get("field_display_name")))
+        if key in seen:
+            continue
+        seen.add(key)
+        unique_fields.append(field)
+    return unique_fields
+
+
 class MetadataContextService:
     def __init__(self, repository: MetadataRepository) -> None:
         self._retrieval = MetadataRetrievalService(repository)
@@ -54,7 +66,7 @@ class MetadataContextService:
 
         for table_context in retrieval["candidate_tables"]:
             table = table_context["table"]
-            fields = table_context["fields"]
+            fields = _dedupe_fields(table_context["fields"])
             table_name = _text(table.get("table_name"))
             table_display_name = _text(table.get("table_display_name"))
             table_id = _text(table.get("table_id"))

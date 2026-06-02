@@ -413,3 +413,75 @@ warnings: []
 1. 等用户更新元数据表名后复测物理表名映射。
 2. 设计 SQL 生成前的工作流节点，输入为 `/api/metadata/context` 的输出。
 3. 同步补齐 SQL 安全校验、物理表白名单和默认 LIMIT 策略。
+
+## 11. 2026-06-02 最新进展：表名映射已修复，SQL 草稿节点已启动
+
+用户已更新元数据表名。当前已确认：
+
+```text
+table_id: hKrBQ2zwwG
+table_display_name: DWS_抖音_SPU销售明细
+metadata table_name/bywm: dws_douyin_spu_sales_detail
+warehouse physical table: dws_douyin_spu_sales_detail
+```
+
+问数执行库中该表已存在，结构可读，当前约 111 列。`information_schema.TABLES.TABLE_ROWS` 当前估算为 0，因此短期 SQL 执行可能只有结构验证价值，不一定返回真实数据。
+
+新增代码：
+
+```text
+app/repositories/warehouse_repository.py
+app/services/query_planning_service.py
+app/services/sql_draft_service.py
+app/api/routers/query.py
+```
+
+新增接口：
+
+```text
+GET /api/query/prepare?question=&table_limit=&field_limit=&fields_per_table=
+GET /api/query/draft-sql?question=&table_limit=&field_limit=&fields_per_table=&limit=
+```
+
+当前链路：
+
+```text
+自然语言问题
+-> 元数据召回/上下文构建
+-> 执行库物理表和字段结构核对
+-> SQL-ready 计划
+-> 确定性 SELECT 草稿
+-> SQL safety review
+```
+
+验证样例：
+
+```text
+GET /api/query/draft-sql?question=SPU 销售金额 店铺&table_limit=2&field_limit=30&fields_per_table=20&limit=100
+```
+
+返回 SQL：
+
+```sql
+SELECT `bhssjxsje`, `shop_name1`, `bhsdrsjxsje`, `sjxsje`, `sjxsjexbm`, `sjxsjejbm`, `drsjxsje`, `ygsjxsje`, `bhssjssjeqtqs`, `qtfyje`, `sjssje`, `zje` FROM `dws_douyin_spu_sales_detail` LIMIT 100
+```
+
+SQL safety review：
+
+```text
+allowed = true
+hard_blocks = []
+risks = []
+```
+
+注意：
+
+- 当前 SQL 草稿是确定性占位能力，不是最终 LLM SQL 生成。
+- 草稿节点用于提前验证表映射、字段匹配、安全审查和执行链路。
+- 当前次候选表 `ud_5179579576634064_dyxjxsjyzhb` 在执行库中未找到物理表，会产生 warning，但不阻塞首选表。
+
+下一步建议：
+
+1. 增加 SQL 执行节点，只执行 safety review 通过的 SELECT。
+2. 执行结果返回 `columns`、`rows`、`row_count`、`elapsed_ms`、`warnings`。
+3. 后续接入 LLM SQL 生成时，继续复用 `query/prepare`、schema 校验和 `review_sql`。

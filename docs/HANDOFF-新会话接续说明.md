@@ -137,7 +137,9 @@ local/SECRETS-实际账号.md
 7. M2 元数据召回服务初版已新增并验证：`GET /api/metadata/retrieve?question=...`。
 8. M2 问数上下文构建服务初版已新增并验证：`GET /api/metadata/context?question=...`，输出 `tables`、`candidate_fields`、`prompt_context`、`warnings`。
 9. 用户确认最终服务部署在阿里云云服务器上，本地直连 RDS 慢不作为当前架构阻塞；后续上云后复测真实延迟。
-10. 下一步进入 SQL 生成前工作流节点设计，并在用户更新元数据表名后确认元数据库表名与问数执行库物理表名的映射策略。
+10. 用户已更新元数据表名，`hKrBQ2zwwG / DWS_抖音_SPU销售明细` 的 `bywm` 已变为 `dws_douyin_spu_sales_detail`，并已确认执行库同名物理表存在。
+11. SQL 生成前工作流节点已启动：`GET /api/query/prepare` 输出 SQL-ready 计划，`GET /api/query/draft-sql` 输出确定性 SELECT 草稿并通过 `review_sql` 安全审查。
+12. 下一步增加 SQL 执行节点，仅执行 safety review 通过的 SELECT，并返回结构化结果。
 
 连通性确认后，从 `docs/PLAN-第一阶段落地方案.md` 的 M1 开始：
 

@@ -30,7 +30,16 @@ def mysql_connection(settings: DatabaseSettings) -> Iterator[Connection]:
     if settings.mysql_get_server_public_key:
         kwargs["server_public_key"] = None
 
-    conn = pymysql.connect(**kwargs)
+    last_error: Exception | None = None
+    for _ in range(2):
+        try:
+            conn = pymysql.connect(**kwargs)
+            break
+        except (pymysql.OperationalError, pymysql.InternalError) as exc:
+            last_error = exc
+    else:
+        raise last_error  # type: ignore[misc]
+
     try:
         yield conn
     finally:

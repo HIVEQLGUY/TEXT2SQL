@@ -219,6 +219,71 @@ GET /api/metadata/context?question=&table_limit=&field_limit=&fields_per_table=
 - `app/api/routers/metadata.py`
 - `docs/NEXT-AI-切换API接续包.md`
 
+## 2026-06-02 元数据表名映射修复与 SQL 草稿节点
+
+类型：开发 / 测试
+
+摘要：
+
+- 用户已更新元数据表名。
+- 已确认 `table_dictionary` 中 `hKrBQ2zwwG / DWS_抖音_SPU销售明细` 的 `bywm` 已更新为 `dws_douyin_spu_sales_detail`。
+- 问数执行库 `chatsql_ai` 中同名物理表 `dws_douyin_spu_sales_detail` 已存在。
+- 该表当前执行库结构可读，约 111 列；`information_schema.TABLES.TABLE_ROWS` 当前估算为 0，因此后续执行 SQL 可能能验证结构但不一定返回真实数据。
+
+新增代码：
+
+- 新增 `app/repositories/warehouse_repository.py`，读取执行库物理表和字段结构。
+- 新增 `app/services/query_planning_service.py`，把元数据上下文和执行库 schema 做匹配，输出 SQL-ready 计划。
+- 新增 `app/services/sql_draft_service.py`，基于 SQL-ready 计划生成只读 SELECT 草稿，并调用 `review_sql` 做安全审查。
+- 新增 `app/api/routers/query.py`。
+- `app/api/main.py` 已挂载 query router。
+- `app/clients/mysql.py` 增加轻量建连重试，用于缓解本地外网 RDS 偶发 2003/2013/packet sequence 类临时断连。
+
+新增接口：
+
+```text
+GET /api/query/prepare?question=&table_limit=&field_limit=&fields_per_table=
+GET /api/query/draft-sql?question=&table_limit=&field_limit=&fields_per_table=&limit=
+```
+
+验证：
+
+- `python -m compileall app` 通过。
+- `GET /api/query/prepare?question=SPU 销售金额 店铺` 返回：
+  - `ready_for_sql = true`
+  - `selected_table.table_name = dws_douyin_spu_sales_detail`
+  - 执行库物理列数约 111
+- `GET /api/query/draft-sql?question=SPU 销售金额 店铺&table_limit=2&field_limit=30&fields_per_table=20&limit=100` 返回：
+
+```sql
+SELECT `bhssjxsje`, `shop_name1`, `bhsdrsjxsje`, `sjxsje`, `sjxsjexbm`, `sjxsjejbm`, `drsjxsje`, `ygsjxsje`, `bhssjssjeqtqs`, `qtfyje`, `sjssje`, `zje` FROM `dws_douyin_spu_sales_detail` LIMIT 100
+```
+
+- SQL safety review 返回 `allowed = true`，无 hard blocks，无 risks。
+- 当前 warnings 包括：
+  - 次候选表 `ud_5179579576634064_dyxjxsjyzhb` 在执行库中未找到物理表，不阻塞首选表。
+  - 首选物理表 `dws_douyin_spu_sales_detail` 当前估算行数为 0。
+
+影响：
+
+- M2/M3 之间的前置链路已经从“元数据召回”推进到“元数据上下文 -> 执行库 schema 匹配 -> SQL 草稿 -> SQL 安全审查”。
+- 当前 SQL 草稿仍是确定性占位能力，不等同最终大模型 SQL 生成；它用于先验证字段映射、表白名单、安全审查和执行链路。
+
+后续动作：
+
+- 下一步增加 SQL 执行节点：仅执行 `review_sql.allowed = true` 的 SELECT，默认 LIMIT，记录结果摘要。
+- 再接入 LLM SQL 生成节点时，应把 `/api/query/prepare` 或 `/api/metadata/context` 输出作为 prompt 输入，并继续复用 `review_sql` 和执行库 schema 校验。
+- 后续部署到阿里云服务器后，复测服务端到两个 RDS 的真实延迟。
+
+关联文件：
+
+- `app/repositories/warehouse_repository.py`
+- `app/services/query_planning_service.py`
+- `app/services/sql_draft_service.py`
+- `app/api/routers/query.py`
+- `app/clients/mysql.py`
+- `docs/NEXT-AI-切换API接续包.md`
+
 ## 2026-06-01 RDS 新账号连接成功
 
 类型：测试
