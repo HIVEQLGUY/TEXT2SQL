@@ -627,3 +627,56 @@ SELECT `bhssjxsje`, `shop_name1`, `bhsdrsjxsje`, `sjxsje`, `sjxsjexbm`, `sjxsjej
 1. 增加 `POST /api/query/run`，用请求体承载问题、限制、模式和未来会话上下文。
 2. 接入 LLM SQL 生成节点，输入使用 `/api/metadata/context` 或 `query/prepare` 的上下文。
 3. 所有 LLM SQL 仍必须经过当前 `review_sql` 和执行边界。
+
+## 14. 2026-06-07 最新进展：POST /api/query/run 已新增
+
+已新增正式 POST 入口：
+
+```text
+POST /api/query/run
+```
+
+请求体模型：
+
+```json
+{
+  "question": "SPU 销售金额 店铺",
+  "table_limit": 1,
+  "field_limit": 20,
+  "fields_per_table": 20,
+  "limit": 5,
+  "mode": "draft",
+  "conversation_context": {
+    "source": "codex_validation"
+  }
+}
+```
+
+当前说明：
+
+- `mode` 当前仅支持 `draft`。
+- `conversation_context` 当前透传返回，预留给多轮问数和后续 agent。
+- GET `/api/query/run` 仍保留为快速调试入口。
+
+验证结果：
+
+```text
+answer_status = ok
+mode = draft
+selected_table.table_name = dws_douyin_spu_sales_detail
+row_count = 5
+column_count = 12
+warnings = []
+```
+
+执行 SQL：
+
+```sql
+SELECT `bhssjxsje`, `shop_name1`, `bhsdrsjxsje`, `sjxsje`, `sjxsjexbm`, `sjxsjejbm`, `drsjxsje`, `ygsjxsje`, `bhssjssjeqtqs`, `qtfyje`, `sjssje`, `zje` FROM `dws_douyin_spu_sales_detail` LIMIT 5
+```
+
+下一步建议：
+
+1. 接入 LLM SQL 生成节点，先作为独立模式，不替换当前 `draft` 确定性模式。
+2. 增加运行记录结构：`run_id`、step 耗时、召回结果、SQL review、执行摘要。
+3. 上云部署后复测 POST 入口延迟。

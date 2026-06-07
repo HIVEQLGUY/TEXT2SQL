@@ -425,6 +425,75 @@ SELECT `bhssjxsje`, `shop_name1`, `bhsdrsjxsje`, `sjxsje`, `sjxsjexbm`, `sjxsjej
 - `app/api/routers/query.py`
 - `docs/NEXT-AI-切换API接续包.md`
 
+## 2026-06-07 M2 query/run POST 正式入口
+
+类型：开发 / 测试
+
+摘要：
+
+- `app/api/routers/query.py` 新增 `POST /api/query/run`。
+- GET `/api/query/run` 保留为快速调试入口。
+- POST 请求体使用 Pydantic 模型 `QueryRunRequest`，当前字段：
+  - `question`
+  - `table_limit`
+  - `field_limit`
+  - `fields_per_table`
+  - `limit`
+  - `mode`
+  - `conversation_context`
+- 当前仅支持 `mode = draft`，为后续 LLM SQL 生成模式预留扩展位。
+- `conversation_context` 当前透传返回，用于后续多轮问数上下文。
+
+验证：
+
+- `python -m compileall app` 通过。
+- 本地 Uvicorn 已重启。
+- `POST /api/query/run` 使用 JSON body 验证通过：
+
+```json
+{
+  "question": "SPU 销售金额 店铺",
+  "limit": 5,
+  "mode": "draft",
+  "conversation_context": {
+    "source": "codex_validation"
+  }
+}
+```
+
+返回摘要：
+
+```text
+answer_status = ok
+mode = draft
+selected_table.table_name = dws_douyin_spu_sales_detail
+row_count = 5
+column_count = 12
+warnings = []
+```
+
+执行 SQL：
+
+```sql
+SELECT `bhssjxsje`, `shop_name1`, `bhsdrsjxsje`, `sjxsje`, `sjxsjexbm`, `sjxsjejbm`, `drsjxsje`, `ygsjxsje`, `bhssjssjeqtqs`, `qtfyje`, `sjssje`, `zje` FROM `dws_douyin_spu_sales_detail` LIMIT 5
+```
+
+影响：
+
+- M2 已具备一个更适合前端和后续 agent 调用的一体化问数入口。
+- 后续接入 LLM SQL 生成时，可以在该入口中扩展 `mode`，但仍必须复用当前 SQL safety review 和执行边界。
+
+后续动作：
+
+- 接入 LLM SQL 生成节点，先作为 `mode = llm_draft` 或类似模式，不直接替换当前 draft 模式。
+- 增加运行记录模型：`run_id`、节点耗时、候选表字段、SQL review、执行摘要。
+- 部署到云服务器后复测 POST `/api/query/run` 的真实链路延迟。
+
+关联文件：
+
+- `app/api/routers/query.py`
+- `docs/NEXT-AI-切换API接续包.md`
+
 ## 2026-06-01 RDS 新账号连接成功
 
 类型：测试

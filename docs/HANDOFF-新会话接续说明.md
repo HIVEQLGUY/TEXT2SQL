@@ -142,7 +142,8 @@ local/SECRETS-实际账号.md
 12. SQL 执行闭环初版已跑通：`GET /api/query/execute-draft` 只执行 safety review 通过的 SELECT，并返回 `columns`、`rows`、`row_count`、`elapsed_ms`。
 13. `dws_douyin_spu_sales_detail` 的 `TABLE_ROWS` 估算为 0，但实际 SELECT 返回 100 行，后续不要把 TABLE_ROWS 当作真实无数据判断。
 14. `GET /api/query/run` 一体化问数入口已新增并验证，当前可返回 `answer_status`、`sql`、`selected_table`、`columns`、`rows`、`row_count`、`elapsed_ms`、`warnings`、`trace`。
-15. `query/run` 当前仍使用确定性 SQL 草稿，不是最终 LLM SQL 生成；下一步可补 `POST /api/query/run`，然后接入 LLM SQL 生成节点。
+15. `POST /api/query/run` 已新增并验证，使用 `QueryRunRequest` 请求体，当前仅支持 `mode=draft`，`conversation_context` 预留给后续多轮问数。
+16. `query/run` 当前仍使用确定性 SQL 草稿，不是最终 LLM SQL 生成；下一步可接入 LLM SQL 生成节点，并补运行记录结构。
 
 连通性确认后，从 `docs/PLAN-第一阶段落地方案.md` 的 M1 开始：
 
