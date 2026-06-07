@@ -494,6 +494,54 @@ SELECT `bhssjxsje`, `shop_name1`, `bhsdrsjxsje`, `sjxsje`, `sjxsjexbm`, `sjxsjej
 - `app/api/routers/query.py`
 - `docs/NEXT-AI-切换API接续包.md`
 
+## 2026-06-07 M2 query/run 运行记录结构
+
+类型：开发 / 测试
+
+摘要：
+
+- `QueryRunService.run` 已新增运行记录结构。
+- 每次 `GET/POST /api/query/run` 响应都会包含：
+  - `run_id`
+  - `started_at`
+  - `trace.run_id`
+  - `trace.started_at`
+  - `trace.finished_at`
+  - `trace.total_elapsed_ms`
+  - `trace.steps`
+- 当前 step 结构先覆盖：
+  - `draft_and_execute`
+  - `sql_execution`
+- 该结构暂不落库，先固化响应契约；后续可按此结构设计 `query_run` 和 `query_step` 表。
+
+验证：
+
+- `python -m compileall app` 通过。
+- 本地 Uvicorn 已重启。
+- `POST /api/query/run` 使用 `SPU 销售金额 店铺`、`limit=3` 验证通过：
+  - `answer_status = ok`
+  - `row_count = 3`
+  - `run_id = ddfd8cbd-cdf2-4311-bfe8-abf780a9ba96`
+  - `trace.run_id` 与顶层 `run_id` 一致
+  - `trace.total_elapsed_ms ~= 33861.48`
+  - `trace.steps = draft_and_execute:ok, sql_execution:ok`
+  - `trace.execution_review.allowed = true`
+
+影响：
+
+- M2 问数入口具备了最小可观测结构。
+- 后续接入 LLM SQL 生成时，可以继续往 `trace.steps` 增加 `metadata_retrieval`、`context_build`、`llm_sql_generation`、`sql_review`、`sql_execution` 等节点。
+
+后续动作：
+
+- 将当前内存响应结构落到运行记录表或日志 sink。
+- 接入 LLM SQL 生成节点时，必须写入对应 step 状态、耗时、输入输出摘要。
+
+关联文件：
+
+- `app/services/query_run_service.py`
+- `docs/NEXT-AI-切换API接续包.md`
+
 ## 2026-06-01 RDS 新账号连接成功
 
 类型：测试

@@ -680,3 +680,55 @@ SELECT `bhssjxsje`, `shop_name1`, `bhsdrsjxsje`, `sjxsje`, `sjxsjexbm`, `sjxsjej
 1. 接入 LLM SQL 生成节点，先作为独立模式，不替换当前 `draft` 确定性模式。
 2. 增加运行记录结构：`run_id`、step 耗时、召回结果、SQL review、执行摘要。
 3. 上云部署后复测 POST 入口延迟。
+
+## 15. 2026-06-07 最新进展：query/run 已新增运行记录结构
+
+`QueryRunService.run` 已新增最小可观测结构。`GET/POST /api/query/run` 响应现在包含：
+
+```text
+run_id
+started_at
+trace.run_id
+trace.started_at
+trace.finished_at
+trace.total_elapsed_ms
+trace.steps
+```
+
+当前 step：
+
+```text
+draft_and_execute
+sql_execution
+```
+
+验证样例：
+
+```text
+POST /api/query/run
+question = SPU 销售金额 店铺
+limit = 3
+```
+
+返回摘要：
+
+```text
+answer_status = ok
+row_count = 3
+run_id = ddfd8cbd-cdf2-4311-bfe8-abf780a9ba96
+trace.run_id = ddfd8cbd-cdf2-4311-bfe8-abf780a9ba96
+trace.total_elapsed_ms ~= 33861.48
+trace.steps = draft_and_execute:ok, sql_execution:ok
+trace.execution_review.allowed = true
+```
+
+说明：
+
+- 当前运行记录结构只在响应中返回，尚未落库。
+- 后续可以按此结构设计 `query_run` 和 `query_step` 表，或先写入日志/ES。
+- 接入 LLM SQL 生成后，应增加 `llm_sql_generation`、`sql_review` 等 step。
+
+下一步建议：
+
+1. 设计运行记录落库表或日志 sink。
+2. 接入 LLM SQL 生成节点，并将节点耗时和审查结果写入 trace。
