@@ -25,6 +25,7 @@ class SQLExecutionService:
         field_limit: int = 20,
         fields_per_table: int = 12,
         limit: int = 100,
+        stop_after_first_ready: bool = False,
     ) -> dict[str, Any]:
         draft = self._draft_service.draft_select(
             question=question,
@@ -32,6 +33,7 @@ class SQLExecutionService:
             field_limit=field_limit,
             fields_per_table=fields_per_table,
             limit=limit,
+            stop_after_first_ready=stop_after_first_ready,
         )
         sql = draft.get("sql")
         review = draft.get("review") or {}

@@ -109,12 +109,14 @@ class SQLDraftService:
         field_limit: int = 20,
         fields_per_table: int = 12,
         limit: int = 100,
+        stop_after_first_ready: bool = False,
     ) -> dict[str, Any]:
         plan = self._planner.prepare(
             question=question,
             table_limit=table_limit,
             field_limit=field_limit,
             fields_per_table=fields_per_table,
+            stop_after_first_ready=stop_after_first_ready,
         )
         selected_table = plan["selected_table"]
         if not selected_table:

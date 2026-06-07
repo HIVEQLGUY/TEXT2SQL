@@ -30,6 +30,7 @@ class QueryPlanningService:
         table_limit: int = 3,
         field_limit: int = 20,
         fields_per_table: int = 12,
+        stop_after_first_ready: bool = False,
     ) -> dict[str, Any]:
         metadata_context = self._metadata_context.build_context(
             question=question,
@@ -78,6 +79,18 @@ class QueryPlanningService:
                 else:
                     unmatched_fields.append(field)
 
+            if warehouse_table and not matched_fields:
+                matched_fields = [
+                    {
+                        "field_id": None,
+                        "field_name": column["column_name"],
+                        "field_display_name": column.get("column_comment"),
+                        "data_type": column.get("data_type"),
+                        "warehouse_column": column,
+                    }
+                    for column in warehouse_columns
+                ]
+
             prepared_tables.append(
                 {
                     **table,
@@ -88,6 +101,8 @@ class QueryPlanningService:
                     "ready_for_sql": bool(warehouse_table and matched_fields),
                 }
             )
+            if stop_after_first_ready and prepared_tables[-1]["ready_for_sql"]:
+                break
 
         ready_tables = [table for table in prepared_tables if table["ready_for_sql"]]
         return {

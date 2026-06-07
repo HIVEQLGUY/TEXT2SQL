@@ -10,6 +10,7 @@ from app.core.config import DatabaseSettings
 class WarehouseRepository:
     def __init__(self, db_settings: DatabaseSettings) -> None:
         self._db_settings = db_settings
+        self._schema_cache: dict[str, dict[str, Any]] = {}
 
     def get_table(self, table_name: str) -> dict[str, Any] | None:
         with mysql_connection(self._db_settings) as conn:
@@ -51,6 +52,9 @@ class WarehouseRepository:
                 return list(cursor.fetchall())
 
     def get_schema_snapshot(self, table_name: str) -> dict[str, Any]:
+        if table_name in self._schema_cache:
+            return self._schema_cache[table_name]
+
         with mysql_connection(self._db_settings) as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
@@ -86,7 +90,9 @@ class WarehouseRepository:
                 )
                 columns = list(cursor.fetchall())
 
-        return {"table": table, "columns": columns}
+        snapshot = {"table": table, "columns": columns}
+        self._schema_cache[table_name] = snapshot
+        return snapshot
 
     def execute_select(self, sql: str, max_rows: int = 1000) -> dict[str, Any]:
         started = time.perf_counter()

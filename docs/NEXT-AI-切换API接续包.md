@@ -555,3 +555,75 @@ elapsed_ms ~= 3560.94
 1. 增加正式 `GET /api/query/run` 或 `POST /api/query/run`，把 prepare/draft/execute 包成一个前端可用接口。
 2. 优化 warning，把 TABLE_ROWS=0 改为弱提示。
 3. 接入 LLM SQL 生成节点前，先固化当前执行边界，确保任何 SQL 都必须过 `review_sql`。
+
+## 13. 2026-06-07 最新进展：query/run 一体化入口已跑通
+
+已新增服务：
+
+```text
+app/services/query_run_service.py
+```
+
+已新增接口：
+
+```text
+GET /api/query/run?question=&table_limit=&field_limit=&fields_per_table=&limit=
+```
+
+当前职责：
+
+- 整合 `prepare -> draft-sql -> execute-draft`。
+- 返回前端/agent 更容易消费的结构：
+
+```text
+answer_status
+sql
+selected_table
+columns
+rows
+row_count
+elapsed_ms
+warnings
+trace
+```
+
+性能/稳定性调整：
+
+- `query/run` 默认 `table_limit=1`、`field_limit=20`，优先跑首选 SQL-ready 表，减少本地直连 RDS 下的多余查询。
+- `QueryPlanningService.prepare` 新增 `stop_after_first_ready`。
+- `WarehouseRepository` 增加进程内 schema cache。
+- 如果元数据字段候选为空但物理表存在，会用执行库 `information_schema.COLUMNS` 作为字段候选兜底。
+
+验证样例：
+
+```text
+GET /api/query/run?question=SPU 销售金额 店铺&limit=10
+```
+
+返回：
+
+```text
+answer_status = ok
+selected_table.table_name = dws_douyin_spu_sales_detail
+row_count = 10
+column_count = 12
+warnings = []
+```
+
+执行 SQL：
+
+```sql
+SELECT `bhssjxsje`, `shop_name1`, `bhsdrsjxsje`, `sjxsje`, `sjxsjexbm`, `sjxsjejbm`, `drsjxsje`, `ygsjxsje`, `bhssjssjeqtqs`, `qtfyje`, `sjssje`, `zje` FROM `dws_douyin_spu_sales_detail` LIMIT 10
+```
+
+注意：
+
+- 当前 `query/run` 仍使用确定性 SQL 草稿能力，不是最终 LLM SQL 生成。
+- 但元数据召回、schema 匹配、SQL safety review、执行边界和结果结构已经形成可复用闭环。
+- 本地直连 RDS 仍有波动，云服务器部署后需要复测真实链路延迟。
+
+下一步建议：
+
+1. 增加 `POST /api/query/run`，用请求体承载问题、限制、模式和未来会话上下文。
+2. 接入 LLM SQL 生成节点，输入使用 `/api/metadata/context` 或 `query/prepare` 的上下文。
+3. 所有 LLM SQL 仍必须经过当前 `review_sql` 和执行边界。

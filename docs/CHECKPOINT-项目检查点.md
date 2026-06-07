@@ -354,6 +354,77 @@ SELECT `bhssjxsje`, `shop_name1`, `bhsdrsjxsje`, `sjxsje`, `sjxsjexbm`, `sjxsjej
 - `app/api/routers/query.py`
 - `docs/NEXT-AI-切换API接续包.md`
 
+## 2026-06-07 M2 query/run 一体化问数入口
+
+类型：开发 / 测试
+
+摘要：
+
+- 新增 `app/services/query_run_service.py`，提供面向前端/后续 agent 的一体化问数入口。
+- 新增 `GET /api/query/run`。
+- 该接口整合：
+  - 元数据召回
+  - 上下文构建
+  - 执行库 schema 匹配
+  - SELECT 草稿
+  - SQL safety review
+  - SQL 执行
+  - 结构化结果返回
+- 返回结构更适合前端消费：
+  - `answer_status`
+  - `sql`
+  - `selected_table`
+  - `columns`
+  - `rows`
+  - `row_count`
+  - `elapsed_ms`
+  - `warnings`
+  - `trace`
+
+性能/稳定性调整：
+
+- `query/run` 默认 `table_limit=1`、`field_limit=20`，优先跑首选 SQL-ready 路径，减少本地直连 RDS 时的多余 schema 查询。
+- `QueryPlanningService.prepare` 新增 `stop_after_first_ready`，当首个候选表已可执行时可停止检查后续候选表。
+- `WarehouseRepository` 增加进程内 schema cache，避免同一进程内重复查询同一张表的 `information_schema`。
+- 当元数据字段候选未能匹配物理列，但物理表存在时，`QueryPlanningService` 会使用执行库 `information_schema.COLUMNS` 作为字段候选兜底，避免 SQL-ready 表因为元数据字段召回为空而失败。
+
+验证：
+
+- `python -m compileall app` 通过。
+- 本地 Uvicorn 已重启并加载新路由。
+- `GET /api/query/run?question=SPU 销售金额 店铺&limit=10` 返回：
+  - `answer_status = ok`
+  - `selected_table.table_name = dws_douyin_spu_sales_detail`
+  - `row_count = 10`
+  - `column_count = 12`
+  - `elapsed_ms ~= 6069.75`
+  - `warnings = []`
+
+执行 SQL：
+
+```sql
+SELECT `bhssjxsje`, `shop_name1`, `bhsdrsjxsje`, `sjxsje`, `sjxsjexbm`, `sjxsjejbm`, `drsjxsje`, `ygsjxsje`, `bhssjssjeqtqs`, `qtfyje`, `sjssje`, `zje` FROM `dws_douyin_spu_sales_detail` LIMIT 10
+```
+
+影响：
+
+- M2 已形成可由前端或 agent 直接调用的最小问数入口。
+- 当前仍是确定性 SQL 草稿，不是 LLM SQL 生成；但执行边界、安全审查和结构化结果返回已可复用。
+
+后续动作：
+
+- 下一步可以开始接入 LLM SQL 生成节点，但必须复用当前 `review_sql` 和执行边界。
+- 也可以先补 `POST /api/query/run`，把 GET 参数改成请求体，便于复杂问题和后续会话上下文传入。
+- 后续部署到阿里云服务器后复测端到端延迟，本地直连 RDS 仍有波动。
+
+关联文件：
+
+- `app/services/query_run_service.py`
+- `app/services/query_planning_service.py`
+- `app/repositories/warehouse_repository.py`
+- `app/api/routers/query.py`
+- `docs/NEXT-AI-切换API接续包.md`
+
 ## 2026-06-01 RDS 新账号连接成功
 
 类型：测试

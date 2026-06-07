@@ -8,6 +8,7 @@ from app.core.request_context import get_request_id
 from app.repositories.metadata_repository import MetadataRepository
 from app.repositories.warehouse_repository import WarehouseRepository
 from app.services.query_planning_service import QueryPlanningService
+from app.services.query_run_service import QueryRunService
 from app.services.sql_draft_service import SQLDraftService
 from app.services.sql_execution_service import SQLExecutionService
 
@@ -34,6 +35,14 @@ def _sql_draft_service() -> SQLDraftService:
 def _sql_execution_service() -> SQLExecutionService:
     settings = get_settings()
     return SQLExecutionService(
+        metadata_repository=MetadataRepository(settings.metadata_db),
+        warehouse_repository=WarehouseRepository(settings.warehouse_db),
+    )
+
+
+def _query_run_service() -> QueryRunService:
+    settings = get_settings()
+    return QueryRunService(
         metadata_repository=MetadataRepository(settings.metadata_db),
         warehouse_repository=WarehouseRepository(settings.warehouse_db),
     )
@@ -101,6 +110,34 @@ def execute_draft_sql(
 ) -> dict[str, object]:
     try:
         data = _sql_execution_service().execute_draft(
+            question=question,
+            table_limit=table_limit,
+            field_limit=field_limit,
+            fields_per_table=fields_per_table,
+            limit=limit,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except pymysql.MySQLError as exc:
+        raise HTTPException(status_code=503, detail=f"database unavailable: {exc.args[0]}") from exc
+
+    return {
+        "ok": True,
+        "request_id": get_request_id(),
+        "data": data,
+    }
+
+
+@router.get("/run")
+def run_query(
+    question: str = Query(min_length=1, description="Natural language question"),
+    table_limit: int = Query(default=1, ge=1, le=10),
+    field_limit: int = Query(default=20, ge=1, le=100),
+    fields_per_table: int = Query(default=20, ge=1, le=50),
+    limit: int = Query(default=100, ge=1, le=1000),
+) -> dict[str, object]:
+    try:
+        data = _query_run_service().run(
             question=question,
             table_limit=table_limit,
             field_limit=field_limit,
