@@ -20,6 +20,7 @@ def health_check() -> dict[str, object]:
         "request_id": get_request_id(),
         "metadata_db": settings.metadata_db.safe_info(),
         "warehouse_db": settings.warehouse_db.safe_info(),
+        "llm": settings.llm.safe_info(),
     }
 
 

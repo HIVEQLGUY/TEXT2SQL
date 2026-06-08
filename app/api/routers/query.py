@@ -4,6 +4,7 @@ import pymysql
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
 
+from app.clients.llm import LLMClientError, OpenAICompatibleClient
 from app.core.config import get_settings
 from app.core.request_context import get_request_id
 from app.repositories.metadata_repository import MetadataRepository
@@ -56,9 +57,11 @@ def _sql_execution_service() -> SQLExecutionService:
 
 def _query_run_service() -> QueryRunService:
     settings = get_settings()
+    llm_client = OpenAICompatibleClient(settings.llm) if settings.llm.enabled else None
     return QueryRunService(
         metadata_repository=MetadataRepository(settings.metadata_db),
         warehouse_repository=WarehouseRepository(settings.warehouse_db),
+        llm_client=llm_client,
     )
 
 
@@ -172,8 +175,8 @@ def run_query(
 
 @router.post("/run")
 def run_query_post(payload: QueryRunRequest) -> dict[str, object]:
-    if payload.mode != "draft":
-        raise HTTPException(status_code=422, detail="Only mode='draft' is supported for now.")
+    if payload.mode not in {"draft", "llm_draft"}:
+        raise HTTPException(status_code=422, detail="Only mode='draft' and mode='llm_draft' are supported for now.")
 
     try:
         data = _query_run_service().run(
@@ -182,9 +185,12 @@ def run_query_post(payload: QueryRunRequest) -> dict[str, object]:
             field_limit=payload.field_limit,
             fields_per_table=payload.fields_per_table,
             limit=payload.limit,
+            mode=payload.mode,
         )
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except LLMClientError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
     except pymysql.MySQLError as exc:
         raise HTTPException(status_code=503, detail=f"database unavailable: {exc.args[0]}") from exc
 
@@ -193,7 +199,6 @@ def run_query_post(payload: QueryRunRequest) -> dict[str, object]:
         "request_id": get_request_id(),
         "data": {
             **data,
-            "mode": payload.mode,
             "conversation_context": payload.conversation_context,
         },
     }

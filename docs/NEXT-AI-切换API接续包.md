@@ -732,3 +732,103 @@ trace.execution_review.allowed = true
 
 1. 设计运行记录落库表或日志 sink。
 2. 接入 LLM SQL 生成节点，并将节点耗时和审查结果写入 trace。
+
+## 16. 2026-06-08 最新进展：DeepSeek LLM SQL 生成节点已接通
+
+已接入 DeepSeek / OpenAI-compatible LLM client。
+
+新增代码：
+
+```text
+app/clients/llm.py
+app/services/llm_sql_generation_service.py
+```
+
+新增/更新配置模板：
+
+```text
+LLM_PROVIDER=deepseek
+LLM_BASE_URL=https://api.deepseek.com
+LLM_API_KEY=
+LLM_MODEL=deepseek-v4-flash
+LLM_TIMEOUT_SECONDS=60
+```
+
+本地真实配置：
+
+```text
+LLM_PROVIDER=deepseek
+LLM_BASE_URL=https://api.deepseek.com
+LLM_MODEL=DEEPSEEK（代码映射为 deepseek-v4-flash）
+LLM_API_KEY=见 local/SECRETS-实际账号.md
+```
+
+注意：
+
+- 用户提供的 `https://platform.deepseek.com/api_keys` 是控制台 API key 页面，不是调用 API 的 base URL。
+- 实际 OpenAI-compatible API base URL 使用 `https://api.deepseek.com`。
+- 真实 API key 不提交 Git，只在本地 `.env` 和 `local/SECRETS-实际账号.md`。
+- DeepSeek 官方当前模型为 `deepseek-v4-flash` / `deepseek-v4-pro`；代码把本地别名 `DEEPSEEK` 映射为 `deepseek-v4-flash`。
+
+`POST /api/query/run` 已支持：
+
+```text
+mode = llm_draft
+```
+
+当前 LLM SQL 执行安全边界：
+
+```text
+LLM 生成 SQL
+-> review_sql
+-> schema 白名单校验
+-> execution boundary 再次 review_sql
+-> execute_select
+```
+
+验证请求：
+
+```json
+{
+  "question": "SPU 销售金额 店铺",
+  "limit": 3,
+  "mode": "llm_draft",
+  "table_limit": 1,
+  "field_limit": 20,
+  "fields_per_table": 20
+}
+```
+
+验证结果：
+
+```text
+answer_status = ok
+selected_table.table_name = dws_douyin_spu_sales_detail
+row_count = 3
+executed = true
+execution_review.allowed = true
+llm_model = deepseek-v4-flash
+warnings = []
+```
+
+LLM 初次生成并执行的 SQL：
+
+```sql
+SELECT `yjlm`, `sjlm`, `bhsqtfy` FROM `dws_douyin_spu_sales_detail` LIMIT 3
+```
+
+随后已优化：
+
+- 当物理表存在时，`QueryPlanningService` 会合并执行库完整字段候选。
+- LLM prompt 增加 recommended columns。
+- 复测后 SQL 已覆盖店铺和销售金额相关字段：
+
+```sql
+SELECT `shop_name1`, `sjxsje`, `bhssjxsje`, `bhsdrsjxsje`, `drsjxsje` FROM `dws_douyin_spu_sales_detail` LIMIT 3
+```
+
+下一步建议：
+
+1. trace 中拆出 `llm_sql_generation` 和 `sql_review` step。
+2. 增加 LLM 生成失败/SQL 被拦截时的前端友好错误结构。
+3. 继续扩展更多真实问题测试集。

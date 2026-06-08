@@ -542,6 +542,100 @@ SELECT `bhssjxsje`, `shop_name1`, `bhsdrsjxsje`, `sjxsje`, `sjxsjexbm`, `sjxsjej
 - `app/services/query_run_service.py`
 - `docs/NEXT-AI-切换API接续包.md`
 
+## 2026-06-08 M2 LLM SQL 生成节点初版
+
+类型：开发 / 测试
+
+摘要：
+
+- 已接入 DeepSeek / OpenAI-compatible LLM client。
+- Git 中新增 `.env.example` 的 LLM 配置模板。
+- 本地 `.env` 和 `local/SECRETS-实际账号.md` 已记录真实 DeepSeek key，不提交 Git。
+- 用户提供的 `https://platform.deepseek.com/api_keys` 是控制台 API key 页面；实际调用 base URL 已按官方 OpenAI-compatible API 使用 `https://api.deepseek.com`。
+- `app/clients/llm.py` 新增 `OpenAICompatibleClient`。
+- `app/services/llm_sql_generation_service.py` 新增 LLM SQL 生成服务。
+- `POST /api/query/run` 已支持 `mode = llm_draft`。
+- `mode = draft` 保留为确定性 fallback。
+- LLM SQL 执行前新增 schema 白名单校验：LLM 输出 SQL 中反引号标识符必须属于选中物理表或字段，否则不执行。
+- LLM SQL 仍必须通过 `review_sql`，并在执行边界再次审查。
+
+本地配置：
+
+```text
+LLM_PROVIDER=deepseek
+LLM_BASE_URL=https://api.deepseek.com
+LLM_MODEL=DEEPSEEK（代码映射为 deepseek-v4-flash）
+LLM_TIMEOUT_SECONDS=60
+LLM_API_KEY=见 local/SECRETS-实际账号.md
+```
+
+验证：
+
+- `python -m compileall app` 通过。
+- `GET /api/health` 返回 LLM 配置已读取，且只显示 `api_key_configured = true`，不泄露 key。
+- `POST /api/query/run` 使用 `mode = llm_draft` 验证通过。
+
+验证请求摘要：
+
+```json
+{
+  "question": "SPU 销售金额 店铺",
+  "limit": 3,
+  "mode": "llm_draft",
+  "table_limit": 1,
+  "field_limit": 20,
+  "fields_per_table": 20
+}
+```
+
+返回摘要：
+
+```text
+answer_status = ok
+selected_table.table_name = dws_douyin_spu_sales_detail
+row_count = 3
+executed = true
+execution_review.allowed = true
+llm_model = deepseek-v4-flash
+warnings = []
+```
+
+LLM 生成并执行的 SQL（初次验证）：
+
+```sql
+SELECT `yjlm`, `sjlm`, `bhsqtfy` FROM `dws_douyin_spu_sales_detail` LIMIT 3
+```
+
+随后优化：
+
+- `QueryPlanningService` 会在物理表存在时合并执行库字段候选，避免只传入少量元数据命中字段。
+- LLM prompt 已增加 question-focused recommended columns。
+- 复测后 LLM SQL 已能覆盖店铺和销售金额相关字段：
+
+```sql
+SELECT `shop_name1`, `sjxsje`, `bhssjxsje`, `bhsdrsjxsje`, `drsjxsje` FROM `dws_douyin_spu_sales_detail` LIMIT 3
+```
+
+影响：
+
+- M2 已从确定性问数闭环推进到 LLM SQL 生成闭环。
+- 当前安全边界仍然保留：LLM 输出必须过 SQL review、schema 白名单和执行边界。
+
+后续动作：
+
+- 继续增加 `llm_sql_generation`、`sql_review` 等更细粒度 trace step。
+- 补 LLM SQL 生成失败/被拦截时的前端友好错误结构。
+
+关联文件：
+
+- `app/clients/llm.py`
+- `app/services/llm_sql_generation_service.py`
+- `app/services/query_planning_service.py`
+- `app/services/query_run_service.py`
+- `app/api/routers/query.py`
+- `.env.example`
+- `docs/NEXT-AI-切换API接续包.md`
+
 ## 2026-06-01 RDS 新账号连接成功
 
 类型：测试

@@ -144,7 +144,10 @@ local/SECRETS-实际账号.md
 14. `GET /api/query/run` 一体化问数入口已新增并验证，当前可返回 `answer_status`、`sql`、`selected_table`、`columns`、`rows`、`row_count`、`elapsed_ms`、`warnings`、`trace`。
 15. `POST /api/query/run` 已新增并验证，使用 `QueryRunRequest` 请求体，当前仅支持 `mode=draft`，`conversation_context` 预留给后续多轮问数。
 16. `query/run` 已新增最小运行记录结构，响应包含 `run_id`、`started_at`、`trace.total_elapsed_ms`、`trace.steps`、SQL review 和执行状态。
-17. `query/run` 当前仍使用确定性 SQL 草稿，不是最终 LLM SQL 生成；下一步可接入 LLM SQL 生成节点，并设计运行记录落库。
+17. DeepSeek / OpenAI-compatible LLM client 已接入，`POST /api/query/run` 支持 `mode=llm_draft`。
+18. LLM SQL 执行安全边界已保留：`review_sql`、schema 白名单校验、执行边界再次 review。
+19. `mode=llm_draft` 已验证能生成并执行 SQL；字段候选合并和 recommended columns 已优化，`SPU 销售金额 店铺` 可生成覆盖店铺和销售金额字段的 SQL。
+20. 下一步建议拆分更细的 trace step：`llm_sql_generation`、`sql_review`、`sql_execution`，并增加 LLM 失败/SQL 拦截时的前端友好错误结构。
 
 连通性确认后，从 `docs/PLAN-第一阶段落地方案.md` 的 M1 开始：
 

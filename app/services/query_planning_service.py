@@ -79,8 +79,13 @@ class QueryPlanningService:
                 else:
                     unmatched_fields.append(field)
 
-            if warehouse_table and not matched_fields:
-                matched_fields = [
+            if warehouse_table:
+                matched_column_names = {
+                    field.get("warehouse_column", {}).get("column_name")
+                    for field in matched_fields
+                    if field.get("warehouse_column", {}).get("column_name")
+                }
+                matched_fields.extend(
                     {
                         "field_id": None,
                         "field_name": column["column_name"],
@@ -89,7 +94,8 @@ class QueryPlanningService:
                         "warehouse_column": column,
                     }
                     for column in warehouse_columns
-                ]
+                    if column["column_name"] not in matched_column_names
+                )
 
             prepared_tables.append(
                 {

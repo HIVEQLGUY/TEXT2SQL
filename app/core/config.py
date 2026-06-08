@@ -83,12 +83,49 @@ class Settings:
     log_level: str
     metadata_db: DatabaseSettings
     warehouse_db: DatabaseSettings
+    llm: LLMSettings
 
     def missing_required_values(self) -> list[str]:
-        return [
+        missing = [
             *self.metadata_db.missing_values("META_DB"),
             *self.warehouse_db.missing_values("DW_DB"),
         ]
+        if self.llm.enabled:
+            missing.extend(self.llm.missing_values())
+        return missing
+
+
+@dataclass(frozen=True)
+class LLMSettings:
+    provider: str
+    base_url: str
+    api_key: str
+    model: str
+    timeout_seconds: int = 60
+
+    @property
+    def enabled(self) -> bool:
+        return bool(self.provider or self.base_url or self.api_key or self.model)
+
+    def safe_info(self) -> dict[str, object]:
+        return {
+            "provider": self.provider,
+            "base_url": self.base_url,
+            "model": self.model,
+            "timeout_seconds": self.timeout_seconds,
+            "api_key_configured": bool(self.api_key),
+        }
+
+    def missing_values(self) -> list[str]:
+        missing = []
+        for name, value in {
+            "LLM_BASE_URL": self.base_url,
+            "LLM_API_KEY": self.api_key,
+            "LLM_MODEL": self.model,
+        }.items():
+            if not value:
+                missing.append(name)
+        return missing
 
 
 def _load_database_settings(values: dict[str, str], prefix: str) -> DatabaseSettings:
@@ -119,6 +156,16 @@ def _load_database_settings(values: dict[str, str], prefix: str) -> DatabaseSett
     )
 
 
+def _load_llm_settings(values: dict[str, str]) -> LLMSettings:
+    return LLMSettings(
+        provider=values.get("LLM_PROVIDER", ""),
+        base_url=values.get("LLM_BASE_URL", ""),
+        api_key=values.get("LLM_API_KEY", ""),
+        model=values.get("LLM_MODEL", ""),
+        timeout_seconds=_parse_int(values.get("LLM_TIMEOUT_SECONDS"), 60),
+    )
+
+
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
     values = _merged_env()
@@ -128,6 +175,7 @@ def get_settings() -> Settings:
         log_level=values.get("APP_LOG_LEVEL", "INFO"),
         metadata_db=_load_database_settings(values, "META_DB"),
         warehouse_db=_load_database_settings(values, "DW_DB"),
+        llm=_load_llm_settings(values),
     )
 
 

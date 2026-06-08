@@ -231,3 +231,21 @@ table_id: hKrBQ2zwwG
 table_name: ud_3418004512502203_dyxsjyzhb
 table_display_name: DWS_抖音_SPU销售明细
 ```
+
+## 12. LLM 资源登记
+
+用途：Text2SQL 的 LLM SQL 生成节点。
+
+```text
+provider: deepseek
+base_url: https://api.deepseek.com
+local model setting: DEEPSEEK
+actual compatible model: 由 DeepSeek API 返回为准，当前验证返回 deepseek-v4-flash
+```
+
+注意：
+
+- 用户提供的 `https://platform.deepseek.com/api_keys` 是控制台 API key 页面，不是调用 API 的 base URL。
+- OpenAI-compatible 调用地址使用 `https://api.deepseek.com`。
+- 代码中会将本地 `LLM_MODEL=DEEPSEEK` 别名映射为官方当前模型 `deepseek-v4-flash`。
+- 真实 API key 只记录在本地 `.env` 和 `local/SECRETS-实际账号.md`，不提交 Git。
