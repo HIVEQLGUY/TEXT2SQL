@@ -147,7 +147,8 @@ local/SECRETS-实际账号.md
 17. DeepSeek / OpenAI-compatible LLM client 已接入，`POST /api/query/run` 支持 `mode=llm_draft`。
 18. LLM SQL 执行安全边界已保留：`review_sql`、schema 白名单校验、执行边界再次 review。
 19. `mode=llm_draft` 已验证能生成并执行 SQL；字段候选合并和 recommended columns 已优化，`SPU 销售金额 店铺` 可生成覆盖店铺和销售金额字段的 SQL。
-20. 下一步建议拆分更细的 trace step：`llm_sql_generation`、`sql_review`、`sql_execution`，并增加 LLM 失败/SQL 拦截时的前端友好错误结构。
+20. `mode=llm_draft` 已拆分更细的 trace step：`llm_sql_generation`、`sql_review`、`schema_validation`、`sql_execution`，并增加 LLM 失败/SQL 拦截时的统一 `error` 对象。
+21. 下一步建议扩展真实问题测试集，并整理前端/agent 消费的问数响应契约。
 
 连通性确认后，从 `docs/PLAN-第一阶段落地方案.md` 的 M1 开始：
 

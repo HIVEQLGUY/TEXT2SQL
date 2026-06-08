@@ -623,8 +623,28 @@ SELECT `shop_name1`, `sjxsje`, `bhssjxsje`, `bhsdrsjxsje`, `drsjxsje` FROM `dws_
 
 后续动作：
 
-- 继续增加 `llm_sql_generation`、`sql_review` 等更细粒度 trace step。
-- 补 LLM SQL 生成失败/被拦截时的前端友好错误结构。
+- 已补充 `mode=llm_draft` 的细粒度 trace step：`llm_sql_generation`、`sql_review`、`schema_validation`、`sql_execution`。
+- 已补充 LLM 失败/SQL 被拦截时的统一 `error` 对象，包含 `code`、`message`、`stage`、`status`、`retryable`。
+- 下一步继续扩展更多真实问题测试集，并开始整理前端/agent 消费的问数响应契约。
+
+补充验证：
+
+- `python -m compileall app` 通过。
+- `POST /api/query/run` 使用 `mode=draft` 验证通过：
+  - `answer_status = ok`
+  - `row_count = 3`
+  - `trace.steps = draft_and_execute:ok, sql_execution:ok`
+- `POST /api/query/run` 使用 `mode=llm_draft` 验证通过：
+  - `answer_status = ok`
+  - `row_count = 3`
+  - `error = null`
+  - `trace.steps = llm_sql_generation:ok, sql_review:ok, schema_validation:ok, sql_execution:ok`
+
+本次 LLM 复测 SQL：
+
+```sql
+SELECT `shop_name1`, `sjxsje` FROM `dws_douyin_spu_sales_detail` LIMIT 3
+```
 
 关联文件：
 

@@ -827,8 +827,34 @@ SELECT `yjlm`, `sjlm`, `bhsqtfy` FROM `dws_douyin_spu_sales_detail` LIMIT 3
 SELECT `shop_name1`, `sjxsje`, `bhssjxsje`, `bhsdrsjxsje`, `drsjxsje` FROM `dws_douyin_spu_sales_detail` LIMIT 3
 ```
 
+随后继续优化：
+
+- `mode=llm_draft` 已拆分 trace step：`llm_sql_generation`、`sql_review`、`schema_validation`、`sql_execution`。
+- LLM 请求失败、LLM 未生成 SQL、SQL safety 拦截、schema 白名单拦截时，响应会带统一 `error` 对象：
+
+```text
+code
+message
+stage
+status
+retryable
+```
+
+复测结果：
+
+```text
+POST /api/query/run mode=draft
+answer_status = ok
+trace.steps = draft_and_execute:ok, sql_execution:ok
+
+POST /api/query/run mode=llm_draft
+answer_status = ok
+trace.steps = llm_sql_generation:ok, sql_review:ok, schema_validation:ok, sql_execution:ok
+error = null
+```
+
 下一步建议：
 
-1. trace 中拆出 `llm_sql_generation` 和 `sql_review` step。
-2. 增加 LLM 生成失败/SQL 被拦截时的前端友好错误结构。
-3. 继续扩展更多真实问题测试集。
+1. 扩展更多真实问题测试集，覆盖金额、数量、店铺、品牌、时间条件、排序和聚合。
+2. 整理前端/agent 消费的问数响应契约，确认哪些字段稳定进入第一版 UI。
+3. 后续再做多轮问数上下文、聚合 SQL 和云服务器部署复测。
