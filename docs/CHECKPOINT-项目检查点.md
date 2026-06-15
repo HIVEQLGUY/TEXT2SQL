@@ -676,6 +676,34 @@ SELECT `shop_name1`, `sjxsje` FROM `dws_douyin_spu_sales_detail` LIMIT 3
 - `tests/test_query_run_contract.py`
 - `app/services/query_run_service.py`
 
+## 2026-06-15 M2 真实问题测试集初版
+
+类型：测试 / 文档
+
+摘要：
+
+- 新增 `docs/QUERY-RUN-真实问题测试集.md`，把真实问题用例分为 P0/P1/P2。
+- P0 覆盖当前 M2 必须稳定的单表 SELECT 闭环：金额、店铺、SPU 表定位和 LIMIT。
+- P1 覆盖语义字段选择：品牌、数量、日期/时间、商品名称等。
+- P2 明确为后续能力：聚合、排序、时间解析、多轮上下文。
+- 新增 `tests/test_question_field_selection.py`，离线锁住确定性字段选择的最低语义命中，不访问 RDS 或 LLM。
+
+影响：
+
+- M2 验收不再只依赖单个样例问题。
+- 当前能力边界被明确记录：P0/P1 可以继续复测，P2 不应被误认为已经稳定支持。
+
+后续动作：
+
+- 用真实 API 复测 P0/P1 用例，把结果追加到本检查点。
+- 聚合、排序、时间条件和多轮上下文进入后续能力建设。
+
+关联文件：
+
+- `docs/QUERY-RUN-真实问题测试集.md`
+- `tests/test_question_field_selection.py`
+- `docs/QUERY-RUN-响应契约.md`
+
 关联文件：
 
 - `app/clients/llm.py`

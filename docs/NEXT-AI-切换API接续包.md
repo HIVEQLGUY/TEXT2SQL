@@ -857,5 +857,7 @@ error = null
 
 1. 已新增 `docs/QUERY-RUN-响应契约.md`，固定 `GET/POST /api/query/run` 的第一版响应形状。
 2. 已新增离线契约测试 `tests/test_query_run_contract.py`，覆盖 `draft` 成功响应、`llm_draft` 未配置错误、schema 白名单拦截。
-3. 下一步扩展更多真实问题测试集，覆盖金额、数量、店铺、品牌、时间条件、排序和聚合。
-4. 后续再做多轮问数上下文、聚合 SQL 和云服务器部署复测。
+3. 已新增 `docs/QUERY-RUN-真实问题测试集.md`，把测试问题分为 P0/P1/P2，明确当前闭环、语义覆盖和后续聚合/多轮能力边界。
+4. 已新增 `tests/test_question_field_selection.py`，离线覆盖金额、店铺、品牌、数量、日期、商品名称等字段选择底线。
+5. 下一步用真实 API 复测 P0/P1 用例；如果本地/沙箱网络受限，就在云服务器部署后复测。
+6. 后续再做多轮问数上下文、聚合 SQL 和云服务器部署复测。

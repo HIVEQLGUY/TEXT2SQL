@@ -157,3 +157,16 @@ M2 收尾阶段应继续补真实问题测试，优先覆盖：
 排序
 聚合
 ```
+
+已拆出固定测试集：
+
+```text
+docs/QUERY-RUN-真实问题测试集.md
+```
+
+离线测试覆盖：
+
+```text
+tests/test_query_run_contract.py
+tests/test_question_field_selection.py
+```
