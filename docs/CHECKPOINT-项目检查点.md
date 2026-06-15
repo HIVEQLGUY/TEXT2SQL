@@ -646,6 +646,36 @@ SELECT `shop_name1`, `sjxsje`, `bhssjxsje`, `bhsdrsjxsje`, `drsjxsje` FROM `dws_
 SELECT `shop_name1`, `sjxsje` FROM `dws_douyin_spu_sales_detail` LIMIT 3
 ```
 
+## 2026-06-15 M2 query/run 响应契约与离线测试
+
+类型：开发 / 测试 / 文档
+
+摘要：
+
+- 新增 `docs/QUERY-RUN-响应契约.md`，固定 `GET/POST /api/query/run` 第一版响应形状。
+- 契约明确 `data` 稳定字段、`answer_status` 语义、`selected_table`、`error`、`trace` 和 `trace.steps`。
+- 新增 `tests/test_query_run_contract.py`，使用 fake executor/repository，不访问真实 RDS 或 LLM。
+- 测试覆盖：
+  - `draft` 成功响应的顶层字段和 trace。
+  - `llm_draft` 未配置 LLM 时的 `not_ready` 和统一 `error`。
+  - LLM SQL schema 白名单允许/阻断行为。
+
+影响：
+
+- M2 的问数入口不再只靠手工接口验证，开始具备可离线回归的响应契约。
+- 后续前端和 agent 可以先按 `docs/QUERY-RUN-响应契约.md` 消费 `query/run`。
+
+后续动作：
+
+- 扩展真实问题测试集，覆盖金额、数量、店铺、品牌、时间条件、排序和聚合。
+- 在真实测试集稳定后，再推进多轮问数上下文、聚合 SQL 和云服务器部署复测。
+
+关联文件：
+
+- `docs/QUERY-RUN-响应契约.md`
+- `tests/test_query_run_contract.py`
+- `app/services/query_run_service.py`
+
 关联文件：
 
 - `app/clients/llm.py`
