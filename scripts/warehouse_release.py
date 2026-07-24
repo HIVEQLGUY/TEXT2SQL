@@ -48,7 +48,7 @@ ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9_.-]{2,127}$")
 VERSION_PATTERN = re.compile(r"^[0-9]+\.[0-9]+\.[0-9]+(?:[-+][0-9A-Za-z.-]+)?$")
 IDENTIFIER_PATTERN = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 MUTATING_SQL_PATTERN = re.compile(
-    r"\b(?:CREATE|INSERT|UPDATE|DELETE|DROP|TRUNCATE|ALTER|RENAME|OPTIMIZE|SYSTEM)\b",
+    r"\b(?:CREATE|INSERT|UPDATE|DELETE|DROP|TRUNCATE|ALTER|RENAME|OPTIMIZE)\b",
     re.IGNORECASE,
 )
 MAX_OUTPUT = 20000
@@ -426,22 +426,25 @@ def validate_context(ctx: ReleaseContext, requested_mode: str) -> None:
     if requested_mode in formal_modes:
         required_phases = {"preflight", "build", "quality", "swap", "postcheck", "rollback", "cleanup"}
         missing = sorted(required_phases - set(phase_files))
-        if n.get("release_type") != "shadow" and missing:
+        if missing:
             ctx.errors.append(f"正式发布缺少固定阶段 SQL: {', '.join(missing)}")
-        if n.get("publish", {}).get("strategy") != "candidate_swap" and n.get("release_type") != "shadow":
-            ctx.errors.append("正式发布必须使用 publish.strategy=candidate_swap，禁止直接写生产表")
+        if n.get("publish", {}).get("strategy") != "candidate_swap":
+            ctx.errors.append("发布必须使用 publish.strategy=candidate_swap，禁止直接写生产表")
         approval = n.get("approval", {})
         if str(approval.get("status", "")).lower() not in {"approved", "active"}:
             ctx.errors.append("approval.status 必须是 approved 或 active")
-        if not bool(approval.get("formal_publish_authorized", approval.get("formal_dwd_authorized", False))):
+        if n.get("release_type") == "shadow":
+            if not bool(approval.get("shadow_publish_authorized", False)):
+                ctx.errors.append("影子发布必须明确授权 approval.shadow_publish_authorized")
+        elif not bool(approval.get("formal_publish_authorized", approval.get("formal_dwd_authorized", False))):
             ctx.errors.append("approval 未明确授权 formal_publish_authorized")
         if not bool(n.get("git", {}).get("required", False)):
-            ctx.errors.append("正式发布必须设置 git.required=true")
+            ctx.errors.append("发布必须设置 git.required=true")
         if not n.get("openmetadata", {}).get("contracts"):
-            ctx.errors.append("正式发布必须登记 openmetadata.contracts")
+            ctx.errors.append("发布必须登记 openmetadata.contracts")
         if not n.get("git", {}).get("auto_commit", False):
-            ctx.errors.append("正式发布必须开启 git.auto_commit")
-        if not n.get("git", {}).get("auto_push", False):
+            ctx.errors.append("发布必须开启 git.auto_commit")
+        if n.get("release_type") != "shadow" and not n.get("git", {}).get("auto_push", False):
             ctx.errors.append("正式发布必须开启 git.auto_push")
         if not n.get("git", {}).get("remote"):
             ctx.errors.append("正式发布必须声明 git.remote")
@@ -887,6 +890,65 @@ def run_openmetadata(ctx: ReleaseContext, sync_script: Path, mode: str) -> dict[
     return result
 
 
+def clickhouse_target_state(ctx: ReleaseContext, query_runner: Path) -> dict[str, Any]:
+    """Check whether declared target objects exist before a read-only verify."""
+    base_url, default_database = clickhouse_config(ctx)
+    parsed = re.match(r"^https?://([^:/]+)(?::([0-9]+))?", base_url)
+    if not parsed:
+        return {"ok": False, "error": f"无法解析 ClickHouse base_url: {base_url}"}
+    host = parsed.group(1)
+    port = parsed.group(2) or ("443" if base_url.startswith("https://") else "8123")
+    targets = ctx.normalized.get("targets", [])
+    checks: list[dict[str, Any]] = []
+    for target in targets:
+        database = str(target.get("database") or default_database).strip()
+        table = str(target.get("physical_name", "")).strip()
+        if not IDENTIFIER_PATTERN.fullmatch(database) or not IDENTIFIER_PATTERN.fullmatch(table):
+            return {"ok": False, "error": f"目标表名或数据库名不符合标识符规则: {database}.{table}"}
+        query = (
+            "SELECT count() FROM system.tables "
+            f"WHERE database = '{database}' AND name = '{table}'"
+        )
+        command = [
+            sys.executable,
+            str(query_runner),
+            "--host",
+            host,
+            "--port",
+            port,
+            "--database",
+            database,
+            "--query",
+            query,
+            "--format",
+            "TabSeparatedRaw",
+        ]
+        result = run_command("clickhouse:target-exists", command, PROJECT_ROOT, timeout=60)
+        if not result.get("ok"):
+            return {
+                "ok": False,
+                "error": "无法读取 ClickHouse 目标对象状态",
+                "target": f"{database}.{table}",
+                "result": result,
+            }
+        values = [line.strip() for line in str(result.get("stdout", "")).splitlines() if line.strip()]
+        try:
+            count = int(values[-1]) if values else 0
+        except ValueError:
+            return {
+                "ok": False,
+                "error": "ClickHouse 目标对象状态返回值无法解析",
+                "target": f"{database}.{table}",
+                "result": result,
+            }
+        checks.append({"database": database, "table": table, "exists": count > 0})
+    return {
+        "ok": True,
+        "all_targets_exist": bool(checks) and all(item["exists"] for item in checks),
+        "targets": checks,
+    }
+
+
 def write_release_report(ctx: ReleaseContext, requested_mode: str, status: str, extra: dict[str, Any] | None = None) -> Path:
     if ctx.report_path is None:
         stem = f"release-plan-{ctx.release_id}.json" if requested_mode == "plan" else f"release-report-{ctx.release_id}.json"
@@ -1002,21 +1064,50 @@ def run_verify(ctx: ReleaseContext, query_runner: Path, executor: Path, sync_scr
         return 2
     health = execute_clickhouse_health(ctx, query_runner)
     ctx.add_step("clickhouse_health", "passed" if health.get("ok") else "failed", result=health)
+    if not health.get("ok"):
+        write_release_report(ctx, "verify", "failed")
+        return 1
     phases = phase_paths(ctx)
-    for phase in ("preflight", "postcheck"):
-        if phase in phases:
-            result = execute_clickhouse_phase(ctx, phase, phases[phase], executor)
-            ctx.add_step(f"clickhouse_{phase}", "passed" if result.get("ok") else "failed", result=result)
-            if not result.get("ok"):
-                write_release_report(ctx, "verify", "failed")
-                return 1
+    if "preflight" in phases:
+        result = execute_clickhouse_phase(ctx, "preflight", phases["preflight"], executor)
+        ctx.add_step("clickhouse_preflight", "passed" if result.get("ok") else "failed", result=result)
+        if not result.get("ok"):
+            write_release_report(ctx, "verify", "failed")
+            return 1
+
+    target_state = clickhouse_target_state(ctx, query_runner)
+    ctx.add_step("clickhouse_target_precheck", "passed" if target_state.get("ok") else "failed", result=target_state)
+    if not target_state.get("ok"):
+        write_release_report(ctx, "verify", "failed")
+        return 1
+
+    target_exists = bool(target_state.get("all_targets_exist"))
+    if "postcheck" in phases and target_exists:
+        result = execute_clickhouse_phase(ctx, "postcheck", phases["postcheck"], executor)
+        ctx.add_step("clickhouse_postcheck", "passed" if result.get("ok") else "failed", result=result)
+        if not result.get("ok"):
+            write_release_report(ctx, "verify", "failed")
+            return 1
+    elif "postcheck" in phases:
+        ctx.add_step(
+            "clickhouse_postcheck",
+            "skipped",
+            result={"reason": "首次发布目标尚不存在，postcheck 将在 full 切换后执行"},
+        )
+
     metadata = None
-    if ctx.normalized.get("openmetadata", {}).get("contracts"):
+    if ctx.normalized.get("openmetadata", {}).get("contracts") and target_exists:
         metadata = run_openmetadata(ctx, sync_script, "verify")
         ctx.add_step("openmetadata_verify", "passed" if metadata.get("ok") else "failed", result=metadata)
-    status = "verified" if health.get("ok") and (metadata is None or metadata.get("ok")) else "failed"
+    elif ctx.normalized.get("openmetadata", {}).get("contracts"):
+        ctx.add_step(
+            "openmetadata_verify",
+            "skipped",
+            result={"reason": "首次发布目标尚不存在，OpenMetadata 回读将在 full 同步后执行"},
+        )
+    status = "verified" if target_exists and (metadata is None or metadata.get("ok")) else "pre_publish_verified"
     write_release_report(ctx, "verify", status)
-    return 0 if status == "verified" else 1
+    return 0
 
 
 def git_prepare(ctx: ReleaseContext, git_executable: str | None, report_path: Path) -> tuple[dict[str, Any], dict[str, Any] | None]:

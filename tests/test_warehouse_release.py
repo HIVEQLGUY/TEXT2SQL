@@ -21,6 +21,7 @@ from scripts.warehouse_release import (  # noqa: E402
     git_push,
     git_runtime_environment,
     release_lock,
+    run_verify,
     run_finalize,
     run_full,
     validate_context,
@@ -131,6 +132,49 @@ class WarehouseReleaseValidationTests(unittest.TestCase):
             self.assertTrue(context.normalized["git"]["auto_push"])
             self.assertEqual(context.normalized["git"]["remote"], "origin")
             self.assertEqual(context.normalized["git"]["branch"], "main")
+
+    def test_shadow_full_allows_local_git_record_without_remote_push(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            release = create_package(Path(directory))
+            text = release.read_text(encoding="utf-8")
+            text = text.replace("release_type: formal", "release_type: shadow")
+            text = text.replace("  formal_publish_authorized: true", "  shadow_publish_authorized: true")
+            text = text.replace("  auto_push: true", "  auto_push: false")
+            release.write_text(text, encoding="utf-8")
+            context = build_context(release)
+            validate_context(context, "full")
+            self.assertEqual(context.errors, [])
+
+    def test_verify_allows_first_publish_without_existing_target(self) -> None:
+        import scripts.warehouse_release as release_runner
+
+        with tempfile.TemporaryDirectory() as directory:
+            release = create_package(Path(directory))
+            text = release.read_text(encoding="utf-8")
+            text = text.replace("release_type: formal", "release_type: shadow")
+            text = text.replace("  formal_publish_authorized: true", "  shadow_publish_authorized: true")
+            release.write_text(text, encoding="utf-8")
+            context = build_context(release)
+            original_root = release_runner.PROJECT_ROOT
+            release_runner.PROJECT_ROOT = Path(directory)
+            try:
+                with (
+                    mock.patch.object(release_runner, "execute_clickhouse_health", return_value={"ok": True}),
+                    mock.patch.object(release_runner, "execute_clickhouse_phase", return_value={"ok": True}),
+                    mock.patch.object(
+                        release_runner,
+                        "clickhouse_target_state",
+                        return_value={"ok": True, "all_targets_exist": False, "targets": [{"exists": False}]},
+                    ),
+                    mock.patch.object(release_runner, "run_openmetadata") as metadata,
+                ):
+                    status = run_verify(context, Path("query.py"), Path("executor.py"), Path("metadata.py"))
+            finally:
+                release_runner.PROJECT_ROOT = original_root
+            self.assertEqual(status, 0)
+            metadata.assert_not_called()
+            report = json.loads((context.package_dir / f"release-report-{context.release_id}.json").read_text(encoding="utf-8"))
+            self.assertEqual(report["status"], "pre_publish_verified")
 
     def test_clickhouse_config_falls_back_from_empty_legacy_database(self) -> None:
         context = SimpleNamespace(
@@ -410,6 +454,18 @@ class WarehouseReleaseValidationTests(unittest.TestCase):
             context = build_context(release)
             validate_context(context, "full")
             self.assertTrue(any("必须只读" in item for item in context.errors))
+
+    def test_readonly_system_table_query_is_allowed(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            release = create_package(Path(directory))
+            quality = release.parent / "quality.sql"
+            quality.write_text(
+                "SELECT count() FROM system.columns WHERE database = 'youmei_sandbox';\n",
+                encoding="utf-8",
+            )
+            context = build_context(release)
+            validate_context(context, "full")
+            self.assertFalse(any("quality 阶段必须只读" in item for item in context.errors))
 
     def test_legacy_manifest_is_read_only_compatible(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

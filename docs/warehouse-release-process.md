@@ -33,7 +33,7 @@ C:\Users\24796\Documents\TEXT2SQL\warehouse-release.cmd --release <发布YAML> -
 C:\Users\24796\Documents\TEXT2SQL\warehouse-release.cmd --release <发布YAML> --mode finalize
 ```
 
-`plan` 只校验文件、版本指纹、阶段顺序和门禁，并执行 Git 工作树/暂存区只读预检，不写 ClickHouse、OpenMetadata 或 Git。发布器会自动补齐随附 Git 运行时的 HTTPS、receive-pack 等辅助程序路径，不要求调用方手工设置环境变量。`verify` 只执行健康检查、只读 SQL 和 OpenMetadata 回读。`full` 才是正式发布动作。`finalize` 用于平台已经完成但 Git 最终提交或标签遇到临时故障后的显式补记，不会重新执行数据写入。
+`plan` 只校验文件、版本指纹、阶段顺序和门禁，并执行 Git 工作树/暂存区只读预检，不写 ClickHouse、OpenMetadata 或 Git。发布器会自动补齐随附 Git 运行时的 HTTPS、receive-pack 等辅助程序路径，不要求调用方手工设置环境变量。`verify` 执行健康检查和只读前置 SQL；已有目标表时继续执行 `postcheck` 与 OpenMetadata 回读，首次发布且目标表尚不存在时明确跳过这两项并标记 `pre_publish_verified`，由 `full` 完成切换后再执行完整门禁。`full` 才是正式发布动作。`finalize` 用于平台已经完成但 Git 最终提交或标签遇到临时故障后的显式补记，不会重新执行数据写入。
 
 ## 发布包最小要求
 
@@ -43,11 +43,11 @@ C:\Users\24796\Documents\TEXT2SQL\warehouse-release.cmd --release <发布YAML> -
 - `source.database` 和不可为空的输入分区列表。
 - 每张目标表的中文业务名、物理名、粒度、主键、唯一候选表名和临时旧表名。
 - `publish.strategy: candidate_swap` 与七个阶段 SQL：`preflight`、`build`、`quality`、`swap`、`postcheck`、`rollback`、`cleanup`。
-- `approval.status: approved` 和 `approval.formal_publish_authorized: true`。
+- `approval.status: approved`；正式发布必须有 `approval.formal_publish_authorized: true`，影子发布必须有 `approval.shadow_publish_authorized: true`。
 - `openmetadata.contracts`，由固定同步入口执行 `plan -> apply -> verify`。
-- `git.required: true`、`git.auto_commit: true`、`git.auto_push: true`、`git.remote`、`git.branch` 和发布标签。
+- `git.required: true`、`git.auto_commit: true`、`git.remote`、`git.branch` 和发布标签；正式发布还必须开启 `git.auto_push: true`，影子发布允许暂不推送公开远程。
 
-`build` 只能创建并写入候选表；`swap` 负责原子切换；`cleanup` 不得删除当前正式表；`rollback` 必须能把切换前对象恢复为正式对象。只读阶段如果出现 DDL/DML 关键字会直接阻断。
+`build` 只能创建并写入候选表；`swap` 负责原子切换；`cleanup` 不得删除当前正式表；`rollback` 必须能把切换前对象恢复为正式对象。只读阶段如果出现 DDL/DML 关键字会直接阻断。`release_type: shadow` 可在测试库执行同样的候选切换和 OpenMetadata 登记，但必须声明 `approval.shadow_publish_authorized: true`，目标只能是影子表，Git 至少本地提交；可暂不向公开远程推送。
 
 ## 冗余和重跑处理
 
@@ -79,7 +79,7 @@ ODS 到 DWD 仍先由 `data-warehouse-cleaning` 固化字段、粒度、金额�
 发布器单元和本地候选切换集成测试统一运行：
 
 ```powershell
-C:\Users\24796\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe tests\test_warehouse_release.py
+C:\Users\24796\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe -m unittest -v tests\test_warehouse_release.py
 ```
 
 该测试使用临时 Git 工作树、裸仓库和模拟 ClickHouse/OpenMetadata 执行器，不写真实数仓；真实环境仍必须通过 `verify` 后再经用户批准执行 `full`。

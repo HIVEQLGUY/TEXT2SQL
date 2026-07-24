@@ -1,5 +1,35 @@
 # 当前状态
 
+## 25. 发布器回滚门禁测试完成 2026-07-24
+
+- 最新本地发布链路提交为 `23b00b6`（`test: cover rollback after postcheck failure`）；本地 `main` 相对缓存的 `origin/main` 领先 5 个提交，暂存区为空。
+- 11 项发布器测试全部通过，覆盖成功发布、预推送失败后 `finalize`、`postcheck` 失败后 `rollback`、候选表保护、只读阶段和并发锁。
+- 当前仍有 CH-UI/查询工作台相关未提交改动，未纳入上述 5 个发布链路提交。
+
+## 24. 预推送失败可恢复性修正 2026-07-24
+
+- 修复发布器失败路径：Git 预提交成功但预推送失败时，不再把报告留在不可 `finalize` 的 `blocked` 状态，而是落为 `version_record_pending`，并提交本地报告。
+- `finalize` 现在可以接管该状态，补记报告、创建标签并重新推送；新增回归测试覆盖“预推送失败 -> 本地留痕 -> finalize 成功”。
+- 发布器测试现为 11 项全部通过；当前抖店修正发布包 `plan` 和真实 `verify` 仍分别通过，未执行任何真实 `full` 写入。
+
+## 23. CH-UI 现成 ClickHouse Web UI 试用安装包 2026-07-24
+
+- 按用户要求保留此前自研 `ClickHouse 查询工作台`，并新增 CH-UI 现成工具试用安装包；二者当前并存，不互相覆盖。
+- 已在 `tools/ch-ui` 固化 CH-UI Docker Compose 安装包、启动脚本、停止脚本、健康检查脚本和 README：
+  - `tools/ch-ui/docker-compose.yml`
+  - `tools/ch-ui/docker-compose.wsl.yml`
+  - `tools/ch-ui/.env.example`
+  - `tools/ch-ui/start-ch-ui.ps1`
+  - `tools/ch-ui/start-ch-ui-wsl.ps1`
+  - `tools/ch-ui/stop-ch-ui.ps1`
+  - `tools/ch-ui/stop-ch-ui-wsl.ps1`
+  - `tools/ch-ui/check-ch-ui.ps1`
+  - `tools/ch-ui/README.md`
+- CH-UI 官方推荐 Docker 镜像路径为 `ghcr.io/caioricciuti/ch-ui:latest`，默认容器端口 `3488`；本项目默认本地访问地址规划为 `http://127.0.0.1:3488`，连接本机 ClickHouse 使用 `http://host.docker.internal:8123`。
+- 当前 Windows 主机仍未发现 `docker`、Docker Desktop 或 `winget` 命令；实际使用 WSL `Ubuntu-24.04` 内 Docker 启动。`docker-compose.wsl.yml` 已改为端口映射模式，避免 `network_mode: host` 导致 Windows 侧浏览器不可访问。
+- 当前状态为：CH-UI 已通过 WSL Docker 启动，容器名 `youmei-ch-ui`，状态 `healthy`，端口映射 `0.0.0.0:3488->3488/tcp`；`check-ch-ui.ps1` 于 2026-07-24 15:31 +08:00 返回 200，入口页 `http://127.0.0.1:3488` 返回 200。启动命令为 `powershell -ExecutionPolicy Bypass -File tools/ch-ui/start-ch-ui-wsl.ps1`。
+- 边界：CH-UI 用于试用现成 ClickHouse Web UI 能力；项目内自研 `ClickHouse 查询工作台` 仍保留为受控只读验证网关，承担 SQL 白名单、默认 LIMIT、查询审计和 Git 发布包验证记录。
+
 ## 22. 发布链路本地提交与公开仓库推送门禁 2026-07-24
 
 - 本次发布链路改造已形成本地 Git 提交 `2cd488b`（`chore: harden warehouse release workflow`），包含发布器、测试、流程文档、真实只读验证报告和状态台账；未提交的 ClickHouse 查询工作台改动未混入。
@@ -255,3 +285,13 @@ C:\Users\24796\Desktop\youmei-api-ingestion-archive-20260719.zip
 - 已补充发布器 Git 自动发现：默认可识别当前 Codex 缓存 Git，不再要求手工传 `--git-executable`；当前纠正发布包执行 `--mode plan` 通过，旧发布包仅产生兼容性警告，不允许直接 `full`。
 - 发布器测试已用项目自带 `unittest` 执行，5 项全部通过；当前 Python 环境未安装 `pytest`，未将其缺失误判为代码失败。
 - 当前仍未完成：本地初始提交、与远程 `main` 的内容对齐和首次推送；本次只完成登录、身份配置、远程绑定、资源校验和发布计划验证。
+## 26. 物流快递单号影子发布与版本链路闭环 2026-07-24
+
+- 已修复发布器首次发布验证缺口：当 ClickHouse 目标表尚不存在时，`verify` 不再把目标表 `postcheck` 和 OpenMetadata 回读误判为失败，改为通过健康检查和只读前置 SQL，并明确输出 `pre_publish_verified`；目标已存在时仍执行完整回读。
+- 发布器回归测试已增至 14 项并全部通过；本次新增首次影子发布验证测试。
+- 原 `doudian_order_tracking_no_shadow_1_3_3` 因 Git 暂存权限失败的报告保留为失败审计记录；未修改原发布编号指纹，新增纠正发布 `doudian_order_tracking_no_shadow_corrective_1_3_3`，复用同一目标影子表和候选 SQL，不新增正式历史表。
+- 纠正发布包 `config/warehouse_cleaning/doudian_order_item_v1/corrective-release-tracking-no-shadow-1.3.3.yaml` 已完成真实 `full`：Git 预提交、ClickHouse 健康检查、前置检查、候选构建、质量门禁、候选切换、切换后检查、OpenMetadata `plan -> apply -> verify`、临时对象清理和 Git 标签均通过。
+- `DWD_抖店订单物流快递单号粒度影子表`（`dwd_trade_order_logistics_tracking_no_shadow_1_3_3`）当前 41,140 行、复合键 41,140 个、空快递单号 0；目标粒度为 `店铺ID(shop_id) + 店铺订单号(shop_order_id) + 快递单号(tracking_no)`，包裹ID未作为字段或目标粒度，候选表和旧表已清理。
+- OpenMetadata 已回读 18 个字段和 17 个表级自定义属性；中文表名、粒度、金额单位策略、清洗契约版本和数据质量状态已登记。
+- 本地 Git 已形成提交 `3c1e3d9` 和标签 `warehouse/doudian-order-tracking-shadow-corrective-1.3.3`；当前工作区仍有前次工具台、旧失败尝试和其他未分类改动，发布器未将其混入本次提交。当前本地 `main` 比 `origin/main` 领先 7 个提交，远程 GitHub 尚未确认同步。
+- 当前正式订单主单、商品明细 DWD 未被本次物流影子发布替换；物流快递单号影子结果仍需用户审阅后，才能创建新的正式 DWD 晋级发布。
