@@ -293,5 +293,11 @@ C:\Users\24796\Desktop\youmei-api-ingestion-archive-20260719.zip
 - 纠正发布包 `config/warehouse_cleaning/doudian_order_item_v1/corrective-release-tracking-no-shadow-1.3.3.yaml` 已完成真实 `full`：Git 预提交、ClickHouse 健康检查、前置检查、候选构建、质量门禁、候选切换、切换后检查、OpenMetadata `plan -> apply -> verify`、临时对象清理和 Git 标签均通过。
 - `DWD_抖店订单物流快递单号粒度影子表`（`dwd_trade_order_logistics_tracking_no_shadow_1_3_3`）当前 41,140 行、复合键 41,140 个、空快递单号 0；目标粒度为 `店铺ID(shop_id) + 店铺订单号(shop_order_id) + 快递单号(tracking_no)`，包裹ID未作为字段或目标粒度，候选表和旧表已清理。
 - OpenMetadata 已回读 18 个字段和 17 个表级自定义属性；中文表名、粒度、金额单位策略、清洗契约版本和数据质量状态已登记。
-- 本地 Git 已形成发布提交 `3c1e3d9`、标签 `warehouse/doudian-order-tracking-shadow-corrective-1.3.3` 和流程修复提交 `7500650`；当前工作区仍有前次工具台、旧失败尝试和其他未分类改动，发布器未将其混入本次提交。当前本地 `main` 比 `origin/main` 领先 8 个提交，远程 GitHub 尚未确认同步。
+- 本地 Git 已形成发布提交 `3c1e3d9`、标签 `warehouse/doudian-order-tracking-shadow-corrective-1.3.3` 和流程修复提交 `7500650`；当前工作区仍有前次工具台、旧失败尝试和其他未分类改动，发布器未将其混入本次提交。当前本地 `main` 领先本地 `origin/main`，具体差异以实时 Git 检查为准，远程 GitHub 尚未确认同步。
 - 当前正式订单主单、商品明细 DWD 未被本次物流影子发布替换；物流快递单号影子结果仍需用户审阅后，才能创建新的正式 DWD 晋级发布。
+
+## 27. 发布后资源复核 2026-07-24
+
+- 2026-07-24 15:50 的真实纠正影子发布报告仍为 `succeeded`，ClickHouse 全阶段质量、候选切换、切换后检查和清理均通过；目标表当时回读为 41,140 行、复合键唯一、快递单号空值 0。
+- 2026-07-24 16:04 的补充只读复查无法连接本机 ClickHouse 8123；`wsl --list --verbose` 显示当前没有可用 Ubuntu-24.04 发行版，本机也未发现 ClickHouse 进程或 8123/9000 监听端口。
+- 该断联发生在发布成功之后，未执行任何回滚或删除动作；当前状态为“发布结果已完成、运行资源当前不可达、待恢复后补做只读回读”，不能汇报为当前服务健康。

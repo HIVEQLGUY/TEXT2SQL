@@ -2,7 +2,7 @@
 
 ## 2026-07-23 17:00 +08:00 资源确认补充
 
-- ClickHouse 测试库(youmei_sandbox)：直接通过 ClickHouse HTTP SQL 执行 `SELECT currentDatabase(), version()`，返回 `youmei_sandbox / 26.6.1.1193`，状态为可用。
+- ClickHouse 测试库(youmei_sandbox)：2026-07-24 15:50 的纠正影子发布已通过 ClickHouse 全阶段质量、切换和回读；16:04 再次直连时 8123 返回连接拒绝，当前服务不可达。
 - 本次 `check-resource.cmd clickhouse-local` 触发脚本路径编码异常，未作为成功校验记录；后续需要修复该资源别名脚本。OpenMetadata 资源别名(openmetadata-local)在 2026-07-23 16:58 +08:00 已通过统一入口登录校验，版本 `1.12.11`。
 - 本次 ClickHouse DWD 变更后的当前表：`dwd_trade_order_df`、`dwd_trade_order_item_df`、`dwd_trade_order_logistics_package_df`、`dwd_trade_order_logistics_package_item_df`。
 更新时间：2026-07-24 13:38 +08:00
@@ -43,7 +43,7 @@ C:\Users\24796\Documents\TEXT2SQL\check-resource.cmd <资源别名>
 
 | 资源 | 当前用途 | 地址/入口 | 最近确认时间 | 最近状态 | 确认方式 | 备注 |
 | --- | --- | --- | --- | --- | --- | --- |
-| ClickHouse 测试库 | 当前数仓可行性测试与建模验证 | `youmei_sandbox`，本机 WSL `127.0.0.1:8123/9000` | 2026-07-24 15:50 +08:00 | 当前运行中；版本 `26.6.1.1193`；物流快递单号影子发布成功，目标表 41,140 行、复合键唯一、候选和旧表已清理 | 纠正影子发布 `doudian_order_tracking_no_shadow_corrective_1_3_3` 的 ClickHouse 健康、质量、切换、回读和清理结果 | 当前 ClickHouse 建模验证默认入口；正式订单主单和商品明细仍保持既有正式口径，物流快递单号影子表等待用户审阅后再决定是否晋级正式模型。 |
+| ClickHouse 测试库 | 当前数仓可行性测试与建模验证 | `youmei_sandbox`，本机 WSL `127.0.0.1:8123/9000` | 2026-07-24 16:04 +08:00 | 发布后历史回读已通过；当前不可达：本机 8123 连接拒绝，Windows 没有可用 Ubuntu-24.04 WSL 发行版 | 15:50 纠正影子发布全阶段报告；16:04 ClickHouse HTTP 只读复查与 `wsl --list --verbose` | 当前服务恢复后必须补做一次只读回读；不得把当前不可达状态误报为运行中。正式订单主单和商品明细未被本次发布替换。 |
 | ClickHouse 外部工具代理 | 供外部工具/魔方访问本机 ClickHouse | `120.26.202.216:28123` | 2026-07-22 09:41 +08:00 | 代理通道可用 | WSL 内启动 `clickhouse_tool_tunnel.sh supervise`；`clickhouse_tool_tunnel.sh status` 返回 healthy：`root@120.26.202.216 127.0.0.1:18123 -> local 127.0.0.1:8123` | 本机直连 `/ping` 超时符合白名单设计，公网入口主要给魔方出口 IP 使用；该通道为轻量 SSH 反向通道，不启动 OpenMetadata/Superset/DolphinScheduler。 |
 | 工具服务器 | ClickHouse 公网代理承载机 | `120.26.202.216` | 2026-07-21 14:52 +08:00 | SSH 登录成功，主机名 `youmei-node00`，耗时 0.93s | SSH BatchMode 登录 `120.26.202.216` | ClickHouse 公网代理/隧道承载机；使用本机 SSH 私钥做 BatchMode 登录验证。 |
 | 预策/魔方源库 `cubeappdata` | 抖店订单基础表等预策侧源表的只读候选来源 | `127.0.0.1:19030`，默认库 `cubeappdata`，用户 `ro1` | 2026-07-21 14:52 +08:00 | 登录成功；当前用户 `'ro1'@'%'`，版本 `5.1.0`，`cubeappdata` 表数量 `1004` | Windows Python 读取 `local/credentials/sr.env` 的 `SR_*` 并通过本机隧道执行只读查询 | 凭据映射：`local/credentials/sr.env` / `SR_*`；`120.26.202.216:9030` 不作为本机登录入口。 |
@@ -55,7 +55,7 @@ C:\Users\24796\Documents\TEXT2SQL\check-resource.cmd <资源别名>
 | CH-UI 本地 Web UI | 现成 ClickHouse Web UI 试用工具 | `http://127.0.0.1:3488`，安装包 `tools/ch-ui` | 2026-07-24 15:31 +08:00 | WSL Docker 已启动；容器 `youmei-ch-ui` 为 `healthy`；Windows 入口页可访问 | `start-ch-ui-wsl.ps1` 通过 WSL `Ubuntu-24.04` Docker 启动；`docker ps` 显示 `0.0.0.0:3488->3488/tcp`；`check-ch-ui.ps1` 返回 HTTP 200；入口页返回 HTTP 200 | 使用镜像 `ghcr.io/caioricciuti/ch-ui:latest`；ClickHouse 连接为 `http://host.docker.internal:8123`；不替代自研 ClickHouse 查询工作台。 |
 | OpenMetadata 到 ClickHouse bridge | OpenMetadata 访问本机 ClickHouse 的桥接 | `172.16.240.1:18124` | 2026-07-19 15:51 +08:00 | 可用 | `/ping` 返回 `Ok.` | 仅服务本机 Docker/WSL 内部链路 |
 | 历史接口接入留存包 | 旧 API ingestion 代码、契约、SDK bridge、隐性经验留存 | `C:\Users\24796\Desktop\youmei-api-ingestion-archive-20260719.zip` | 2026-07-19 15:51 +08:00 | 文件存在 | 文件大小 995,237 bytes | 仅供历史参考，不代表当前架构继续推进 |
-| GitHub `HIVEQLGUY/TEXT2SQL` | 数仓 SQL、清洗契约、发布报告和版本记录的 Git 权威来源 | `https://github.com/HIVEQLGUY/TEXT2SQL.git` | 2026-07-24 15:50 +08:00 | 本地 `main` 已完成纠正影子发布提交、标签和流程修复提交，当前比本地 `origin/main` 领先 8 个提交；远程实际同步未确认 | Git 本地状态、提交、标签和远程跟踪差异检查；公开远程读取/推送仍受网络与外发安全门禁影响 | 影子发布包本次按 `auto_push: false` 只完成本地 Git 留痕；不得把本地提交描述为 GitHub 已同步。 |
+| GitHub `HIVEQLGUY/TEXT2SQL` | 数仓 SQL、清洗契约、发布报告和版本记录的 Git 权威来源 | `https://github.com/HIVEQLGUY/TEXT2SQL.git` | 2026-07-24 16:04 +08:00 | 本地 `main` 已完成纠正影子发布提交、标签和流程修复提交，并领先本地 `origin/main`；远程实际同步未确认 | Git 本地状态、提交、标签和远程跟踪差异检查；公开远程读取/推送仍受网络与外发安全门禁影响 | 影子发布包本次按 `auto_push: false` 只完成本地 Git 留痕；不得把本地提交描述为 GitHub 已同步，具体领先数量以实时 Git 检查为准。 |
 
 ## 已下线的本机历史组件
 
