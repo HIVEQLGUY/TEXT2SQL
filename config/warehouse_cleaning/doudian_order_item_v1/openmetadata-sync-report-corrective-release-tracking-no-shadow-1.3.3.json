@@ -1,0 +1,109 @@
+{
+  "ok": true,
+  "run_time": "2026-07-24T15:50:18+08:00",
+  "package_dir": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1",
+  "release_file": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\corrective-release-tracking-no-shadow-1.3.3.yaml",
+  "mode": "full",
+  "contract_count": 1,
+  "contracts": [
+    "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\metadata-contract-shadow-logistics-tracking-no-1.3.3.yaml"
+  ],
+  "env_file": "C:\\Users\\24796\\Documents\\TEXT2SQL\\local\\credentials\\openmetadata.env",
+  "env_loaded_keys": [
+    "OPENMETADATA_BASE_URL",
+    "OPENMETADATA_PASSWORD",
+    "OPENMETADATA_USERNAME"
+  ],
+  "results": [
+    {
+      "contract": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\metadata-contract-shadow-logistics-tracking-no-1.3.3.yaml",
+      "mode": "plan",
+      "returncode": 0,
+      "ok": true,
+      "stdout": {
+        "ok": true,
+        "mode": "plan",
+        "services": [
+          {
+            "name": "youmei_clickhouse",
+            "serviceType": "Clickhouse",
+            "displayName": null,
+            "databaseSchema": "youmei_sandbox",
+            "hostPort": "172.16.240.1:18124"
+          },
+          {
+            "name": "youmei_doris",
+            "serviceType": "Doris",
+            "displayName": "佑美 Doris 数仓",
+            "databaseSchema": "agent_warehouse",
+            "hostPort": "100.115.222.97:9030"
+          }
+        ],
+        "diff": {
+          "table_fqn": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3",
+          "exists": false,
+          "desired_columns": 18,
+          "desired_custom_properties": 17
+        }
+      },
+      "stderr": ""
+    },
+    {
+      "contract": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\metadata-contract-shadow-logistics-tracking-no-1.3.3.yaml",
+      "mode": "apply",
+      "returncode": 0,
+      "ok": true,
+      "stdout": {
+        "ok": true,
+        "mode": "apply",
+        "method": "POST",
+        "fqn": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3",
+        "verified": true,
+        "id": "4e9d009c-1039-473b-a844-72b3925b0a01"
+      },
+      "stderr": ""
+    },
+    {
+      "contract": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\metadata-contract-shadow-logistics-tracking-no-1.3.3.yaml",
+      "mode": "verify",
+      "returncode": 0,
+      "ok": true,
+      "stdout": {
+        "ok": true,
+        "mode": "verify",
+        "verification": {
+          "table_fqn": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3",
+          "table_exists": true,
+          "expected_column_count": 18,
+          "actual_column_count": 18,
+          "missing_columns": [],
+          "unexpected_columns": [],
+          "column_mismatches": [],
+          "custom_property_mismatches": [],
+          "actual_extension_keys": [
+            "amount_conversion_status",
+            "amount_rule_version",
+            "amount_unit_strategy",
+            "business_field_retention_policy",
+            "business_table_name_zh",
+            "cleaning_contract_id",
+            "cleaning_contract_version",
+            "data_quality_status",
+            "grain",
+            "json_expansion_policy",
+            "null_value_policy",
+            "refresh_mode",
+            "source_api",
+            "source_api_doc",
+            "source_system",
+            "technical_key_fields",
+            "warehouse_layer"
+          ],
+          "actual_first_column_tags": [],
+          "ok": true
+        }
+      },
+      "stderr": ""
+    }
+  ]
+}

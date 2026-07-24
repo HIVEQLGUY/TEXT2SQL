@@ -1,12 +1,12 @@
 {
   "report_version": "warehouse-release-report/v1",
-  "status": "prepared",
+  "status": "succeeded",
   "release_id": "doudian_order_tracking_no_shadow_corrective_1_3_3",
   "version": "1.3.3",
   "release_type": "shadow",
   "environment": "test",
   "requested_mode": "full",
-  "started_at": "2026-07-24T15:50:05+08:00",
+  "started_at": "2026-07-24T15:50:18+08:00",
   "package_dir": "config/warehouse_cleaning/doudian_order_item_v1",
   "release_file": "config/warehouse_cleaning/doudian_order_item_v1/corrective-release-tracking-no-shadow-1.3.3.yaml",
   "source": {
@@ -47,7 +47,247 @@
   },
   "warnings": [],
   "validation_errors": [],
-  "steps": [],
+  "steps": [
+    {
+      "name": "git_preflight",
+      "status": "passed",
+      "at": "2026-07-24T15:50:06+08:00",
+      "result": {
+        "ok": true,
+        "git": "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\git\\cmd\\git.exe",
+        "repo_root": "C:\\Users\\24796\\Documents\\TEXT2SQL",
+        "worktree_status": " M .gitignore\n M \"TEXT2SQL-codex-handoff/docs/RESOURCE-\\350\\265\\204\\346\\272\\220\\347\\231\\273\\350\\256\\260.md\"\n M TEXT2SQL-codex-handoff/docs/STATE-CURRENT.md\n M docs/clickhouse-query-workbench-evaluation.md\n M docs/warehouse-release-process.md\n M scripts/warehouse_release.py\n M tests/test_warehouse_release.py\n M tools/clickhouse-query-workbench/README.md\n M tools/clickhouse-query-workbench/eslint.config.js\n M tools/clickhouse-query-workbench/package.json\n M tools/clickhouse-query-workbench/server/clickhouse.ts\n M tools/clickhouse-query-workbench/server/sqlGuard.ts\n M tools/clickhouse-query-workbench/vite.config.ts\n?? \" .Destination}}{{end}}\"\n?? config/warehouse_cleaning/doudian_order_item_v1/.warehouse-release-doudian_order_tracking_no_shadow_corrective_1_3_3.lock\n?? config/warehouse_cleaning/doudian_order_item_v1/corrective-release-tracking-no-shadow-1.3.3.yaml\n?? config/warehouse_cleaning/doudian_order_item_v1/metadata-contract-shadow-logistics-tracking-no-1.3.3.yaml\n?? config/warehouse_cleaning/doudian_order_item_v1/release-plan-doudian_order_tracking_no_shadow_1_3_3.json\n?? config/warehouse_cleaning/doudian_order_item_v1/release-plan-doudian_order_tracking_no_shadow_corrective_1_3_3.json\n?? config/warehouse_cleaning/doudian_order_item_v1/release-report-doudian_order_tracking_no_shadow_1_3_3.json\n?? config/warehouse_cleaning/doudian_order_item_v1/release-report-doudian_order_tracking_no_shadow_corrective_1_3_3.json\n?? config/warehouse_cleaning/doudian_order_item_v1/shadow-logistics-tracking-no-build-1.3.3.sql\n?? config/warehouse_cleaning/doudian_order_item_v1/shadow-logistics-tracking-no-cleanup-1.3.3.sql\n?? config/warehouse_cleaning/doudian_order_item_v1/shadow-logistics-tracking-no-execution-1.3.3.sql\n?? config/warehouse_cleaning/doudian_order_item_v1/shadow-logistics-tracking-no-postcheck-1.3.3.sql\n?? config/warehouse_cleaning/doudian_order_item_v1/shadow-logistics-tracking-no-preflight-1.3.3.sql\n?? config/warehouse_cleaning/doudian_order_item_v1/shadow-logistics-tracking-no-quality-1.3.3.sql\n?? config/warehouse_cleaning/doudian_order_item_v1/shadow-logistics-tracking-no-quality-checks-1.3.3.sql\n?? config/warehouse_cleaning/doudian_order_item_v1/shadow-logistics-tracking-no-rollback-1.3.3.sql\n?? config/warehouse_cleaning/doudian_order_item_v1/shadow-logistics-tracking-no-swap-1.3.3.sql\n?? config/warehouse_cleaning/doudian_order_item_v1/shadow-release-tracking-no-1.3.3.yaml\n?? tools/ch-ui/\n?? tools/clickhouse-query-workbench/check-workbench.ps1\n?? tools/clickhouse-query-workbench/pnpm-lock.yaml\n?? tools/clickhouse-query-workbench/pnpm-workspace.yaml\n?? tools/clickhouse-query-workbench/start-workbench.ps1\n"
+      }
+    },
+    {
+      "name": "git_prepare_commit",
+      "status": "passed",
+      "at": "2026-07-24T15:50:07+08:00",
+      "result": {
+        "ok": true,
+        "commit": {
+          "label": "git:commit",
+          "ok": true,
+          "returncode": 0,
+          "stdout": "[main b30385e] warehouse release doudian_order_tracking_no_shadow_corrective_1_3_3 prepare\n 10 files changed, 523 insertions(+)\n create mode 100644 config/warehouse_cleaning/doudian_order_item_v1/corrective-release-tracking-no-shadow-1.3.3.yaml\n create mode 100644 config/warehouse_cleaning/doudian_order_item_v1/metadata-contract-shadow-logistics-tracking-no-1.3.3.yaml\n create mode 100644 config/warehouse_cleaning/doudian_order_item_v1/release-report-doudian_order_tracking_no_shadow_corrective_1_3_3.json\n create mode 100644 config/warehouse_cleaning/doudian_order_item_v1/shadow-logistics-tracking-no-build-1.3.3.sql\n create mode 100644 config/warehouse_cleaning/doudian_order_item_v1/shadow-logistics-tracking-no-cleanup-1.3.3.sql\n create mode 100644 config/warehouse_cleaning/doudian_order_item_v1/shadow-logistics-tracking-no-postcheck-1.3.3.sql\n create mode 100644 config/warehouse_cleaning/doudian_order_item_v1/shadow-logistics-tracking-no-preflight-1.3.3.sql\n create mode 100644 config/warehouse_cleaning/doudian_order_item_v1/shadow-logistics-tracking-no-quality-1.3.3.sql\n create mode 100644 config/warehouse_cleaning/doudian_order_item_v1/shadow-logistics-tracking-no-rollback-1.3.3.sql\n create mode 100644 config/warehouse_cleaning/doudian_order_item_v1/shadow-logistics-tracking-no-swap-1.3.3.sql\n",
+          "stderr": "",
+          "command": [
+            "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\git\\cmd\\git.exe",
+            "commit",
+            "-m",
+            "warehouse release doudian_order_tracking_no_shadow_corrective_1_3_3 prepare"
+          ]
+        },
+        "head": "b30385e045de5ed51fff5a874d32f3b10965a80b",
+        "push": {
+          "ok": true,
+          "skipped": true,
+          "reason": "git.auto_push=false"
+        }
+      }
+    },
+    {
+      "name": "git_prepare_push",
+      "status": "passed",
+      "at": "2026-07-24T15:50:07+08:00",
+      "result": {
+        "ok": true,
+        "skipped": true,
+        "reason": "git.auto_push=false"
+      }
+    },
+    {
+      "name": "clickhouse_health",
+      "status": "passed",
+      "at": "2026-07-24T15:50:07+08:00",
+      "result": {
+        "label": "clickhouse:health",
+        "ok": true,
+        "returncode": 0,
+        "stdout": "{\"database\":\"youmei_sandbox\",\"version\":\"26.6.1.1193\"}\n",
+        "stderr": "",
+        "command": [
+          "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+          "C:\\Users\\24796\\.codex\\skills\\clickhouse-sql-dev\\scripts\\run_clickhouse_sql.py",
+          "--host",
+          "127.0.0.1",
+          "--port",
+          "8123",
+          "--database",
+          "youmei_sandbox",
+          "--query",
+          "SELECT currentDatabase() AS database, version() AS version",
+          "--format",
+          "JSONEachRow"
+        ]
+      }
+    },
+    {
+      "name": "clickhouse_preflight",
+      "status": "passed",
+      "at": "2026-07-24T15:50:08+08:00",
+      "result": {
+        "label": "clickhouse:preflight",
+        "ok": true,
+        "returncode": 0,
+        "stdout": "youmei_sandbox\t26.6.1.1193\n0\n0\n{\"ok\": true, \"sql_file\": \"C:\\\\Users\\\\24796\\\\Documents\\\\TEXT2SQL\\\\config\\\\warehouse_cleaning\\\\doudian_order_item_v1\\\\shadow-logistics-tracking-no-preflight-1.3.3.sql\", \"executed_statements\": 3}\n",
+        "stderr": "",
+        "command": [
+          "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+          "C:\\Users\\24796\\.codex\\skills\\data-warehouse-cleaning\\scripts\\execute_clickhouse_sql.py",
+          "--sql-file",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\shadow-logistics-tracking-no-preflight-1.3.3.sql",
+          "--base-url",
+          "http://127.0.0.1:8123",
+          "--database",
+          "youmei_sandbox",
+          "--print-results"
+        ]
+      }
+    },
+    {
+      "name": "clickhouse_build",
+      "status": "passed",
+      "at": "2026-07-24T15:50:10+08:00",
+      "result": {
+        "label": "clickhouse:build",
+        "ok": true,
+        "returncode": 0,
+        "stdout": "{\"ok\": true, \"sql_file\": \"C:\\\\Users\\\\24796\\\\Documents\\\\TEXT2SQL\\\\config\\\\warehouse_cleaning\\\\doudian_order_item_v1\\\\shadow-logistics-tracking-no-build-1.3.3.sql\", \"executed_statements\": 3}\n",
+        "stderr": "",
+        "command": [
+          "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+          "C:\\Users\\24796\\.codex\\skills\\data-warehouse-cleaning\\scripts\\execute_clickhouse_sql.py",
+          "--sql-file",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\shadow-logistics-tracking-no-build-1.3.3.sql",
+          "--base-url",
+          "http://127.0.0.1:8123",
+          "--database",
+          "youmei_sandbox",
+          "--print-results"
+        ]
+      }
+    },
+    {
+      "name": "clickhouse_quality",
+      "status": "passed",
+      "at": "2026-07-24T15:50:10+08:00",
+      "result": {
+        "label": "clickhouse:quality",
+        "ok": true,
+        "returncode": 0,
+        "stdout": "tracking_no_shadow_key_quality\t41140\t41140\t0\ntracking_no_shadow_no_package_id_column\t0\ntracking_no_shadow_source_reconciliation\t41141\t71232\t71232\t71594\t0\t0\t0\t0\nformal_dwd_after_revert\t49695\t82\t85770\t37\t0\n{\"ok\": true, \"sql_file\": \"C:\\\\Users\\\\24796\\\\Documents\\\\TEXT2SQL\\\\config\\\\warehouse_cleaning\\\\doudian_order_item_v1\\\\shadow-logistics-tracking-no-quality-1.3.3.sql\", \"executed_statements\": 4}\n",
+        "stderr": "",
+        "command": [
+          "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+          "C:\\Users\\24796\\.codex\\skills\\data-warehouse-cleaning\\scripts\\execute_clickhouse_sql.py",
+          "--sql-file",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\shadow-logistics-tracking-no-quality-1.3.3.sql",
+          "--base-url",
+          "http://127.0.0.1:8123",
+          "--database",
+          "youmei_sandbox",
+          "--print-results"
+        ]
+      }
+    },
+    {
+      "name": "clickhouse_swap",
+      "status": "passed",
+      "at": "2026-07-24T15:50:11+08:00",
+      "result": {
+        "label": "clickhouse:swap",
+        "ok": true,
+        "returncode": 0,
+        "stdout": "{\"ok\": true, \"sql_file\": \"C:\\\\Users\\\\24796\\\\Documents\\\\TEXT2SQL\\\\config\\\\warehouse_cleaning\\\\doudian_order_item_v1\\\\shadow-logistics-tracking-no-swap-1.3.3.sql\", \"executed_statements\": 2}\n",
+        "stderr": "",
+        "command": [
+          "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+          "C:\\Users\\24796\\.codex\\skills\\data-warehouse-cleaning\\scripts\\execute_clickhouse_sql.py",
+          "--sql-file",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\shadow-logistics-tracking-no-swap-1.3.3.sql",
+          "--base-url",
+          "http://127.0.0.1:8123",
+          "--database",
+          "youmei_sandbox",
+          "--print-results"
+        ]
+      }
+    },
+    {
+      "name": "clickhouse_postcheck",
+      "status": "passed",
+      "at": "2026-07-24T15:50:11+08:00",
+      "result": {
+        "label": "clickhouse:postcheck",
+        "ok": true,
+        "returncode": 0,
+        "stdout": "0\n0\n0\n0\n{\"ok\": true, \"sql_file\": \"C:\\\\Users\\\\24796\\\\Documents\\\\TEXT2SQL\\\\config\\\\warehouse_cleaning\\\\doudian_order_item_v1\\\\shadow-logistics-tracking-no-postcheck-1.3.3.sql\", \"executed_statements\": 4}\n",
+        "stderr": "",
+        "command": [
+          "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+          "C:\\Users\\24796\\.codex\\skills\\data-warehouse-cleaning\\scripts\\execute_clickhouse_sql.py",
+          "--sql-file",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\shadow-logistics-tracking-no-postcheck-1.3.3.sql",
+          "--base-url",
+          "http://127.0.0.1:8123",
+          "--database",
+          "youmei_sandbox",
+          "--print-results"
+        ]
+      }
+    },
+    {
+      "name": "openmetadata_full",
+      "status": "passed",
+      "at": "2026-07-24T15:50:18+08:00",
+      "result": {
+        "label": "openmetadata:full",
+        "ok": true,
+        "returncode": 0,
+        "stdout": "{\n  \"ok\": true,\n  \"release_file\": \"C:\\\\Users\\\\24796\\\\Documents\\\\TEXT2SQL\\\\config\\\\warehouse_cleaning\\\\doudian_order_item_v1\\\\corrective-release-tracking-no-shadow-1.3.3.yaml\",\n  \"contract_count\": 1,\n  \"mode\": \"full\",\n  \"report\": \"C:\\\\Users\\\\24796\\\\Documents\\\\TEXT2SQL\\\\config\\\\warehouse_cleaning\\\\doudian_order_item_v1\\\\openmetadata-sync-report-corrective-release-tracking-no-shadow-1.3.3.json\"\n}\n",
+        "stderr": "",
+        "command": [
+          "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\scripts\\sync_openmetadata_release.py",
+          "--package-dir",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1",
+          "--release",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\corrective-release-tracking-no-shadow-1.3.3.yaml",
+          "--env-file",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\local\\credentials\\openmetadata.env",
+          "--mode",
+          "full",
+          "--report",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\openmetadata-sync-report-corrective-release-tracking-no-shadow-1.3.3.json"
+        ],
+        "report_path": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\openmetadata-sync-report-corrective-release-tracking-no-shadow-1.3.3.json"
+      }
+    },
+    {
+      "name": "clickhouse_cleanup",
+      "status": "passed",
+      "at": "2026-07-24T15:50:18+08:00",
+      "result": {
+        "label": "clickhouse:cleanup",
+        "ok": true,
+        "returncode": 0,
+        "stdout": "{\"ok\": true, \"sql_file\": \"C:\\\\Users\\\\24796\\\\Documents\\\\TEXT2SQL\\\\config\\\\warehouse_cleaning\\\\doudian_order_item_v1\\\\shadow-logistics-tracking-no-cleanup-1.3.3.sql\", \"executed_statements\": 2}\n",
+        "stderr": "",
+        "command": [
+          "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+          "C:\\Users\\24796\\.codex\\skills\\data-warehouse-cleaning\\scripts\\execute_clickhouse_sql.py",
+          "--sql-file",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\shadow-logistics-tracking-no-cleanup-1.3.3.sql",
+          "--base-url",
+          "http://127.0.0.1:8123",
+          "--database",
+          "youmei_sandbox",
+          "--print-results"
+        ]
+      }
+    }
+  ],
   "git": {
     "required": true,
     "auto_push": false,
@@ -55,5 +295,5 @@
     "branch": "main",
     "tag": "warehouse/doudian-order-tracking-shadow-corrective-1.3.3"
   },
-  "finished_at": "2026-07-24T15:50:05+08:00"
+  "finished_at": "2026-07-24T15:50:18+08:00"
 }
