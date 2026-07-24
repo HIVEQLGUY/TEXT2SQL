@@ -1061,6 +1061,34 @@ def run_full(ctx: ReleaseContext, query_runner: Path, executor: Path, sync_scrip
     write_release_report(ctx, "full", "prepared")
     git_info, prepared = git_prepare(ctx, git_executable, report_path)
     if not prepared or not prepared.get("ok"):
+        push_result = prepared.get("push") if isinstance(prepared, dict) else None
+        if (
+            isinstance(prepared, dict)
+            and prepared.get("commit")
+            and isinstance(push_result, dict)
+            and not push_result.get("ok")
+        ):
+            failure_reason = "Git 预提交已完成，但远程推送失败，需要运行 finalize"
+            write_release_report(ctx, "full", "version_record_pending", {"failure_reason": failure_reason})
+            local_record = git_stage_commit(
+                ctx,
+                git_info,
+                [report_path],
+                f"warehouse release {ctx.release_id} version_record_pending",
+            )
+            ctx.add_step(
+                "git_prepare_failure_record",
+                "passed" if local_record.get("ok") else "failed",
+                result=local_record,
+            )
+            print(json.dumps({
+                "ok": False,
+                "status": "version_record_pending",
+                "release_id": ctx.release_id,
+                "report": str(report_path),
+                "failure_reason": failure_reason,
+            }, ensure_ascii=False, indent=2))
+            return 1
         write_release_report(ctx, "full", "blocked", {"failure_reason": "Git 预提交失败"})
         return 2
 

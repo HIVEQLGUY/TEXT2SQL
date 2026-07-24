@@ -21,6 +21,7 @@ from scripts.warehouse_release import (  # noqa: E402
     git_push,
     git_runtime_environment,
     release_lock,
+    run_finalize,
     run_full,
     validate_context,
 )
@@ -227,6 +228,60 @@ class WarehouseReleaseValidationTests(unittest.TestCase):
                 run_git(remote, "rev-parse", "refs/tags/warehouse/test-release-1.0.0^{}"),
                 run_git(repo, "rev-parse", "HEAD"),
             )
+
+    def test_pre_push_failure_is_finalizeable(self) -> None:
+        import scripts.warehouse_release as release_runner
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            repo = root / "repo"
+            remote = root / "remote.git"
+            repo.mkdir()
+            remote.mkdir()
+            run_git(remote, "init", "--bare")
+            run_git(repo, "init", "-b", "main")
+            run_git(repo, "config", "user.name", "test-user")
+            run_git(repo, "config", "user.email", "test@example.invalid")
+            (repo / "README.md").write_text("test\n", encoding="utf-8")
+            run_git(repo, "add", "README.md")
+            run_git(repo, "commit", "-m", "test baseline")
+            run_git(repo, "remote", "add", "origin", str(remote))
+
+            release = create_package(repo)
+            original_root = release_runner.PROJECT_ROOT
+            release_runner.PROJECT_ROOT = repo
+            try:
+                context = build_context(release)
+                validate_context(context, "full")
+                self.assertEqual(context.errors, [])
+                failed_push = {"ok": False, "error": "simulated public remote block"}
+                with mock.patch.object(release_runner, "git_push", return_value=failed_push):
+                    with release_lock(context):
+                        status = run_full(
+                            context,
+                            root / "unused-query.py",
+                            root / "unused-executor.py",
+                            root / "unused-metadata.py",
+                            GIT_EXECUTABLE,
+                            False,
+                        )
+                self.assertEqual(status, 1)
+                report_path = release.parent / "release-report-test_release_1_0_0.json"
+                report = json.loads(report_path.read_text(encoding="utf-8"))
+                self.assertEqual(report["status"], "version_record_pending")
+                self.assertEqual(
+                    run_git(repo, "ls-files", "--error-unmatch", "release/release-report-test_release_1_0_0.json"),
+                    "release/release-report-test_release_1_0_0.json",
+                )
+
+                with mock.patch.object(release_runner, "git_push", return_value={"ok": True}):
+                    self.assertEqual(run_finalize(context, GIT_EXECUTABLE), 0)
+                self.assertEqual(
+                    run_git(repo, "rev-parse", "refs/tags/warehouse/test-release-1.0.0^{}"),
+                    run_git(repo, "rev-parse", "HEAD"),
+                )
+            finally:
+                release_runner.PROJECT_ROOT = original_root
 
     def test_git_push_uses_configured_remote_and_branch(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

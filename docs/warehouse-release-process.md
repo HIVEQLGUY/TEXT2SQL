@@ -60,7 +60,7 @@ C:\Users\24796\Documents\TEXT2SQL\warehouse-release.cmd --release <发布YAML> -
 - `swap` 后的质量、元数据或清理失败时，优先执行固定 `rollback`；回滚失败必须明确标记 `rollback_failed`，不得报告为成功。
 - 清理失败但正式表和元数据已经正确时，标记 `cleanup_pending`，不得为了清理临时对象再破坏正式表。
 - Git 最终留痕失败时标记 `version_record_pending`，使用 `finalize` 补记；不能把平台成功当成完整发布成功。
-- Git 预推送失败时阻断 ClickHouse 写入；Git 最终推送失败时标记 `version_record_pending`，`finalize` 必须同时补记本地报告、标签和远程推送。
+- Git 预推送失败时阻断 ClickHouse 写入，并把已完成的本地预提交记录为 `version_record_pending`；Git 最终推送失败同样标记 `version_record_pending`，`finalize` 必须同时补记本地报告、标签和远程推送。
 - 版本历史不通过 ClickHouse 多套正式表保存；成功发布后只保留当前正式表和必要的运行态/审计报告。
 - 发布锁文件只在进程持有期间存在，释放后自动清理；若 Windows 仍有并发句柄，报告保留清理异常但不影响已完成发布状态。
 
