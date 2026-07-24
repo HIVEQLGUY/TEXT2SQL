@@ -55,7 +55,7 @@ C:\Users\24796\Documents\TEXT2SQL\check-resource.cmd <资源别名>
 | CH-UI 本地 Web UI | 现成 ClickHouse Web UI 试用工具 | `http://127.0.0.1:3488`，安装包 `tools/ch-ui` | 2026-07-24 15:31 +08:00 | WSL Docker 已启动；容器 `youmei-ch-ui` 为 `healthy`；Windows 入口页可访问 | `start-ch-ui-wsl.ps1` 通过 WSL `Ubuntu-24.04` Docker 启动；`docker ps` 显示 `0.0.0.0:3488->3488/tcp`；`check-ch-ui.ps1` 返回 HTTP 200；入口页返回 HTTP 200 | 使用镜像 `ghcr.io/caioricciuti/ch-ui:latest`；ClickHouse 连接为 `http://host.docker.internal:8123`；不替代自研 ClickHouse 查询工作台。 |
 | OpenMetadata 到 ClickHouse bridge | OpenMetadata 访问本机 ClickHouse 的桥接 | `172.16.240.1:18124` | 2026-07-19 15:51 +08:00 | 可用 | `/ping` 返回 `Ok.` | 仅服务本机 Docker/WSL 内部链路 |
 | 历史接口接入留存包 | 旧 API ingestion 代码、契约、SDK bridge、隐性经验留存 | `C:\Users\24796\Desktop\youmei-api-ingestion-archive-20260719.zip` | 2026-07-19 15:51 +08:00 | 文件存在 | 文件大小 995,237 bytes | 仅供历史参考，不代表当前架构继续推进 |
-| GitHub `HIVEQLGUY/TEXT2SQL` | 数仓 SQL、清洗契约、发布报告和版本记录的 Git 权威来源 | `https://github.com/HIVEQLGUY/TEXT2SQL.git` | 2026-07-24 15:50 +08:00 | 本地 `main` 已完成纠正影子发布提交和标签，当前比本地 `origin/main` 领先 7 个提交；远程实际同步未确认 | Git 本地状态、提交、标签和远程跟踪差异检查；公开远程读取/推送仍受网络与外发安全门禁影响 | 影子发布包本次按 `auto_push: false` 只完成本地 Git 留痕；不得把本地提交描述为 GitHub 已同步。 |
+| GitHub `HIVEQLGUY/TEXT2SQL` | 数仓 SQL、清洗契约、发布报告和版本记录的 Git 权威来源 | `https://github.com/HIVEQLGUY/TEXT2SQL.git` | 2026-07-24 15:50 +08:00 | 本地 `main` 已完成纠正影子发布提交、标签和流程修复提交，当前比本地 `origin/main` 领先 8 个提交；远程实际同步未确认 | Git 本地状态、提交、标签和远程跟踪差异检查；公开远程读取/推送仍受网络与外发安全门禁影响 | 影子发布包本次按 `auto_push: false` 只完成本地 Git 留痕；不得把本地提交描述为 GitHub 已同步。 |
 
 ## 已下线的本机历史组件
 
