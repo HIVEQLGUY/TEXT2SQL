@@ -1,0 +1,101 @@
+{
+  "report_version": "warehouse-release-report/v1",
+  "status": "verified",
+  "release_id": "doudian_order_tracking_no_shadow_corrective_1_3_2",
+  "version": "",
+  "release_type": "formal",
+  "environment": "",
+  "requested_mode": "verify",
+  "started_at": "2026-07-24T14:51:10+08:00",
+  "package_dir": "config/warehouse_cleaning/doudian_order_item_v1",
+  "release_file": "config/warehouse_cleaning/doudian_order_item_v1/corrective-release-tracking-no-shadow-1.3.2.yaml",
+  "source": {
+    "database": "",
+    "partitions": [
+      "2026-07-22"
+    ],
+    "chinese_name": "ODS_销售订单列表信息表(抖店API)",
+    "physical_name": "ods_api_dd_sale_order_list_info_f"
+  },
+  "targets": [],
+  "manifest_fingerprint": "577c68dfeebae749282074f899c8c3e395b41e9731578b99c88e9adbc5867229",
+  "artifact_hashes": {
+    "corrective-release-tracking-no-shadow-1.3.2.yaml": "78ff62ac673f5840756ba604ff75cdba5afd330a979d052488205a45ecc801d8",
+    "metadata-contract-formal-item-1.3.2.yaml": "edb0bd12a63ebe3995b4751d76d91d775b0c4b44ae8b31344e8c6ec2882c8d68",
+    "metadata-contract-shadow-logistics-tracking-no-1.3.2.yaml": "56b31872b01109082ab97c85479e31aecbf1aa675519c346ac364de6f92c6a92"
+  },
+  "warnings": [
+    "旧 execution 结构已兼容读取，正式新发布请使用 release_api_version + publish.phases",
+    "旧发布文件未声明标准 version；仅允许只读审阅",
+    "旧发布文件未声明 environment；仅允许只读审阅",
+    "旧发布文件未声明 source.database；仅允许只读审阅",
+    "旧发布文件未声明 targets；仅允许只读审阅",
+    "verify 未提供 preflight SQL",
+    "verify 未提供 postcheck SQL",
+    "旧发布文件只允许用于 plan/verify；未显式声明候选表切换、清理和回滚门禁时不得 full"
+  ],
+  "validation_errors": [],
+  "steps": [
+    {
+      "name": "clickhouse_health",
+      "status": "passed",
+      "at": "2026-07-24T14:51:07+08:00",
+      "result": {
+        "label": "clickhouse:health",
+        "ok": true,
+        "returncode": 0,
+        "stdout": "{\"database\":\"youmei_sandbox\",\"version\":\"26.6.1.1193\"}\n",
+        "stderr": "",
+        "command": [
+          "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+          "C:\\Users\\24796\\.codex\\skills\\clickhouse-sql-dev\\scripts\\run_clickhouse_sql.py",
+          "--host",
+          "127.0.0.1",
+          "--port",
+          "8123",
+          "--database",
+          "youmei_sandbox",
+          "--query",
+          "SELECT currentDatabase() AS database, version() AS version",
+          "--format",
+          "JSONEachRow"
+        ]
+      }
+    },
+    {
+      "name": "openmetadata_verify",
+      "status": "passed",
+      "at": "2026-07-24T14:51:10+08:00",
+      "result": {
+        "label": "openmetadata:verify",
+        "ok": true,
+        "returncode": 0,
+        "stdout": "{\n  \"ok\": true,\n  \"release_file\": \"C:\\\\Users\\\\24796\\\\Documents\\\\TEXT2SQL\\\\config\\\\warehouse_cleaning\\\\doudian_order_item_v1\\\\corrective-release-tracking-no-shadow-1.3.2.yaml\",\n  \"contract_count\": 2,\n  \"mode\": \"verify\",\n  \"report\": \"C:\\\\Users\\\\24796\\\\Documents\\\\TEXT2SQL\\\\config\\\\warehouse_cleaning\\\\doudian_order_item_v1\\\\openmetadata-sync-report-corrective-release-tracking-no-shadow-1.3.2.json\"\n}\n",
+        "stderr": "",
+        "command": [
+          "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\scripts\\sync_openmetadata_release.py",
+          "--package-dir",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1",
+          "--release",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\corrective-release-tracking-no-shadow-1.3.2.yaml",
+          "--env-file",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\local\\credentials\\openmetadata.env",
+          "--mode",
+          "verify",
+          "--report",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\openmetadata-sync-report-corrective-release-tracking-no-shadow-1.3.2.json"
+        ],
+        "report_path": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\openmetadata-sync-report-corrective-release-tracking-no-shadow-1.3.2.json"
+      }
+    }
+  ],
+  "git": {
+    "required": true,
+    "auto_push": true,
+    "remote": "origin",
+    "branch": "main",
+    "tag": "warehouse/doudian_order_tracking_no_shadow_corrective_1_3_2"
+  },
+  "finished_at": "2026-07-24T14:51:10+08:00"
+}

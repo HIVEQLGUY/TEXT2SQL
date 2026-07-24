@@ -1,15 +1,54 @@
 from __future__ import annotations
 
+import os
+import json
+import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
+from unittest import mock
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from scripts.warehouse_release import build_context, release_lock, validate_context  # noqa: E402
+from scripts.warehouse_release import (  # noqa: E402
+    build_context,
+    clickhouse_config,
+    git_push,
+    git_runtime_environment,
+    release_lock,
+    run_full,
+    validate_context,
+)
+
+
+GIT_EXECUTABLE = shutil.which("git") or str(
+    Path.home()
+    / ".cache"
+    / "codex-runtimes"
+    / "codex-primary-runtime"
+    / "dependencies"
+    / "native"
+    / "git"
+    / "cmd"
+    / "git.exe"
+)
+
+
+def run_git(cwd: Path, *args: str) -> str:
+    result = subprocess.run(
+        [GIT_EXECUTABLE, *args],
+        cwd=str(cwd),
+        env={**os.environ, **git_runtime_environment(GIT_EXECUTABLE)},
+        text=True,
+        capture_output=True,
+        check=True,
+    )
+    return result.stdout.strip()
 
 
 PHASE_SQL = {
@@ -92,6 +131,133 @@ class WarehouseReleaseValidationTests(unittest.TestCase):
             self.assertEqual(context.normalized["git"]["remote"], "origin")
             self.assertEqual(context.normalized["git"]["branch"], "main")
 
+    def test_clickhouse_config_falls_back_from_empty_legacy_database(self) -> None:
+        context = SimpleNamespace(
+            raw={"clickhouse": {"base_url": "", "database": ""}},
+            normalized={"source": {"database": ""}},
+        )
+        with mock.patch.dict(os.environ, {"CLICKHOUSE_BASE_URL": "", "CLICKHOUSE_DATABASE": ""}):
+            self.assertEqual(
+                clickhouse_config(context),
+                ("http://127.0.0.1:8123", "youmei_sandbox"),
+            )
+
+    def test_full_release_runs_all_phases_and_records_git(self) -> None:
+        import scripts.warehouse_release as release_runner
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            repo = root / "repo"
+            remote = root / "remote.git"
+            repo.mkdir()
+            remote.mkdir()
+            run_git(remote, "init", "--bare")
+            run_git(repo, "init", "-b", "main")
+            run_git(repo, "config", "user.name", "test-user")
+            run_git(repo, "config", "user.email", "test@example.invalid")
+            (repo / "README.md").write_text("test\n", encoding="utf-8")
+            run_git(repo, "add", "README.md")
+            run_git(repo, "commit", "-m", "test baseline")
+            run_git(repo, "remote", "add", "origin", str(remote))
+
+            release = create_package(repo)
+            log_path = root / "execution.log"
+            query_runner = root / "query.py"
+            executor = root / "executor.py"
+            metadata_sync = root / "metadata_sync.py"
+            query_runner.write_text(
+                "from pathlib import Path\n"
+                f"Path({str(log_path)!r}).open('a', encoding='utf-8').write('health\\n')\n",
+                encoding="utf-8",
+            )
+            executor.write_text(
+                "import sys\n"
+                "from pathlib import Path\n"
+                f"log = Path({str(log_path)!r})\n"
+                "args = sys.argv\n"
+                "sql_path = Path(args[args.index('--sql-file') + 1])\n"
+                "with log.open('a', encoding='utf-8') as handle:\n"
+                "    handle.write(sql_path.stem + '\\n')\n",
+                encoding="utf-8",
+            )
+            metadata_sync.write_text(
+                "import json\n"
+                "import sys\n"
+                "from pathlib import Path\n"
+                f"log = Path({str(log_path)!r})\n"
+                "args = sys.argv\n"
+                "with log.open('a', encoding='utf-8') as handle:\n"
+                "    handle.write('openmetadata\\n')\n"
+                "report = Path(args[args.index('--report') + 1])\n"
+                "report.write_text(json.dumps({'status': 'verified'}), encoding='utf-8')\n",
+                encoding="utf-8",
+            )
+
+            original_root = release_runner.PROJECT_ROOT
+            release_runner.PROJECT_ROOT = repo
+            try:
+                context = build_context(release)
+                validate_context(context, "full")
+                self.assertEqual(context.errors, [])
+                with release_lock(context):
+                    status = run_full(
+                        context,
+                        query_runner,
+                        executor,
+                        metadata_sync,
+                        GIT_EXECUTABLE,
+                        False,
+                    )
+                self.assertEqual(status, 0)
+            finally:
+                release_runner.PROJECT_ROOT = original_root
+
+            self.assertFalse((release.parent / ".warehouse-release-test_release_1_0_0.lock").exists())
+            self.assertEqual(
+                log_path.read_text(encoding="utf-8").splitlines(),
+                ["health", "preflight", "build", "quality", "swap", "postcheck", "openmetadata", "cleanup"],
+            )
+            report = json.loads((release.parent / "release-report-test_release_1_0_0.json").read_text(encoding="utf-8"))
+            self.assertEqual(report["status"], "succeeded")
+            self.assertEqual(
+                run_git(remote, "rev-parse", "refs/heads/main"),
+                run_git(repo, "rev-parse", "HEAD"),
+            )
+            self.assertEqual(
+                run_git(remote, "rev-parse", "refs/tags/warehouse/test-release-1.0.0^{}"),
+                run_git(repo, "rev-parse", "HEAD"),
+            )
+
+    def test_git_push_uses_configured_remote_and_branch(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            remote = root / "remote.git"
+            source = root / "source"
+            remote.mkdir()
+            source.mkdir()
+            run_git(remote, "init", "--bare")
+            run_git(source, "init", "-b", "main")
+            run_git(source, "config", "user.name", "test-user")
+            run_git(source, "config", "user.email", "test@example.invalid")
+            (source / "README.md").write_text("test\n", encoding="utf-8")
+            run_git(source, "add", "README.md")
+            run_git(source, "commit", "-m", "test commit")
+            run_git(source, "remote", "add", "origin", str(remote))
+
+            context = SimpleNamespace(
+                normalized={
+                    "git": {
+                        "auto_push": True,
+                        "remote": "origin",
+                        "branch": "main",
+                    }
+                }
+            )
+            result = git_push(context, {"git": GIT_EXECUTABLE, "repo_root": str(source)})
+
+            self.assertTrue(result["ok"], result)
+            self.assertEqual(run_git(remote, "rev-parse", "refs/heads/main"), run_git(source, "rev-parse", "HEAD"))
+
     def test_valid_candidate_swap_manifest(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             release = create_package(Path(directory))
@@ -101,6 +267,7 @@ class WarehouseReleaseValidationTests(unittest.TestCase):
             self.assertTrue(context.manifest_fingerprint)
             with release_lock(context):
                 self.assertTrue((Path(directory) / "release" / ".warehouse-release-test_release_1_0_0.lock").exists())
+            self.assertFalse((Path(directory) / "release" / ".warehouse-release-test_release_1_0_0.lock").exists())
 
     def test_duplicate_phase_file_is_blocked(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

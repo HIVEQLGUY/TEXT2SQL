@@ -33,7 +33,7 @@ C:\Users\24796\Documents\TEXT2SQL\warehouse-release.cmd --release <发布YAML> -
 C:\Users\24796\Documents\TEXT2SQL\warehouse-release.cmd --release <发布YAML> --mode finalize
 ```
 
-`plan` 只校验文件、版本指纹、阶段顺序和门禁，不写 ClickHouse、OpenMetadata 或 Git。`verify` 只执行健康检查、只读 SQL 和 OpenMetadata 回读。`full` 才是正式发布动作。`finalize` 用于平台已经完成但 Git 最终提交或标签遇到临时故障后的显式补记，不会重新执行数据写入。
+`plan` 只校验文件、版本指纹、阶段顺序和门禁，并执行 Git 工作树/暂存区只读预检，不写 ClickHouse、OpenMetadata 或 Git。发布器会自动补齐随附 Git 运行时的 HTTPS、receive-pack 等辅助程序路径，不要求调用方手工设置环境变量。`verify` 只执行健康检查、只读 SQL 和 OpenMetadata 回读。`full` 才是正式发布动作。`finalize` 用于平台已经完成但 Git 最终提交或标签遇到临时故障后的显式补记，不会重新执行数据写入。
 
 ## 发布包最小要求
 
@@ -62,6 +62,7 @@ C:\Users\24796\Documents\TEXT2SQL\warehouse-release.cmd --release <发布YAML> -
 - Git 最终留痕失败时标记 `version_record_pending`，使用 `finalize` 补记；不能把平台成功当成完整发布成功。
 - Git 预推送失败时阻断 ClickHouse 写入；Git 最终推送失败时标记 `version_record_pending`，`finalize` 必须同时补记本地报告、标签和远程推送。
 - 版本历史不通过 ClickHouse 多套正式表保存；成功发布后只保留当前正式表和必要的运行态/审计报告。
+- 发布锁文件只在进程持有期间存在，释放后自动清理；若 Windows 仍有并发句柄，报告保留清理异常但不影响已完成发布状态。
 
 ## 失败恢复
 
@@ -72,3 +73,13 @@ C:\Users\24796\Documents\TEXT2SQL\warehouse-release.cmd --release <发布YAML> -
 ## 与清洗和建模 Skill 的关系
 
 ODS 到 DWD 仍先由 `data-warehouse-cleaning` 固化字段、粒度、金额、JSON、枚举和质量契约；DWS/ADS 仍由 `data-warehouse-modeling` 先声明粒度和指标。发布器只负责把已经审批的契约和固定 SQL 按顺序交付，不替代建模决策，也不允许绕过影子表审批直接发布。
+
+## 本地闭环验证
+
+发布器单元和本地候选切换集成测试统一运行：
+
+```powershell
+C:\Users\24796\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe tests\test_warehouse_release.py
+```
+
+该测试使用临时 Git 工作树、裸仓库和模拟 ClickHouse/OpenMetadata 执行器，不写真实数仓；真实环境仍必须通过 `verify` 后再经用户批准执行 `full`。

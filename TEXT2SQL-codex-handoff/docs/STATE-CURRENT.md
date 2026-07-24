@@ -1,5 +1,26 @@
 # 当前状态
 
+## 21. 发布链路本地闭环与真实只读验证 2026-07-24
+
+- 发布器已优化 Git 运行时封装：自动发现随附 Git 后，会为所有 Git 子进程补齐 HTTPS、receive-pack 等辅助程序路径；不再依赖调用方临时设置 `PATH` 或 `GIT_EXEC_PATH`。
+- 发布锁生命周期已固化：锁只在发布进程持有期间存在，释放后自动清理；新增的本地集成测试覆盖锁文件不残留。
+- 发布器单元/集成测试现为 9 项全部通过，集成测试在临时 Git 工作树和裸仓库中验证健康检查、preflight、build、quality、swap、postcheck、OpenMetadata、cleanup、最终提交、分支推送和标签。
+- `warehouse-release.cmd` 当前抖店修正包 `corrective-release-tracking-no-shadow-1.3.2.yaml` 的 `plan` 已通过，且 Git 只读预检结果已写入计划报告；此前 Git 路径对象无法 JSON 序列化的问题已修复。
+- 真实 ClickHouse 只读健康检查已通过，版本 `26.6.1.1193`；真实 OpenMetadata `verify` 已通过，版本 `1.12.11`，读取 2 份契约并生成回读报告。当前真实验证命令为 `warehouse-release.cmd --release ...corrective-release-tracking-no-shadow-1.3.2.yaml --mode verify`。
+- 真实 ClickHouse 当前源表 `ODS_销售订单列表信息表(抖店API)(ods_api_dd_sale_order_list_info_f)` 仅有分区 `2026-07-23`、45,140 行；现有正式 DWD 仍为此前 `2026-07-22` 快照口径：订单主单 49,695 行、商品明细 85,770 行。当前修正包仍引用 `2026-07-22`，因此不能把只读验证误报为可重建的正式发布。
+- 当前仍未执行真实 `full`、生产表切换或 GitHub 推送。原因分别是：物流快递单号影子契约仍待用户审阅批准；现有修正包是历史兼容结构，只允许 `plan/verify`；GitHub 公开仓库首次推送还未获得可验证的网络/推送结果。
+
+## 20. Git 版本与发布链路现状 2026-07-24
+
+- 当前版本源规则已生效：Git 托管清洗契约、建模 SQL、发布 YAML、质量 SQL、OpenMetadata 契约、发布报告和回滚依据；ClickHouse 只保留当前正式对象，OpenMetadata 只保留当前元数据结果，二者都不是版本源头，也不会因人工改表自动回写 Git。
+- 本地项目 `C:\Users\24796\Documents\TEXT2SQL` 已有基线提交 `f007765`（`chore: establish warehouse release baseline`），当前分支为 `main`，基线包含 1088 个项目文件；当前缓存的 `origin/main` 仍为 `62f0a7f`，本地领先 1 个提交，首次推送尚未完成。
+- GitHub 远程为 `https://github.com/HIVEQLGUY/TEXT2SQL.git`，最近一次实时 `ls-remote` 复查于 2026-07-24 14:35 因网络无法连接 `github.com:443` 失败；因此当前不能宣称远程已同步。此前只读分支确认结果仍保留为历史证据。
+- 工作区当前不是干净状态：存在 `.gitignore`、修正发布计划报告、发布器测试和 ClickHouse 查询工作台相关未提交改动，以及工作台检查脚本/包管理文件等未跟踪文件；这些改动尚未统一归属，不能直接全部纳入一次发布提交。
+- 发布器 `tests/test_warehouse_release.py` 已补齐远程分支推送测试，使用项目随附 Git 运行时的 `mingw64/bin` 辅助程序路径；在设置 `PATH` 与 `GIT_EXEC_PATH` 后，7 项单元测试全部通过。
+- 当前抖店修正发布包 `corrective-release-tracking-no-shadow-1.3.2.yaml` 的 `plan` 已通过，指纹为 `577c68dfeebae749282074f899c8c3e395b41e9731578b99c88e9adbc5867229`；`plan` 只完成发布包、指纹、阶段、Git 预检，不写 ClickHouse、不写 OpenMetadata、不推送 GitHub。
+- 本次尚未执行正式 `full`、候选表切换、正式 OpenMetadata 发布或远程 Git 推送；该修正包本身仍是影子验证后待用户审阅状态，不能绕过粒度契约批准直接 `full`。因此端到端链路当前为“实现并通过计划/单测，未完成生产闭环”。
+- 下一道门禁：先分类并处理工作区未提交改动；用户明确授权向当前公开 GitHub 仓库推送或改用私有仓库后，推送本地基线；正式清洗契约获批后再按 `verify -> full -> finalize（如需）` 执行并保留报告。
+
 ## 17. 数仓显性发布与 Git 版本规则确认 2026-07-23
 
 - 最新用户规则：发布动作必须显性化；任何正式 SQL 变更都必须形成发布动作，发布后生成或切换到最新版本生产表；历史口径、历史字段、历史枚举、历史 OpenMetadata 元数据契约和发布报告必须作为版本信息进入 Git。

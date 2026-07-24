@@ -577,12 +577,22 @@ def report_base(ctx: ReleaseContext, requested_mode: str, status: str) -> dict[s
     }
 
 
-def run_command(label: str, command: list[str], cwd: Path, timeout: int = 180) -> dict[str, Any]:
+def run_command(
+    label: str,
+    command: list[str],
+    cwd: Path,
+    timeout: int = 180,
+    env_overrides: dict[str, str] | None = None,
+) -> dict[str, Any]:
     safe_command = [str(item) for item in command]
+    environment = os.environ.copy()
+    if env_overrides:
+        environment.update(env_overrides)
     try:
         completed = subprocess.run(
             safe_command,
             cwd=str(cwd),
+            env=environment,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
@@ -607,8 +617,17 @@ def run_command(label: str, command: list[str], cwd: Path, timeout: int = 180) -
 
 def clickhouse_config(ctx: ReleaseContext) -> tuple[str, str]:
     config = ctx.raw.get("clickhouse") if isinstance(ctx.raw.get("clickhouse"), dict) else {}
-    base_url = str(config.get("base_url", os.getenv("CLICKHOUSE_BASE_URL", "http://127.0.0.1:8123"))).strip()
-    database = str(config.get("database", ctx.normalized.get("source", {}).get("database", os.getenv("CLICKHOUSE_DATABASE", "youmei_sandbox")))).strip()
+    base_url = str(
+        config.get("base_url")
+        or os.getenv("CLICKHOUSE_BASE_URL")
+        or "http://127.0.0.1:8123"
+    ).strip()
+    database = str(
+        config.get("database")
+        or ctx.normalized.get("source", {}).get("database")
+        or os.getenv("CLICKHOUSE_DATABASE")
+        or "youmei_sandbox"
+    ).strip()
     return base_url, database
 
 
@@ -665,7 +684,7 @@ def resolve_git(ctx: ReleaseContext, cli_value: str | None) -> str | None:
     ])
     for candidate in candidates:
         if candidate and Path(candidate).exists():
-            return candidate
+            return str(candidate)
     return None
 
 
@@ -673,10 +692,55 @@ def git_command(git: str, args: list[str]) -> list[str]:
     return [git, *args]
 
 
+def git_runtime_environment(git: str) -> dict[str, str]:
+    """Make bundled Git helpers available to all release subprocesses."""
+    git_path = Path(git).resolve()
+    runtime_root: Path | None = None
+    for candidate in [git_path.parent, *git_path.parents]:
+        if (candidate / "mingw64" / "bin" / "git-remote-https.exe").exists():
+            runtime_root = candidate
+            break
+    if runtime_root is None:
+        return {}
+
+    path_entries = [
+        runtime_root / "cmd",
+        runtime_root / "mingw64" / "bin",
+        runtime_root / "usr" / "bin",
+    ]
+    current_path = os.environ.get("PATH", "")
+    merged_path = [str(path) for path in path_entries if path.exists()]
+    if current_path:
+        merged_path.append(current_path)
+    environment = {"PATH": os.pathsep.join(merged_path)}
+
+    bundled_receive_pack = runtime_root / "mingw64" / "bin" / "git-receive-pack.exe"
+    default_receive_pack = runtime_root / "mingw64" / "libexec" / "git-core" / "git-receive-pack.exe"
+    if bundled_receive_pack.exists() and not default_receive_pack.exists():
+        environment["GIT_EXEC_PATH"] = str(runtime_root / "mingw64" / "bin")
+    return environment
+
+
+def run_git_command(
+    label: str,
+    git: str,
+    args: list[str],
+    cwd: Path,
+    timeout: int = 180,
+) -> dict[str, Any]:
+    return run_command(
+        label,
+        git_command(git, args),
+        cwd,
+        timeout=timeout,
+        env_overrides=git_runtime_environment(git),
+    )
+
+
 def git_preflight(ctx: ReleaseContext, git: str | None) -> dict[str, Any]:
     if not git:
         return {"ok": False, "error": "找不到 Git 可执行文件；正式发布必须先恢复 Git 可用性"}
-    root_result = run_command("git:repo-root", git_command(git, ["rev-parse", "--show-toplevel"]), PROJECT_ROOT, timeout=30)
+    root_result = run_git_command("git:repo-root", git, ["rev-parse", "--show-toplevel"], PROJECT_ROOT, timeout=30)
     if not root_result.get("ok"):
         return {"ok": False, "git": git, "root_result": root_result, "error": "当前项目不是可用的 Git 工作树"}
     repo_root = Path(str(root_result.get("stdout", "")).strip()).resolve()
@@ -685,8 +749,8 @@ def git_preflight(ctx: ReleaseContext, git: str | None) -> dict[str, Any]:
         relative_to(repo_root, PROJECT_ROOT)
     except ReleaseError as exc:
         return {"ok": False, "git": git, "error": str(exc)}
-    status_result = run_command("git:status", git_command(git, ["status", "--porcelain=v1"]), repo_root, timeout=30)
-    cached_result = run_command("git:cached-status", git_command(git, ["diff", "--cached", "--name-only"]), repo_root, timeout=30)
+    status_result = run_git_command("git:status", git, ["status", "--porcelain=v1"], repo_root, timeout=30)
+    cached_result = run_git_command("git:cached-status", git, ["diff", "--cached", "--name-only"], repo_root, timeout=30)
     if not status_result.get("ok") or not cached_result.get("ok"):
         return {"ok": False, "git": git, "error": "无法读取 Git 工作区状态", "status": status_result, "cached": cached_result}
     cached = [line.strip() for line in str(cached_result.get("stdout", "")).splitlines() if line.strip()]
@@ -715,10 +779,10 @@ def git_stage_commit(ctx: ReleaseContext, git_info: dict[str, Any], paths: list[
             relative_paths.append(relative_to(repo_root, path))
         except ReleaseError as exc:
             return {"ok": False, "error": str(exc)}
-    add = run_command("git:add", git_command(git, ["add", "--", *relative_paths]), repo_root, timeout=30)
+    add = run_git_command("git:add", git, ["add", "--", *relative_paths], repo_root, timeout=30)
     if not add.get("ok"):
         return {"ok": False, "add": add, "error": "Git stage 失败"}
-    cached = run_command("git:cached-paths", git_command(git, ["diff", "--cached", "--name-only"]), repo_root, timeout=30)
+    cached = run_git_command("git:cached-paths", git, ["diff", "--cached", "--name-only"], repo_root, timeout=30)
     if not cached.get("ok"):
         return {"ok": False, "cached": cached, "error": "无法读取 Git 暂存区"}
     allowed = set(relative_paths)
@@ -728,10 +792,10 @@ def git_stage_commit(ctx: ReleaseContext, git_info: dict[str, Any], paths: list[
         return {"ok": False, "unexpected_staged_paths": unexpected, "error": "发布器发现非本次发布文件进入暂存区，已阻断提交"}
     if not actual:
         return {"ok": True, "no_changes": True, "message": "没有需要提交的新内容"}
-    commit = run_command("git:commit", git_command(git, ["commit", "-m", message]), repo_root, timeout=60)
+    commit = run_git_command("git:commit", git, ["commit", "-m", message], repo_root, timeout=60)
     if not commit.get("ok"):
         return {"ok": False, "commit": commit, "error": "Git commit 失败"}
-    head = run_command("git:head", git_command(git, ["rev-parse", "HEAD"]), repo_root, timeout=30)
+    head = run_git_command("git:head", git, ["rev-parse", "HEAD"], repo_root, timeout=30)
     return {"ok": True, "commit": commit, "head": str(head.get("stdout", "")).strip()}
 
 
@@ -747,9 +811,10 @@ def git_push(ctx: ReleaseContext, git_info: dict[str, Any], *, follow_tags: bool
     if not remote or not branch:
         return {"ok": False, "error": "Git 推送缺少 git.remote 或 git.branch"}
 
-    current = run_command(
+    current = run_git_command(
         "git:current-branch",
-        git_command(git, ["symbolic-ref", "--quiet", "--short", "HEAD"]),
+        git,
+        ["symbolic-ref", "--quiet", "--short", "HEAD"],
         repo_root,
         timeout=30,
     )
@@ -766,7 +831,7 @@ def git_push(ctx: ReleaseContext, git_info: dict[str, Any], *, follow_tags: bool
     if follow_tags:
         args.append("--follow-tags")
     args.extend([remote, f"HEAD:{branch}"])
-    pushed = run_command("git:push", git_command(git, args), repo_root, timeout=120)
+    pushed = run_git_command("git:push", git, args, repo_root, timeout=120)
     return {
         "ok": pushed.get("ok", False),
         "remote": remote,
@@ -783,15 +848,15 @@ def git_tag(ctx: ReleaseContext, git_info: dict[str, Any]) -> dict[str, Any]:
         return {"ok": True, "skipped": True, "reason": "未配置 Git 标签"}
     git = git_info.get("git")
     repo_root = Path(git_info.get("repo_root", PROJECT_ROOT))
-    existing = run_command("git:tag-resolve", git_command(git, ["rev-parse", "--verify", f"refs/tags/{tag}"]), repo_root, timeout=30)
-    head = run_command("git:head", git_command(git, ["rev-parse", "HEAD"]), repo_root, timeout=30)
+    existing = run_git_command("git:tag-resolve", git, ["rev-parse", "--verify", f"refs/tags/{tag}"], repo_root, timeout=30)
+    head = run_git_command("git:head", git, ["rev-parse", "HEAD"], repo_root, timeout=30)
     head_value = str(head.get("stdout", "")).strip()
     if existing.get("ok"):
         existing_value = str(existing.get("stdout", "")).strip()
         if existing_value == head_value:
             return {"ok": True, "tag": tag, "already_exists": True, "commit": head_value}
         return {"ok": False, "tag": tag, "error": "同名 Git 标签已指向其他提交，禁止覆盖"}
-    created = run_command("git:tag", git_command(git, ["tag", "-a", tag, "-m", f"warehouse release {ctx.release_id}" ]), repo_root, timeout=30)
+    created = run_git_command("git:tag", git, ["tag", "-a", tag, "-m", f"warehouse release {ctx.release_id}"], repo_root, timeout=30)
     return {"ok": created.get("ok", False), "tag": tag, "create": created, "commit": head_value}
 
 
@@ -883,6 +948,14 @@ def release_lock(ctx: ReleaseContext):
                 fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
         finally:
             handle.close()
+            try:
+                lock_path.unlink()
+            except FileNotFoundError:
+                pass
+            except OSError:
+                # A concurrent process may still hold the path briefly on Windows.
+                # The release result remains valid; the next run can remove it.
+                pass
 
 
 def phase_paths(ctx: ReleaseContext) -> dict[str, Path]:
@@ -895,8 +968,19 @@ def phase_paths(ctx: ReleaseContext) -> dict[str, Path]:
 
 def run_plan(ctx: ReleaseContext, requested_mode: str, git_executable: str | None) -> int:
     git = resolve_git(ctx, git_executable)
+    git_info = git_preflight(ctx, git) if git else {
+        "ok": False,
+        "error": "找不到 Git 可执行文件；正式发布必须先恢复 Git 可用性",
+    }
+    if not git_info.get("ok") and ctx.normalized.get("git", {}).get("required", False):
+        ctx.errors.append(str(git_info.get("error", "Git 预检失败")))
     ctx.add_step("validation", "passed" if not ctx.errors else "blocked", error_count=len(ctx.errors))
-    ctx.add_step("git_preflight", "available" if git else "unavailable", checked_only=True)
+    ctx.add_step(
+        "git_preflight",
+        "passed" if git_info.get("ok") else "blocked",
+        checked_only=True,
+        result=git_info,
+    )
     ctx.add_step("clickhouse", "planned", phases=list(phase_paths(ctx)))
     ctx.add_step("openmetadata", "planned", contracts=ctx.normalized.get("openmetadata", {}).get("contracts", []))
     report_path = write_release_report(ctx, requested_mode, "planned")

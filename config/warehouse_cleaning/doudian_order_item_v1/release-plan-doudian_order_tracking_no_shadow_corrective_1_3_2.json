@@ -6,7 +6,7 @@
   "release_type": "formal",
   "environment": "",
   "requested_mode": "plan",
-  "started_at": "2026-07-24T11:41:35+08:00",
+  "started_at": "2026-07-24T14:50:41+08:00",
   "package_dir": "config/warehouse_cleaning/doudian_order_item_v1",
   "release_file": "config/warehouse_cleaning/doudian_order_item_v1/corrective-release-tracking-no-shadow-1.3.2.yaml",
   "source": {
@@ -37,25 +37,31 @@
     {
       "name": "validation",
       "status": "passed",
-      "at": "2026-07-24T11:41:35+08:00",
+      "at": "2026-07-24T14:50:41+08:00",
       "error_count": 0
     },
     {
       "name": "git_preflight",
-      "status": "available",
-      "at": "2026-07-24T11:41:35+08:00",
-      "checked_only": true
+      "status": "passed",
+      "at": "2026-07-24T14:50:41+08:00",
+      "checked_only": true,
+      "result": {
+        "ok": true,
+        "git": "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\git\\cmd\\git.exe",
+        "repo_root": "C:\\Users\\24796\\Documents\\TEXT2SQL",
+        "worktree_status": " M .gitignore\n M \"TEXT2SQL-codex-handoff/docs/RESOURCE-\\350\\265\\204\\346\\272\\220\\347\\231\\273\\350\\256\\260.md\"\n M TEXT2SQL-codex-handoff/docs/STATE-CURRENT.md\n M config/warehouse_cleaning/doudian_order_item_v1/openmetadata-sync-report-corrective-release-tracking-no-shadow-1.3.2.json\n M config/warehouse_cleaning/doudian_order_item_v1/release-plan-doudian_order_tracking_no_shadow_corrective_1_3_2.json\n M docs/clickhouse-query-workbench-evaluation.md\n M scripts/warehouse_release.py\n M tests/test_warehouse_release.py\n M tools/clickhouse-query-workbench/README.md\n M tools/clickhouse-query-workbench/eslint.config.js\n M tools/clickhouse-query-workbench/package.json\n M tools/clickhouse-query-workbench/server/clickhouse.ts\n M tools/clickhouse-query-workbench/server/sqlGuard.ts\n M tools/clickhouse-query-workbench/vite.config.ts\n?? \" .Destination}}{{end}}\"\n?? config/warehouse_cleaning/doudian_order_item_v1/release-report-doudian_order_tracking_no_shadow_corrective_1_3_2.json\n?? tools/clickhouse-query-workbench/check-workbench.ps1\n?? tools/clickhouse-query-workbench/pnpm-lock.yaml\n?? tools/clickhouse-query-workbench/pnpm-workspace.yaml\n?? tools/clickhouse-query-workbench/start-workbench.ps1\n"
+      }
     },
     {
       "name": "clickhouse",
       "status": "planned",
-      "at": "2026-07-24T11:41:35+08:00",
+      "at": "2026-07-24T14:50:41+08:00",
       "phases": []
     },
     {
       "name": "openmetadata",
       "status": "planned",
-      "at": "2026-07-24T11:41:35+08:00",
+      "at": "2026-07-24T14:50:41+08:00",
       "contracts": [
         "metadata-contract-formal-item-1.3.2.yaml",
         "metadata-contract-shadow-logistics-tracking-no-1.3.2.yaml"
@@ -64,7 +70,10 @@
   ],
   "git": {
     "required": true,
+    "auto_push": true,
+    "remote": "origin",
+    "branch": "main",
     "tag": "warehouse/doudian_order_tracking_no_shadow_corrective_1_3_2"
   },
-  "finished_at": "2026-07-24T11:41:35+08:00"
+  "finished_at": "2026-07-24T14:50:41+08:00"
 }

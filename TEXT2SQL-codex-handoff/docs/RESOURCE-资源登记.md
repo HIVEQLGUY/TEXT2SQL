@@ -43,7 +43,7 @@ C:\Users\24796\Documents\TEXT2SQL\check-resource.cmd <资源别名>
 
 | 资源 | 当前用途 | 地址/入口 | 最近确认时间 | 最近状态 | 确认方式 | 备注 |
 | --- | --- | --- | --- | --- | --- | --- |
-| ClickHouse 测试库 | 当前数仓可行性测试与建模验证 | `youmei_sandbox`，本机 WSL `127.0.0.1:8123/9000` | 2026-07-23 16:26 +08:00 | 当前运行中；HTTP SQL 可用；抖店订单 DWD 已按父粒度归一化规则重构为订单主单和商品明细两张正式表，质量门禁通过 | `SELECT currentDatabase(), version()` 返回 `youmei_sandbox / 26.6.1.1193`；执行 `formal-refactor-execution-1.3.0.sql`、`formal-refactor-quality-checks-1.3.0.sql`、`formal-refactor-swap-1.3.0.sql` 通过 | 当前 ClickHouse 建模验证默认入口；正式 DWD 当前为 `dwd_trade_order_df` 49,695 行/82字段、`dwd_trade_order_item_df` 85,770 行/37字段；原明细项子表已改名为废弃备份 `dwd_deprecated_actual_receive_amount_detail_backup_1_2_1`、`dwd_deprecated_logistics_info_backup_1_2_1`，不再作为正式 DWD 口径来源。 |
+| ClickHouse 测试库 | 当前数仓可行性测试与建模验证 | `youmei_sandbox`，本机 WSL `127.0.0.1:8123/9000` | 2026-07-24 14:46 +08:00 | 当前运行中；版本 `26.6.1.1193`；抖店修正发布包真实 `verify` 通过；源表当前分区 `2026-07-23`、45,140 行 | `warehouse-release.cmd --release ...corrective-release-tracking-no-shadow-1.3.2.yaml --mode verify`、ClickHouse HTTP 只读查询 | 当前 ClickHouse 建模验证默认入口；正式 DWD 仍是此前 `2026-07-22` 快照口径：`dwd_trade_order_df` 49,695 行/82字段、`dwd_trade_order_item_df` 85,770 行/37字段；新快照尚未正式重建。 |
 | ClickHouse 外部工具代理 | 供外部工具/魔方访问本机 ClickHouse | `120.26.202.216:28123` | 2026-07-22 09:41 +08:00 | 代理通道可用 | WSL 内启动 `clickhouse_tool_tunnel.sh supervise`；`clickhouse_tool_tunnel.sh status` 返回 healthy：`root@120.26.202.216 127.0.0.1:18123 -> local 127.0.0.1:8123` | 本机直连 `/ping` 超时符合白名单设计，公网入口主要给魔方出口 IP 使用；该通道为轻量 SSH 反向通道，不启动 OpenMetadata/Superset/DolphinScheduler。 |
 | 工具服务器 | ClickHouse 公网代理承载机 | `120.26.202.216` | 2026-07-21 14:52 +08:00 | SSH 登录成功，主机名 `youmei-node00`，耗时 0.93s | SSH BatchMode 登录 `120.26.202.216` | ClickHouse 公网代理/隧道承载机；使用本机 SSH 私钥做 BatchMode 登录验证。 |
 | 预策/魔方源库 `cubeappdata` | 抖店订单基础表等预策侧源表的只读候选来源 | `127.0.0.1:19030`，默认库 `cubeappdata`，用户 `ro1` | 2026-07-21 14:52 +08:00 | 登录成功；当前用户 `'ro1'@'%'`，版本 `5.1.0`，`cubeappdata` 表数量 `1004` | Windows Python 读取 `local/credentials/sr.env` 的 `SR_*` 并通过本机隧道执行只读查询 | 凭据映射：`local/credentials/sr.env` / `SR_*`；`120.26.202.216:9030` 不作为本机登录入口。 |
@@ -51,10 +51,10 @@ C:\Users\24796\Documents\TEXT2SQL\check-resource.cmd <资源别名>
 | 旧 RDS `youmei_ai` | 历史业务源/RDS 资源，当前不作为未来默认链路 | `rm-bp1mx4778wjne596xko.mysql.rds.aliyuncs.com:3306` | 2026-07-23 11:17 +08:00 | 登录成功，库 `youmei_ai` 可查询，耗时 5.89s | 统一脚本读取 `local/credentials/project.env` 的 `META_DB_*` 并执行只读查询 | 凭据映射：`local/credentials/project.env` / `META_DB_*`；历史业务源/RDS 资源；当前不作为未来默认链路，但可用统一脚本做只读登录验证。 |
 | Superset | BI 服务保留 | `http://127.0.0.1:8088` | 2026-07-21 14:52 +08:00 | 不可用/待处理：校验失败：<urlopen error [Errno 111] Connection refused> | http 校验 | BI 服务保留；仅验证 HTTP 可访问，不打印管理员密码。 |
 | DolphinScheduler | 调度服务保留 | `http://127.0.0.1:12345/dolphinscheduler/ui/` | 2026-07-21 14:52 +08:00 | 不可用/待处理：校验失败：<urlopen error [Errno 111] Connection refused> | http 校验 | 调度服务保留；仅验证 UI 可访问。 |
-| OpenMetadata | ClickHouse 数仓表、字段和清洗契约元数据登记 | `127.0.0.1:8585/8586` | 2026-07-23 16:58 +08:00 | 登录成功，版本 `1.12.11`，耗时 0.82s | 读取 `local/credentials/openmetadata.env` 的 `OPENMETADATA_*` 并调用 OpenMetadata 登录和版本接口 | ClickHouse ????????????????????????????????????????? |
+| OpenMetadata | ClickHouse 数仓表、字段和清洗契约元数据登记 | `127.0.0.1:8585/8586` | 2026-07-24 14:46 +08:00 | 登录成功，版本 `1.12.11`；抖店修正发布包 `verify` 读取 2 份契约并通过 | 读取 `local/credentials/openmetadata.env` 的 `OPENMETADATA_*`，并执行发布器 `verify` | ClickHouse 数仓表、字段和清洗契约元数据登记。 |
 | OpenMetadata 到 ClickHouse bridge | OpenMetadata 访问本机 ClickHouse 的桥接 | `172.16.240.1:18124` | 2026-07-19 15:51 +08:00 | 可用 | `/ping` 返回 `Ok.` | 仅服务本机 Docker/WSL 内部链路 |
 | 历史接口接入留存包 | 旧 API ingestion 代码、契约、SDK bridge、隐性经验留存 | `C:\Users\24796\Desktop\youmei-api-ingestion-archive-20260719.zip` | 2026-07-19 15:51 +08:00 | 文件存在 | 文件大小 995,237 bytes | 仅供历史参考，不代表当前架构继续推进 |
-| GitHub `HIVEQLGUY/TEXT2SQL` | 数仓 SQL、清洗契约、发布报告和版本记录的 Git 权威来源 | `https://github.com/HIVEQLGUY/TEXT2SQL.git` | 2026-07-24 13:38 +08:00 | Git 远程访问成功，发现 2 个远程分支 | Git 只读检查 `https://github.com/HIVEQLGUY/TEXT2SQL.git` 的远程分支 | Git 版本源；只读校验远程分支可访问性，不记录密码或 Token。 |
+| GitHub `HIVEQLGUY/TEXT2SQL` | 数仓 SQL、清洗契约、发布报告和版本记录的 Git 权威来源 | `https://github.com/HIVEQLGUY/TEXT2SQL.git` | 2026-07-24 14:35 +08:00 | 本次实时 `ls-remote` 复查失败：无法连接 `github.com:443`；本地缓存仍显示 `main` 和 `codex/bootstrap-foundation` 两个远程分支，远程未完成首次推送确认 | Git 只读检查；未执行推送 | Git 版本源；当前本地基线领先远程 1 个提交，待网络恢复并取得公开仓库推送授权后复查。 |
 
 ## 已下线的本机历史组件
 
@@ -82,3 +82,5 @@ C:\Users\24796\Documents\TEXT2SQL\check-resource.cmd <资源别名>
 2026-07-23：完成 Git/GitHub 资源状态确认。本机 Git 可执行文件为 `C:\Users\24796\.cache\codex-runtimes\codex-primary-runtime\dependencies\native\git\cmd\git.exe`，版本 `2.53.0.windows.3`；Git Credential Manager 版本文件信息为 `2.7.3`，全局凭据助手为 `manager`。当前项目已初始化本地 Git 仓库，但尚未配置远程 URL、提交作者信息和可用 GitHub 凭据。GitHub 连接器查询因传输层失败未完成；已打开 GitHub 登录页面，待用户完成交互式登录后再次验证。
 
 2026-07-24：GitHub 登录已确认。GitHub 账号为 `HIVEQLGUY`，已确认绑定邮箱；本地项目提交身份已配置，远程 `origin` 已绑定 `https://github.com/HIVEQLGUY/TEXT2SQL.git`，`git ls-remote --heads origin` 只读验证通过。未执行首次提交、拉取或推送。
+
+2026-07-24 14:35：复查 Git 版本链路。本地已有基线提交 `f007765`，缓存的 `origin/main` 为 `62f0a7f`，本地领先 1 个提交；实时远程检查因 `github.com:443` 网络连接失败，未确认远程已接收基线，也未执行推送。
