@@ -25,9 +25,9 @@
   - `tools/ch-ui/stop-ch-ui-wsl.ps1`
   - `tools/ch-ui/check-ch-ui.ps1`
   - `tools/ch-ui/README.md`
-- CH-UI 官方推荐 Docker 镜像路径为 `ghcr.io/caioricciuti/ch-ui:latest`，默认容器端口 `3488`；本项目默认本地访问地址规划为 `http://127.0.0.1:3488`，连接本机 ClickHouse 使用 `http://host.docker.internal:8123`。
-- 当前 Windows 主机仍未发现 `docker`、Docker Desktop 或 `winget` 命令；实际使用 WSL `Ubuntu-24.04` 内 Docker 启动。`docker-compose.wsl.yml` 已改为端口映射模式，避免 `network_mode: host` 导致 Windows 侧浏览器不可访问。
-- 当前状态为：CH-UI 已通过 WSL Docker 启动，容器名 `youmei-ch-ui`，状态 `healthy`，端口映射 `0.0.0.0:3488->3488/tcp`；`check-ch-ui.ps1` 于 2026-07-24 15:31 +08:00 返回 200，入口页 `http://127.0.0.1:3488` 返回 200。启动命令为 `powershell -ExecutionPolicy Bypass -File tools/ch-ui/start-ch-ui-wsl.ps1`。
+- CH-UI 官方推荐 Docker 镜像路径为 `ghcr.io/caioricciuti/ch-ui:latest`，默认容器端口 `3488`；本项目 Windows 侧实际可用访问地址为 `http://localhost:3488`，WSL 内健康检查地址为 `http://127.0.0.1:3488/health`。
+- 当前 Windows 主机仍未发现 `docker`、Docker Desktop 或 `winget` 命令；实际使用 WSL `Ubuntu-24.04` 内 Docker 启动。`docker-compose.wsl.yml` 已按用户要求切回 `network_mode: host`，让 CH-UI 直接连接 WSL 内 ClickHouse 测试库 `http://127.0.0.1:8123`，避免 `host.docker.internal:8123` 解析到 Docker 网关后连接失败。
+- 当前状态为：CH-UI 已通过 WSL Docker 启动，容器名 `youmei-ch-ui`，状态 `healthy`；`http://localhost:3488/health` 于 2026-07-24 16:09 +08:00 返回 200，WSL 内 `http://127.0.0.1:3488/health` 返回 200，ClickHouse 测试库 `http://127.0.0.1:8123/ping` 返回 `Ok.`。启动命令为 `powershell -ExecutionPolicy Bypass -File tools/ch-ui/start-ch-ui-wsl.ps1`。
 - 边界：CH-UI 用于试用现成 ClickHouse Web UI 能力；项目内自研 `ClickHouse 查询工作台` 仍保留为受控只读验证网关，承担 SQL 白名单、默认 LIMIT、查询审计和 Git 发布包验证记录。
 
 ## 22. 发布链路本地提交与公开仓库推送门禁 2026-07-24
@@ -301,3 +301,4 @@ C:\Users\24796\Desktop\youmei-api-ingestion-archive-20260719.zip
 - 2026-07-24 15:50 的真实纠正影子发布报告仍为 `succeeded`，ClickHouse 全阶段质量、候选切换、切换后检查和清理均通过；目标表当时回读为 41,140 行、复合键唯一、快递单号空值 0。
 - 2026-07-24 16:04 的补充只读复查无法连接本机 ClickHouse 8123；`wsl --list --verbose` 显示当前没有可用 Ubuntu-24.04 发行版，本机也未发现 ClickHouse 进程或 8123/9000 监听端口。
 - 该断联发生在发布成功之后，未执行任何回滚或删除动作；当前状态为“发布结果已完成、运行资源当前不可达、待恢复后补做只读回读”，不能汇报为当前服务健康。
+- 16:09 通过 Windows 回退资源检查和 ClickHouse 只读 SQL 复核，服务已恢复；目标表 41,140 行、复合键 41,140 个、候选/旧表不存在，当前不再处于不可达状态。
