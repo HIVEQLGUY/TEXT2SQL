@@ -1,0 +1,192 @@
+contract_id: openmetadata_dwd_trade_order_logistics_tracking_no_shadow_1_3_3
+contract_version: 1.3.3
+status: approved
+table:
+  name: dwd_trade_order_logistics_tracking_no_shadow_1_3_3
+  display_name: DWD_抖店订单物流快递单号粒度影子表
+  description: 按店铺ID、店铺订单号、快递单号粒度汇总物流信息，用于运费匹配前的影子验证；包裹ID不作为业务粒度。
+  database_schema_fqn: youmei_clickhouse.default.youmei_sandbox
+  fully_qualified_name: youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3
+  tags:
+  - Tier.Tier2
+custom_properties:
+  warehouse_layer: DWD_SHADOW
+  business_table_name_zh: DWD_抖店订单物流快递单号粒度影子表
+  grain: 店铺ID(shop_id) + 店铺订单号(shop_order_id) + 快递单号(tracking_no)
+  technical_key_fields: shop_id,shop_order_id,tracking_no
+  refresh_mode: window_full_snapshot
+  source_system: doudian_api
+  source_api: order.searchList
+  source_api_doc: https://op.jinritemai.com/docs/api-docs/15/1342
+  cleaning_contract_id: doudian_order_tracking_no_shadow_contract
+  cleaning_contract_version: 1.3.3
+  amount_unit_strategy: field_level_unit_evidence
+  amount_rule_version: 1.3.3
+  amount_conversion_status: tracking_no_shadow_amounts_summed_average_metrics_averaged
+  null_value_policy: empty_or_null_to_NULL_non_empty_invalid_to_exception_count_zero_preserved
+  data_quality_status: shadow_passed_pending_user_review
+  business_field_retention_policy: tracking_no_business_grain_package_id_excluded
+  json_expansion_policy: shadow_tracking_no_grain_package_id_not_materialized
+columns:
+- physical_name: snapshot_date
+  chinese_name: 数据快照日期
+  description: 数据快照日期
+  source_field: snapshot_date
+  data_type: Date
+  data_type_display: Date
+  tags: []
+  is_primary_key: false
+  enum_definition: {}
+- physical_name: shop_id
+  chinese_name: 店铺ID
+  description: 店铺ID
+  source_field: shop_id
+  data_type: String
+  data_type_display: String
+  tags: []
+  is_primary_key: true
+  enum_definition: {}
+- physical_name: shop_name
+  chinese_name: 店铺名称
+  description: 店铺名称
+  source_field: shop_name
+  data_type: Nullable(String)
+  data_type_display: Nullable(String)
+  tags: []
+  is_primary_key: false
+  enum_definition: {}
+- physical_name: shop_order_id
+  chinese_name: 店铺订单号
+  description: 店铺订单号
+  source_field: shop_order_id
+  data_type: String
+  data_type_display: String
+  tags: []
+  is_primary_key: true
+  enum_definition: {}
+- physical_name: tracking_no
+  chinese_name: 快递单号；用于后续运费匹配
+  description: 快递单号；用于后续运费匹配
+  source_field: tracking_no
+  data_type: String
+  data_type_display: String
+  tags: []
+  is_primary_key: true
+  enum_definition: {}
+- physical_name: logistics_company_names
+  chinese_name: 物流公司名称列表，按快递单号粒度去重拼接
+  description: 物流公司名称列表，按快递单号粒度去重拼接
+  source_field: logistics_company_names
+  data_type: Nullable(String)
+  data_type_display: Nullable(String)
+  tags: []
+  is_primary_key: false
+  enum_definition: {}
+- physical_name: first_shipped_at
+  chinese_name: 最早发货时间
+  description: 最早发货时间
+  source_field: first_shipped_at
+  data_type: Nullable(DateTime('Asia/Shanghai'))
+  data_type_display: Nullable(DateTime('Asia/Shanghai'))
+  tags: []
+  is_primary_key: false
+  enum_definition: {}
+- physical_name: latest_shipped_at
+  chinese_name: 最晚发货时间
+  description: 最晚发货时间
+  source_field: latest_shipped_at
+  data_type: Nullable(DateTime('Asia/Shanghai'))
+  data_type_display: Nullable(DateTime('Asia/Shanghai'))
+  tags: []
+  is_primary_key: false
+  enum_definition: {}
+- physical_name: package_count
+  chinese_name: 快递单号下源包裹记录数；包裹ID不作为业务粒度，仅用于汇总计数
+  description: 快递单号下源包裹记录数；包裹ID不作为业务粒度，仅用于汇总计数
+  source_field: package_count
+  data_type: UInt16
+  data_type_display: UInt16
+  tags: []
+  is_primary_key: false
+  enum_definition: {}
+- physical_name: package_product_row_count
+  chinese_name: 快递单号下物流商品关系行数
+  description: 快递单号下物流商品关系行数
+  source_field: package_product_row_count
+  data_type: UInt32
+  data_type_display: UInt32
+  tags: []
+  is_primary_key: false
+  enum_definition: {}
+- physical_name: sku_order_count
+  chinese_name: 快递单号下商品子单数
+  description: 快递单号下商品子单数
+  source_field: sku_order_count
+  data_type: UInt32
+  data_type_display: UInt32
+  tags: []
+  is_primary_key: false
+  enum_definition: {}
+- physical_name: sku_order_ids
+  chinese_name: 商品子单号列表，按快递单号粒度去重拼接
+  description: 商品子单号列表，按快递单号粒度去重拼接
+  source_field: sku_order_ids
+  data_type: Nullable(String)
+  data_type_display: Nullable(String)
+  tags: []
+  is_primary_key: false
+  enum_definition: {}
+- physical_name: shipped_product_count
+  chinese_name: 发货商品数量合计
+  description: 发货商品数量合计
+  source_field: shipped_product_count
+  data_type: Nullable(Int64)
+  data_type_display: Nullable(Int64)
+  tags: []
+  is_primary_key: false
+  enum_definition: {}
+- physical_name: guarantee_amount
+  chinese_name: 物流保价金额合计，源单位分，清洗后单位元
+  description: 物流保价金额合计，源单位分，清洗后单位元
+  source_field: guarantee_amount
+  data_type: Nullable(Decimal(38, 2))
+  data_type_display: Nullable(Decimal(38, 2))
+  tags: []
+  is_primary_key: false
+  enum_definition: {}
+- physical_name: platform_delivery_discount_amount
+  chinese_name: 即时零售平台运力配送优惠金额合计，源单位分，清洗后单位元
+  description: 即时零售平台运力配送优惠金额合计，源单位分，清洗后单位元
+  source_field: platform_delivery_discount_amount
+  data_type: Nullable(Decimal(38, 2))
+  data_type_display: Nullable(Decimal(38, 2))
+  tags: []
+  is_primary_key: false
+  enum_definition: {}
+- physical_name: platform_delivery_paid_amount
+  chinese_name: 即时零售平台运力配送实付金额合计，源单位分，清洗后单位元
+  description: 即时零售平台运力配送实付金额合计，源单位分，清洗后单位元
+  source_field: platform_delivery_paid_amount
+  data_type: Nullable(Decimal(38, 2))
+  data_type_display: Nullable(Decimal(38, 2))
+  tags: []
+  is_primary_key: false
+  enum_definition: {}
+- physical_name: platform_delivery_payable_amount
+  chinese_name: 即时零售平台运力配送应付金额合计，源单位分，清洗后单位元
+  description: 即时零售平台运力配送应付金额合计，源单位分，清洗后单位元
+  source_field: platform_delivery_payable_amount
+  data_type: Nullable(Decimal(38, 2))
+  data_type_display: Nullable(Decimal(38, 2))
+  tags: []
+  is_primary_key: false
+  enum_definition: {}
+- physical_name: avg_product_price_amount
+  chinese_name: 物流商品单价平均值，源单位分，清洗后单位元；平均型指标按快递单号粒度取平均
+  description: 物流商品单价平均值，源单位分，清洗后单位元；平均型指标按快递单号粒度取平均
+  source_field: avg_product_price_amount
+  data_type: Nullable(Decimal(38, 2))
+  data_type_display: Nullable(Decimal(38, 2))
+  tags: []
+  is_primary_key: false
+  enum_definition: {}
