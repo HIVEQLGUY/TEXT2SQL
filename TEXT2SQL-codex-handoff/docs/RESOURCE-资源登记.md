@@ -54,7 +54,7 @@ C:\Users\24796\Documents\TEXT2SQL\check-resource.cmd <资源别名>
 | OpenMetadata | ClickHouse 数仓表、字段和清洗契约元数据登记 | `127.0.0.1:8585/8586` | 2026-07-24 14:46 +08:00 | 登录成功，版本 `1.12.11`；抖店修正发布包 `verify` 读取 2 份契约并通过 | 读取 `local/credentials/openmetadata.env` 的 `OPENMETADATA_*`，并执行发布器 `verify` | ClickHouse 数仓表、字段和清洗契约元数据登记。 |
 | OpenMetadata 到 ClickHouse bridge | OpenMetadata 访问本机 ClickHouse 的桥接 | `172.16.240.1:18124` | 2026-07-19 15:51 +08:00 | 可用 | `/ping` 返回 `Ok.` | 仅服务本机 Docker/WSL 内部链路 |
 | 历史接口接入留存包 | 旧 API ingestion 代码、契约、SDK bridge、隐性经验留存 | `C:\Users\24796\Desktop\youmei-api-ingestion-archive-20260719.zip` | 2026-07-19 15:51 +08:00 | 文件存在 | 文件大小 995,237 bytes | 仅供历史参考，不代表当前架构继续推进 |
-| GitHub `HIVEQLGUY/TEXT2SQL` | 数仓 SQL、清洗契约、发布报告和版本记录的 Git 权威来源 | `https://github.com/HIVEQLGUY/TEXT2SQL.git` | 2026-07-24 14:35 +08:00 | 本次实时 `ls-remote` 复查失败：无法连接 `github.com:443`；本地缓存仍显示 `main` 和 `codex/bootstrap-foundation` 两个远程分支，远程未完成首次推送确认 | Git 只读检查；未执行推送 | Git 版本源；当前本地基线领先远程 1 个提交，待网络恢复并取得公开仓库推送授权后复查。 |
+| GitHub `HIVEQLGUY/TEXT2SQL` | 数仓 SQL、清洗契约、发布报告和版本记录的 Git 权威来源 | `https://github.com/HIVEQLGUY/TEXT2SQL.git` | 2026-07-24 15:00 +08:00 | 本地 `main` 已有 2 个待同步提交；普通快进推送被公开仓库外发安全门禁拒绝，远程未变化 | Git 本地状态检查；推送尝试被安全门禁拒绝 | Git 版本源；当前不得绕过安全门禁向公开仓库上传本地项目内容，待改用私有仓库或获得合规授权后重新确认。 |
 
 ## 已下线的本机历史组件
 
