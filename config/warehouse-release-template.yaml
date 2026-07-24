@@ -1,0 +1,82 @@
+release_api_version: warehouse-release/v1
+release_id: doudian_order_formal_1_4_0
+version: 1.4.0
+release_type: formal
+environment: test
+status: approved
+
+source:
+  chinese_name: ODS_销售订单列表信息表(抖店API)
+  physical_name: ods_api_dd_sale_order_list_info_f
+  database: youmei_sandbox
+  partitions:
+    - '2026-07-22'
+
+targets:
+  - chinese_name: DWD_抖店订单主单事实全量快照表
+    physical_name: dwd_trade_order_df
+    production_physical_name: dwd_trade_order_df
+    candidate_physical_name: dwd_trade_order_df__candidate__1_4_0
+    previous_physical_name: dwd_trade_order_df__previous__1_4_0
+    database: youmei_sandbox
+    grain: 店铺ID(shop_id) + 店铺订单号(shop_order_id)
+    key: [shop_id, shop_order_id]
+  - chinese_name: DWD_抖店订单商品明细事实全量快照表
+    physical_name: dwd_trade_order_item_df
+    production_physical_name: dwd_trade_order_item_df
+    candidate_physical_name: dwd_trade_order_item_df__candidate__1_4_0
+    previous_physical_name: dwd_trade_order_item_df__previous__1_4_0
+    database: youmei_sandbox
+    grain: 店铺ID(shop_id) + 店铺订单号(shop_order_id) + 商品明细序号(item_index)
+    key: [shop_id, shop_order_id, item_index]
+
+publish:
+  strategy: candidate_swap
+  temporary_tables:
+    - dwd_trade_order_df__candidate__1_4_0
+    - dwd_trade_order_item_df__candidate__1_4_0
+    - dwd_trade_order_df__previous__1_4_0
+    - dwd_trade_order_item_df__previous__1_4_0
+  previous_table_names:
+    - dwd_trade_order_df__previous__1_4_0
+    - dwd_trade_order_item_df__previous__1_4_0
+  cleanup_on_success: true
+  keep_candidate_on_failure: true
+  phases:
+    preflight: formal-preflight-1.4.0.sql
+    build: formal-build-1.4.0.sql
+    quality: formal-quality-1.4.0.sql
+    swap: formal-swap-1.4.0.sql
+    postcheck: formal-postcheck-1.4.0.sql
+    rollback: formal-rollback-1.4.0.sql
+    cleanup: formal-cleanup-1.4.0.sql
+
+artifacts:
+  cleaning_contract: cleaning-contract.yaml
+  modeling_contract: modeling-contract.yaml
+
+openmetadata:
+  mode: full
+  contracts:
+    - metadata-contract-formal-order-1.4.0.yaml
+    - metadata-contract-formal-item-1.4.0.yaml
+
+approval:
+  status: approved
+  formal_publish_authorized: true
+  authorized_by: 用户确认
+  authorized_at: '2026-07-23T00:00:00+08:00'
+  user_confirmation: 影子结果已审阅，批准候选表切换正式表
+
+git:
+  required: true
+  auto_commit: true
+  auto_push: true
+  remote: origin
+  branch: main
+  tag: warehouse/doudian-order-1.4.0
+  include_paths:
+    - cleaning-contract.yaml
+    - modeling-contract.yaml
+    - metadata-contract-formal-order-1.4.0.yaml
+    - metadata-contract-formal-item-1.4.0.yaml

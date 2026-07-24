@@ -1,0 +1,12 @@
+local/
+.env
+.env.*
+!.env.example
+*.restorebak-*
+
+# 临时探查、构建输出和 Python 缓存不进入版本库
+tmp/
+**/__pycache__/
+*.py[cod]
+.pytest_cache/
+**/logs/

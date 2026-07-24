@@ -1,0 +1,9 @@
+[Unit]
+Description=Youmei OpenMetadata official ClickHouse metadata ingestion
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/mnt/c/Users/24796/Documents/TEXT2SQL/TEXT2SQL-codex-handoff
+ExecStart=/usr/bin/bash /mnt/c/Users/24796/Documents/TEXT2SQL/TEXT2SQL-codex-handoff/ops/devbox/openmetadata_clickhouse_ingestion.sh

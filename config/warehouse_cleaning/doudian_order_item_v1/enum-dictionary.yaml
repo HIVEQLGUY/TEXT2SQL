@@ -1,0 +1,105 @@
+dictionary_version: 1.0.0
+source: https://op.jinritemai.com/docs/question-docs/89/2835
+status: reviewed
+fields:
+  payment_type_code:
+    chinese_name: 支付方式编码
+    source_field: sku_order_list.pay_type
+    values:
+      - code: '1'
+        chinese_value: 微信
+        english_value: wechat
+      - code: '2'
+        chinese_value: 支付宝
+        english_value: alipay
+      - code: '4'
+        chinese_value: 银行卡
+        english_value: bank_card
+      - code: '5'
+        chinese_value: 余额
+        english_value: balance
+      - code: '8'
+        chinese_value: 抖音月付
+        english_value: douyin_monthly_pay
+      - code: '9'
+        chinese_value: 新卡支付
+        english_value: new_card
+      - code: '10'
+        chinese_value: 抖音支付
+        english_value: douyin_pay
+      - code: '12'
+        chinese_value: 先用后付
+        english_value: pay_later
+      - code: '13'
+        chinese_value: 组合支付
+        english_value: combined_pay
+      - code: '14'
+        chinese_value: 极速付
+        english_value: fast_pay
+      - code: '19'
+        chinese_value: 亲友卡支付
+        english_value: family_card
+      - code: '22'
+        chinese_value: 聚合支付
+        english_value: aggregated_pay
+      - code: '27'
+        chinese_value: 云闪付
+        english_value: unionpay
+    unknown_policy: preserve_unknown_and_flag
+  order_entry_code:
+    chinese_name: 下单端编码
+    source_field: sku_order_list.b_type
+    source: https://op.jinritemai.com/docs/api-docs/15/1342
+    values:
+      - code: '0'
+        chinese_value: 站外
+        english_value: outside_platform
+      - code: '1'
+        chinese_value: 火山
+        english_value: huoshan
+      - code: '2'
+        chinese_value: 抖音
+        english_value: douyin
+      - code: '3'
+        chinese_value: 头条
+        english_value: toutiao
+      - code: '4'
+        chinese_value: 西瓜
+        english_value: xigua
+      - code: '5'
+        chinese_value: 微信
+        english_value: wechat
+      - code: '12'
+        chinese_value: TikTok
+        english_value: tiktok
+      - code: '26'
+        chinese_value: 番茄小说
+        english_value: fanqie_novel
+      - code: '29'
+        chinese_value: 电商SDK
+        english_value: ecommerce_sdk
+    unknown_policy: preserve_unknown_and_flag
+  order_scene_code:
+    chinese_name: 下单场景编码
+    source_field: sku_order_list.sub_b_type
+    values: []
+    status: source_profile_required
+    unknown_policy: preserve_unknown_and_flag
+  ad_environment_type:
+    chinese_name: 广告环境类型
+    source_field: sku_order_list.ad_env_type
+    values: []
+    status: source_profile_required
+    unknown_policy: preserve_unknown_and_flag
+  order_status_code:
+    chinese_name: 商品订单状态编码
+    source_field: sku_order_list.order_status
+    values: []
+    status: source_profile_required
+    unknown_policy: preserve_unknown_and_flag
+  main_status_code:
+    chinese_name: 主流程状态编码
+    source_field: sku_order_list.main_status
+    values: []
+    status: source_profile_required
+    unknown_policy: preserve_unknown_and_flag

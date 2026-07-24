@@ -1,0 +1,43 @@
+approval_id: doudian_order_item_1_2_0
+contract_id: doudian_order_item
+contract_version: 1.2.0
+status: approved_formal_core_execution
+confirmed_rules:
+  amount_strategy: field_level_unit_evidence
+  target_scale: 2
+  preserve_negative_sign: true
+  empty_to_NULL: true
+  invalid_to_exception_count: true
+  zero_preserved: true
+  json_expansion_scope: all_interface_defined_fields
+  json_array_policy: separate_relation_by_parent_key_and_array_index
+field_decisions:
+  sku_order_list.pay_amount:
+    unit: fen
+    action: divide_by_100
+    status: ready
+  sku_order_list.goods_price:
+    unit: yuan
+    action: preserve_value_and_standardize_to_decimal128_scale_2
+    status: confirmed
+execution_authorized: true
+shadow_execution_authorized: true
+formal_dwd_authorized: true
+formal_core_execution_authorized: true
+confirmation_text: 金额单位按字段证据逐字段判断；商品原价(goods_price)按元处理；商品支付金额(pay_amount)按接口文档的分转元；金额保留两位小数；负数保留源符号；空值转NULL；非空非法值进入异常统计；接口文档定义的JSON字段全部展开，数组按父级主键和数组序号拆分关系，不保留原始JSON。
+confirmed_at: '2026-07-22T17:39:00+08:00'
+formal_core_confirmation_text: 用户在 2026-07-23 确认继续下一步；授权将已通过影子表和冲突检查的订单主单核心字段、商品明细核心字段晋级为阶段性正式DWD。
+formal_core_confirmed_at: '2026-07-23T13:55:00+08:00'
+formal_child_relation_execution_authorized: true
+formal_child_relation_confirmation_text: 用户在 2026-07-23 明确要求继续落地物流信息和商家收入金额明细项两个业务数组子关系；授权按已生成JSON关系契约、父级订单键和数组序号创建正式DWD子表。
+formal_child_relation_confirmed_at: '2026-07-23T15:20:00+08:00'
+parent_grain_refactor_authorized: true
+parent_grain_refactor_confirmation_text: 用户在 2026-07-23 明确要求当前只需要订单粒度和商品明细粒度；金额明细项等无独立业务价值的明细项粒度必须值转列或汇总回父粒度，后续类似订单主表均按该规则处理。
+parent_grain_refactor_confirmed_at: '2026-07-23T16:00:00+08:00'
+remaining_confirmation: 完整502个接口标量字段中仍有字段未正式落表；后续数组字段必须先判定业务粒度价值，无独立业务价值的数组默认归一到订单或商品明细粒度。
+logistics_grain_refactor_authorized: true
+logistics_grain_refactor_confirmation_text: 用户在 2026-07-23 明确修正：物流单号/包裹粒度具有业务价值，需要验证快递单号、包裹ID、商品子单之间是否一致；确认后按业务粒度重构 DWD，保留物流包裹事实表和物流包裹商品子单关系事实表，金额明细项继续值转列归一。
+logistics_grain_refactor_confirmed_at: '2026-07-23T17:00:00+08:00'
+tracking_no_shadow_corrective_authorized: true
+tracking_no_shadow_corrective_confirmation_text: 用户在 2026-07-23 明确修正：粒度对齐阶段是在重新对齐清洗契约，验证结果如需落表应落影子表，不应直接开发正式 DWD；包裹ID无业务价值，快递单号用于运费匹配，目标影子表以快递单号为粒度，包裹ID不保留，包裹ID粒度数值字段按快递单号汇总，平均型指标按平均处理。
+tracking_no_shadow_corrective_confirmed_at: '2026-07-23T17:20:00+08:00'

@@ -1,0 +1,13 @@
+[Unit]
+Description=Youmei ClickHouse bridge for OpenMetadata ingestion container
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /mnt/c/Users/24796/Documents/TEXT2SQL/TEXT2SQL-codex-handoff/ops/devbox/clickhouse_openmetadata_bridge_proxy.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

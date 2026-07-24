@@ -1,0 +1,854 @@
+version: 1
+generated_at: "2026-07-09"
+design_principle: "Templates are selected by risk tags and metadata evidence, not by warehouse layer alone."
+notes:
+  - "Do not apply these templates blindly. A table should match the risk tag and have the required metadata before rule generation."
+  - "warehouse_layer_raw and table name are weak hints only."
+  - "Thresholds marked TODO require business or owner confirmation before production alerting."
+
+rule_groups:
+  freshness_risk:
+    description: "Timeliness checks for active daily/hourly tables and tables consumed by reports, datasets, or downstream tasks."
+    applicable_risk_tags:
+      - freshness_risk
+      - active_table
+      - report_used
+      - collection_used
+      - task_used
+      - downstream_used
+    required_metadata:
+      - table_name
+      - database_name
+      - partition_field_candidate
+      - biz_date_field_candidate
+      - latest_partition
+      - latest_update_time
+      - expected_update_frequency
+      - expected_delay_hours
+    default_threshold:
+      expected_delay_hours: 36
+      recent_continuous_days: 7
+      max_missing_days: 0
+      todo: "Confirm expected_update_frequency and expected_delay_hours with table owner."
+    default_alert_level_by_importance:
+      S: critical
+      A: high
+      B: medium
+      C: low
+      REVIEW: medium
+      IGNORE: none
+    rule_sql_template:
+      latest_biz_date_exists: |
+        select
+          case when max({biz_date_field}) is null then 1 else 0 end as violation_count
+        from {database_name}.{table_name};
+      latest_biz_date_delay: |
+        select
+          case
+            when timestampdiff(hour, max({biz_date_field}), current_timestamp()) > {expected_delay_hours}
+            then 1 else 0
+          end as violation_count
+        from {database_name}.{table_name};
+      recent_n_days_continuity: |
+        select
+          {recent_continuous_days} - count(distinct cast({biz_date_field} as date)) as missing_day_count
+        from {database_name}.{table_name}
+        where cast({biz_date_field} as date) >= date_sub(current_date(), interval {recent_continuous_days} day);
+    manual_review_required:
+      - "No reliable business date or partition field."
+      - "Expected update frequency is unknown."
+      - "Table is active in metadata but latest_update_time is stale."
+
+  silent_missing_risk:
+    description: "Silent missing checks for Yingdao, API, ERP, DingTalk, and other external ingestion tables where a partition may exist but contain zero or too few rows."
+    applicable_risk_tags:
+      - silent_missing_risk
+      - external_ingestion
+      - api_source
+      - yingdao_source
+      - erp_source
+      - dingtalk_source
+      - partitioned_table
+    required_metadata:
+      - table_name
+      - database_name
+      - partition_field_candidate
+      - biz_date_field_candidate
+      - row_count
+      - partition_count
+      - latest_partition
+      - partition_row_count_history
+    default_threshold:
+      check_days: 7
+      min_partition_rows: 1
+      row_count_low_ratio_to_history: 0.5
+      history_window_days: 30
+      todo: "Confirm which dates are expected to have data for this source."
+    default_alert_level_by_importance:
+      S: critical
+      A: high
+      B: medium
+      C: low
+      REVIEW: medium
+      IGNORE: none
+    rule_sql_template:
+      yesterday_partition_exists: |
+        select
+          case when count(*) = 0 then 1 else 0 end as violation_count
+        from {database_name}.{table_name}
+        where cast({biz_date_field} as date) = date_sub(current_date(), interval 1 day);
+      yesterday_partition_not_empty: |
+        select
+          case when count(*) < {min_partition_rows} then 1 else 0 end as violation_count
+        from {database_name}.{table_name}
+        where cast({biz_date_field} as date) = date_sub(current_date(), interval 1 day);
+      recent_n_days_missing_partitions: |
+        select
+          {check_days} - count(distinct cast({biz_date_field} as date)) as missing_partition_count
+        from {database_name}.{table_name}
+        where cast({biz_date_field} as date) >= date_sub(current_date(), interval {check_days} day);
+      partition_rows_below_history_threshold: |
+        with daily_rows as (
+          select cast({biz_date_field} as date) as biz_date, count(*) as row_count
+          from {database_name}.{table_name}
+          where cast({biz_date_field} as date) >= date_sub(current_date(), interval {history_window_days} day)
+          group by cast({biz_date_field} as date)
+        ),
+        history_avg as (
+          select avg(row_count) as avg_row_count
+          from daily_rows
+          where biz_date < date_sub(current_date(), interval 1 day)
+        )
+        select
+          case
+            when coalesce((select row_count from daily_rows where biz_date = date_sub(current_date(), interval 1 day)), 0)
+                 < coalesce((select avg_row_count from history_avg), 0) * {row_count_low_ratio_to_history}
+            then 1 else 0
+          end as violation_count;
+    manual_review_required:
+      - "Source does not produce data every day."
+      - "Partition field exists but business date semantics are unclear."
+      - "Historical partition row-count metadata is incomplete."
+
+  row_count_anomaly_risk:
+    description: "Row-count fluctuation checks for active tables, result tables, and ingestion tables."
+    applicable_risk_tags:
+      - row_count_anomaly_risk
+      - active_table
+      - result_like
+      - summary_like
+      - detail_like
+      - external_ingestion
+    required_metadata:
+      - table_name
+      - database_name
+      - biz_date_field_candidate
+      - row_count_history
+      - latest_partition
+    default_threshold:
+      history_windows_days:
+        - 7
+        - 14
+        - 30
+      low_ratio_to_history: 0.5
+      high_ratio_to_history: 2.0
+      default_compare_statistic: median
+      todo: "Confirm whether weekday/weekend or promotion cycles need separate baselines."
+    default_alert_level_by_importance:
+      S: critical
+      A: high
+      B: medium
+      C: low
+      REVIEW: medium
+      IGNORE: none
+    rule_sql_template:
+      current_partition_vs_history_avg: |
+        with daily_rows as (
+          select cast({biz_date_field} as date) as biz_date, count(*) as row_count
+          from {database_name}.{table_name}
+          where cast({biz_date_field} as date) >= date_sub(current_date(), interval {history_window_days} day)
+          group by cast({biz_date_field} as date)
+        ),
+        baseline as (
+          select avg(row_count) as baseline_row_count
+          from daily_rows
+          where biz_date < date_sub(current_date(), interval 1 day)
+        ),
+        current_day as (
+          select coalesce(sum(row_count), 0) as current_row_count
+          from daily_rows
+          where biz_date = date_sub(current_date(), interval 1 day)
+        )
+        select
+          case
+            when current_row_count < baseline_row_count * {low_ratio_to_history}
+              or current_row_count > baseline_row_count * {high_ratio_to_history}
+            then 1 else 0
+          end as violation_count
+        from current_day cross join baseline;
+    manual_review_required:
+      - "New table has insufficient history."
+      - "Business has known campaign spikes or periodic zero-data days."
+      - "Median calculation support depends on SQL engine version."
+
+  primary_key_duplicate_risk:
+    description: "Duplicate checks for candidate primary keys on detail tables, dimension tables, result tables, and outbound tables."
+    applicable_risk_tags:
+      - primary_key_duplicate_risk
+      - detail_like
+      - dimension_like
+      - result_like
+      - export_like
+      - write_out_table
+    required_metadata:
+      - table_name
+      - database_name
+      - primary_key_candidate
+      - unique_key_candidate
+      - biz_date_field_candidate
+    default_threshold:
+      duplicate_count_max: 0
+      duplicate_rate_max: 0
+      todo: "Confirm whether candidate key is globally unique or unique within business date/partition."
+    default_alert_level_by_importance:
+      S: critical
+      A: high
+      B: medium
+      C: low
+      REVIEW: medium
+      IGNORE: none
+    rule_sql_template:
+      candidate_primary_key_duplicate_count: |
+        select count(*) as violation_count
+        from (
+          select {primary_key_fields}, count(*) as cnt
+          from {database_name}.{table_name}
+          where {primary_key_not_null_predicate}
+          group by {primary_key_fields}
+          having count(*) > 1
+        ) t;
+      candidate_primary_key_duplicate_rate: |
+        with dup_rows as (
+          select sum(cnt - 1) as duplicate_rows
+          from (
+            select {primary_key_fields}, count(*) as cnt
+            from {database_name}.{table_name}
+            where {primary_key_not_null_predicate}
+            group by {primary_key_fields}
+            having count(*) > 1
+          ) t
+        ),
+        total_rows as (
+          select count(*) as total_count from {database_name}.{table_name}
+        )
+        select
+          case
+            when coalesce(duplicate_rows, 0) / nullif(total_count, 0) > {duplicate_rate_max}
+            then 1 else 0
+          end as violation_count
+        from dup_rows cross join total_rows;
+    manual_review_required:
+      - "No candidate primary key or unique key."
+      - "Key uniqueness depends on shop/date/channel scope."
+      - "Composite key fields need owner confirmation."
+
+  core_field_null_risk:
+    description: "Null-rate checks for candidate primary key, business date, shop, product, SKU, order, amount, and other core fields."
+    applicable_risk_tags:
+      - core_field_null_risk
+      - has_core_fields
+      - amount_quality
+      - join_key_quality
+      - business_date_quality
+    required_metadata:
+      - table_name
+      - database_name
+      - primary_key_candidate
+      - biz_date_field_candidate
+      - core_fields_candidate
+      - join_key_fields
+      - amount_fields
+    default_threshold:
+      primary_key_null_rate_max: 0
+      biz_date_null_rate_max: 0
+      core_field_null_rate_max: 0.01
+      amount_field_null_rate_max: 0.05
+      todo: "Confirm nullable business fields and optional dimensions."
+    default_alert_level_by_importance:
+      S: critical
+      A: high
+      B: medium
+      C: low
+      REVIEW: medium
+      IGNORE: none
+    rule_sql_template:
+      field_null_rate: |
+        select
+          case
+            when sum(case when {field_name} is null then 1 else 0 end) / nullif(count(*), 0) > {null_rate_max}
+            then 1 else 0
+          end as violation_count
+        from {database_name}.{table_name}
+        {optional_recent_partition_filter};
+      core_fields_null_rate_detail: |
+        select
+          '{field_name}' as field_name,
+          sum(case when {field_name} is null then 1 else 0 end) as null_count,
+          count(*) as total_count,
+          sum(case when {field_name} is null then 1 else 0 end) / nullif(count(*), 0) as null_rate
+        from {database_name}.{table_name}
+        {optional_recent_partition_filter};
+    manual_review_required:
+      - "Core fields are inferred only by field name."
+      - "Some fields are nullable by business design."
+      - "Empty string, zero, unknown, and null need separate business semantics."
+
+  amount_abnormal_risk:
+    description: "Amount-field checks for non-negative values, extreme values, quantile anomalies, and historical partition fluctuation."
+    applicable_risk_tags:
+      - amount_abnormal_risk
+      - amount_quality
+      - sales_amount
+      - refund_amount
+      - inventory_amount
+      - profit_amount
+    required_metadata:
+      - table_name
+      - database_name
+      - amount_fields
+      - biz_date_field_candidate
+      - row_count_history
+    default_threshold:
+      non_negative_required: true
+      extreme_value_max: TODO_CONFIRM
+      current_sum_low_ratio_to_history: 0.5
+      current_sum_high_ratio_to_history: 2.0
+      quantile_check:
+        p99_to_p50_max_ratio: TODO_CONFIRM
+      todo: "Confirm which amount fields can be negative, such as refund or adjustment fields."
+    default_alert_level_by_importance:
+      S: critical
+      A: high
+      B: medium
+      C: low
+      REVIEW: medium
+      IGNORE: none
+    rule_sql_template:
+      amount_non_negative: |
+        select count(*) as violation_count
+        from {database_name}.{table_name}
+        where {amount_field} < 0
+        {optional_recent_partition_filter};
+      amount_extreme_value: |
+        select count(*) as violation_count
+        from {database_name}.{table_name}
+        where abs({amount_field}) > {extreme_value_max}
+        {optional_recent_partition_filter};
+      amount_sum_vs_history_avg: |
+        with daily_amount as (
+          select cast({biz_date_field} as date) as biz_date, sum({amount_field}) as amount_sum
+          from {database_name}.{table_name}
+          where cast({biz_date_field} as date) >= date_sub(current_date(), interval {history_window_days} day)
+          group by cast({biz_date_field} as date)
+        ),
+        baseline as (
+          select avg(amount_sum) as baseline_amount
+          from daily_amount
+          where biz_date < date_sub(current_date(), interval 1 day)
+        ),
+        current_day as (
+          select coalesce(sum(amount_sum), 0) as current_amount
+          from daily_amount
+          where biz_date = date_sub(current_date(), interval 1 day)
+        )
+        select
+          case
+            when current_amount < baseline_amount * {current_sum_low_ratio_to_history}
+              or current_amount > baseline_amount * {current_sum_high_ratio_to_history}
+            then 1 else 0
+          end as violation_count
+        from current_day cross join baseline;
+    manual_review_required:
+      - "Negative values may be valid for refund, reversal, or adjustment fields."
+      - "Extreme thresholds must be confirmed per currency and metric."
+      - "Promotion or holiday periods may require separate baselines."
+
+  cost_price_abnormal_risk:
+    description: "Cost and purchase-price checks for non-null, non-negative, and SKU/product-level abnormal jumps against 30-day history."
+    applicable_risk_tags:
+      - cost_price_abnormal_risk
+      - cost_price_quality
+      - purchase_price
+      - sku_cost
+      - product_cost
+    required_metadata:
+      - table_name
+      - database_name
+      - cost_price_fields
+      - join_key_fields
+      - biz_date_field_candidate
+      - sku_or_product_key
+    default_threshold:
+      cost_price_null_rate_max: TODO_CONFIRM
+      cost_price_min: 0
+      high_ratio_to_30d_median: 3.0
+      low_ratio_to_30d_median: 0.2
+      history_window_days: 30
+      todo: "Confirm valid zero-cost scenarios, cost-source priority, and SKU/product comparison grain."
+    default_alert_level_by_importance:
+      S: critical
+      A: high
+      B: medium
+      C: low
+      REVIEW: medium
+      IGNORE: none
+    rule_sql_template:
+      cost_price_not_null: |
+        select
+          case
+            when sum(case when {cost_price_field} is null then 1 else 0 end) / nullif(count(*), 0) > {cost_price_null_rate_max}
+            then 1 else 0
+          end as violation_count
+        from {database_name}.{table_name}
+        {optional_recent_partition_filter};
+      cost_price_non_negative: |
+        select count(*) as violation_count
+        from {database_name}.{table_name}
+        where {cost_price_field} < {cost_price_min}
+        {optional_recent_partition_filter};
+      cost_price_vs_30d_median: |
+        -- TODO_CONFIRM: replace median expression with the SQL engine's approved percentile function.
+        with history_price as (
+          select
+            {sku_or_product_key},
+            percentile_approx({cost_price_field}, 0.5) as median_cost_price
+          from {database_name}.{table_name}
+          where cast({biz_date_field} as date) >= date_sub(current_date(), interval {history_window_days} day)
+            and cast({biz_date_field} as date) < current_date()
+          group by {sku_or_product_key}
+        ),
+        current_price as (
+          select {sku_or_product_key}, {cost_price_field}
+          from {database_name}.{table_name}
+          where cast({biz_date_field} as date) = date_sub(current_date(), interval 1 day)
+        )
+        select count(*) as violation_count
+        from current_price c
+        join history_price h on c.{sku_or_product_key} = h.{sku_or_product_key}
+        where c.{cost_price_field} > h.median_cost_price * {high_ratio_to_30d_median}
+           or c.{cost_price_field} < h.median_cost_price * {low_ratio_to_30d_median};
+    manual_review_required:
+      - "Thresholds are TODO and must be confirmed before alerting."
+      - "Median SQL function must be adapted to StarRocks version."
+      - "Cost comparison grain may be SKU, product, shop+SKU, or product+date."
+
+  promotion_fee_abnormal_risk:
+    description: "Promotion, ad, and media-spend checks by shop, channel, campaign, plan, and date."
+    applicable_risk_tags:
+      - promotion_fee_abnormal_risk
+      - promotion_fee_quality
+      - ad_cost
+      - media_spend
+      - campaign_cost
+    required_metadata:
+      - table_name
+      - database_name
+      - promotion_fee_fields
+      - biz_date_field_candidate
+      - shop_field_candidate
+      - channel_field_candidate
+      - campaign_or_plan_field_candidate
+    default_threshold:
+      promotion_fee_min: 0
+      high_ratio_to_history: 3.0
+      history_window_days: 30
+      zero_fee_alert_policy: "Do not alert on zero fee by default; compare with historical zero-rate and business calendar."
+      todo: "Confirm campaign calendar, channel grain, and whether zero-spend days are expected."
+    default_alert_level_by_importance:
+      S: critical
+      A: high
+      B: medium
+      C: low
+      REVIEW: medium
+      IGNORE: none
+    rule_sql_template:
+      promotion_fee_non_negative: |
+        select count(*) as violation_count
+        from {database_name}.{table_name}
+        where {promotion_fee_field} < {promotion_fee_min}
+        {optional_recent_partition_filter};
+      promotion_fee_vs_history_avg: |
+        with daily_fee as (
+          select
+            cast({biz_date_field} as date) as biz_date,
+            {shop_channel_plan_fields},
+            sum({promotion_fee_field}) as fee_sum
+          from {database_name}.{table_name}
+          where cast({biz_date_field} as date) >= date_sub(current_date(), interval {history_window_days} day)
+          group by cast({biz_date_field} as date), {shop_channel_plan_fields}
+        ),
+        baseline as (
+          select {shop_channel_plan_fields}, avg(fee_sum) as avg_fee
+          from daily_fee
+          where biz_date < date_sub(current_date(), interval 1 day)
+          group by {shop_channel_plan_fields}
+        ),
+        current_day as (
+          select {shop_channel_plan_fields}, fee_sum
+          from daily_fee
+          where biz_date = date_sub(current_date(), interval 1 day)
+        )
+        select count(*) as violation_count
+        from current_day c
+        join baseline b using ({shop_channel_plan_fields})
+        where c.fee_sum > b.avg_fee * {high_ratio_to_history};
+      promotion_fee_zero_context_check: |
+        -- Zero promotion fee is review-only unless this object historically had non-zero spend.
+        with history as (
+          select
+            {shop_channel_plan_fields},
+            avg(case when {promotion_fee_field} = 0 then 1 else 0 end) as historical_zero_rate
+          from {database_name}.{table_name}
+          where cast({biz_date_field} as date) >= date_sub(current_date(), interval {history_window_days} day)
+            and cast({biz_date_field} as date) < date_sub(current_date(), interval 1 day)
+          group by {shop_channel_plan_fields}
+        )
+        select count(*) as review_count
+        from {database_name}.{table_name} c
+        join history h using ({shop_channel_plan_fields})
+        where cast(c.{biz_date_field} as date) = date_sub(current_date(), interval 1 day)
+          and c.{promotion_fee_field} = 0
+          and h.historical_zero_rate < 0.2;
+    manual_review_required:
+      - "Zero promotion fee is not automatically an alert."
+      - "Channel/campaign/plan fields may be missing or inconsistent."
+      - "Campaign launch and stop dates need business calendar context."
+
+  referential_integrity_risk:
+    description: "Coverage checks between fact/result tables and product, shop, cost, channel, organization, or personnel dimensions."
+    applicable_risk_tags:
+      - referential_integrity_risk
+      - join_key_quality
+      - fact_table
+      - dimension_dependency
+      - product_dimension
+      - shop_dimension
+      - organization_dimension
+      - channel_dimension
+      - cost_dimension
+    required_metadata:
+      - fact_table_name
+      - dimension_table_name
+      - database_name
+      - join_key_fields
+      - dimension_key_fields
+      - biz_date_field_candidate
+    default_threshold:
+      join_failure_rate_max: 0.01
+      dimension_coverage_rate_min: 0.99
+      core_object_missing_rate_max: 0.01
+      todo: "Confirm valid unknown/other dimension handling and join grain."
+    default_alert_level_by_importance:
+      S: critical
+      A: high
+      B: medium
+      C: low
+      REVIEW: medium
+      IGNORE: none
+    rule_sql_template:
+      dimension_join_failure_rate: |
+        select
+          case
+            when sum(case when d.{dimension_key_field} is null then 1 else 0 end) / nullif(count(*), 0) > {join_failure_rate_max}
+            then 1 else 0
+          end as violation_count
+        from {database_name}.{fact_table_name} f
+        left join {database_name}.{dimension_table_name} d
+          on {join_condition}
+        {optional_recent_partition_filter};
+      dimension_coverage_rate: |
+        select
+          count(distinct d.{dimension_key_field}) / nullif(count(distinct f.{fact_key_field}), 0) as coverage_rate
+        from {database_name}.{fact_table_name} f
+        left join {database_name}.{dimension_table_name} d
+          on {join_condition}
+        {optional_recent_partition_filter};
+      core_object_missing_rate: |
+        select
+          sum(case when d.{dimension_key_field} is null then 1 else 0 end) / nullif(count(*), 0) as missing_rate
+        from {database_name}.{fact_table_name} f
+        left join {database_name}.{dimension_table_name} d
+          on {join_condition}
+        {optional_recent_partition_filter};
+    manual_review_required:
+      - "Dimension table and join condition must be selected manually or from confirmed lineage."
+      - "Some facts may validly have unknown dimension values."
+      - "Slowly changing dimensions require effective-date joins."
+
+  downstream_consistency_risk:
+    description: "Upstream/downstream reconciliation checks for result tables, summary tables, outbound tables, and AI-used tables."
+    applicable_risk_tags:
+      - downstream_consistency_risk
+      - result_like
+      - summary_like
+      - export_like
+      - ai_used
+      - external_used
+      - core_report_used
+    required_metadata:
+      - upstream_tables
+      - downstream_tables
+      - producing_tasks
+      - consuming_tasks
+      - biz_date_field_candidate
+      - metric_fields
+      - join_key_fields
+    default_threshold:
+      row_count_diff_rate_max: 0.01
+      object_count_diff_rate_max: 0.01
+      metric_sum_diff_rate_max: 0.01
+      metrics_to_compare:
+        - order_count
+        - sales_amount
+        - cost_amount
+        - promotion_fee
+        - inventory_quantity
+      todo: "Confirm comparable grain and metric formulas before production."
+    default_alert_level_by_importance:
+      S: critical
+      A: high
+      B: medium
+      C: low
+      REVIEW: high
+      IGNORE: none
+    rule_sql_template:
+      upstream_downstream_row_count_reconcile: |
+        with upstream_count as (
+          select count(*) as cnt
+          from {database_name}.{upstream_table}
+          {upstream_filter}
+        ),
+        downstream_count as (
+          select count(*) as cnt
+          from {database_name}.{downstream_table}
+          {downstream_filter}
+        )
+        select
+          case
+            when abs(u.cnt - d.cnt) / nullif(u.cnt, 0) > {row_count_diff_rate_max}
+            then 1 else 0
+          end as violation_count
+        from upstream_count u cross join downstream_count d;
+      core_object_count_reconcile: |
+        with upstream_objects as (
+          select count(distinct {object_key}) as cnt
+          from {database_name}.{upstream_table}
+          {upstream_filter}
+        ),
+        downstream_objects as (
+          select count(distinct {object_key}) as cnt
+          from {database_name}.{downstream_table}
+          {downstream_filter}
+        )
+        select
+          case
+            when abs(u.cnt - d.cnt) / nullif(u.cnt, 0) > {object_count_diff_rate_max}
+            then 1 else 0
+          end as violation_count
+        from upstream_objects u cross join downstream_objects d;
+      core_metric_sum_reconcile: |
+        with upstream_metric as (
+          select sum({metric_field}) as metric_sum
+          from {database_name}.{upstream_table}
+          {upstream_filter}
+        ),
+        downstream_metric as (
+          select sum({metric_field}) as metric_sum
+          from {database_name}.{downstream_table}
+          {downstream_filter}
+        )
+        select
+          case
+            when abs(u.metric_sum - d.metric_sum) / nullif(abs(u.metric_sum), 0) > {metric_sum_diff_rate_max}
+            then 1 else 0
+          end as violation_count
+        from upstream_metric u cross join downstream_metric d;
+    manual_review_required:
+      - "Metric formulas must be confirmed before comparing sums."
+      - "Upstream and downstream grains may differ."
+      - "Filters and time attribution must be aligned."
+
+  schema_change_risk:
+    description: "Schema drift checks for external ingestion, API, Yingdao, and database synchronization tables."
+    applicable_risk_tags:
+      - schema_change_risk
+      - external_ingestion
+      - api_source
+      - yingdao_source
+      - db_sync_source
+      - erp_source
+      - dingtalk_source
+    required_metadata:
+      - table_name
+      - database_name
+      - field_count
+      - column_name_list
+      - column_type_list
+      - column_comment_list
+      - schema_snapshot_history
+    default_threshold:
+      field_added_alert: true
+      field_deleted_alert: true
+      field_type_changed_alert: true
+      field_comment_changed_alert: review
+      todo: "Confirm which schema changes are compatible for each connector."
+    default_alert_level_by_importance:
+      S: high
+      A: high
+      B: medium
+      C: low
+      REVIEW: medium
+      IGNORE: none
+    rule_sql_template:
+      schema_added_deleted_changed: |
+        -- This template compares metadata snapshots, not business rows.
+        select
+          table_name,
+          change_type,
+          column_name,
+          old_type,
+          new_type,
+          old_comment,
+          new_comment
+        from {metadata_database}.{schema_change_snapshot_table}
+        where table_name = '{table_name}'
+          and snapshot_date = current_date();
+      current_schema_snapshot: |
+        select
+          table_schema,
+          table_name,
+          column_name,
+          column_type,
+          column_comment,
+          ordinal_position
+        from information_schema.columns
+        where table_schema = '{database_name}'
+          and table_name = '{table_name}';
+    manual_review_required:
+      - "No historical schema snapshot exists."
+      - "Comment changes are informational unless tied to business semantics."
+      - "Connector compatibility must be checked before alert escalation."
+
+  text_format_castability_risk:
+    description: "Checks for source tables whose business fields are stored as text. Validate empty strings, parseability, date format, numeric format, and enum drift before applying numeric rules."
+    applicable_risk_tags:
+      - text_format_castability_risk
+      - external_ingestion
+      - api_source
+      - yingdao_source
+      - erp_source
+      - db_sync_source
+      - text_typed_source
+    required_metadata:
+      - table_name
+      - database_name
+      - column_name_list
+      - column_type_list
+      - biz_date_field_candidate
+      - amount_fields
+      - date_fields
+      - status_fields
+    default_threshold:
+      parse_failure_rate_max: 0.001
+      empty_string_rate_max: TODO_CONFIRM
+      enum_new_value_alert: review
+      todo: "Confirm which text fields are expected to be numeric/date/status and whether blank strings are valid."
+    default_alert_level_by_importance:
+      S: high
+      A: high
+      B: medium
+      C: low
+      REVIEW: medium
+      IGNORE: none
+    rule_sql_template:
+      numeric_text_parseability: |
+        -- Use a regexp predicate before cast to avoid failing the whole rule on dirty text.
+        select
+          sum(case when {text_numeric_field} is not null
+                    and trim({text_numeric_field}) <> ''
+                    and not ({text_numeric_field} regexp '^-?[0-9]+(\\.[0-9]+)?$')
+                   then 1 else 0 end) / nullif(count(*), 0) as parse_failure_rate
+        from {database_name}.{table_name}
+        {optional_recent_partition_filter};
+      date_text_parseability: |
+        -- Adjust the regexp to the source date format before production use.
+        select
+          sum(case when {text_date_field} is not null
+                    and trim({text_date_field}) <> ''
+                    and not ({text_date_field} regexp '^[0-9]{4}-[0-9]{2}-[0-9]{2}')
+                   then 1 else 0 end) / nullif(count(*), 0) as parse_failure_rate
+        from {database_name}.{table_name}
+        {optional_recent_partition_filter};
+      empty_string_rate: |
+        select
+          sum(case when {text_field} is null or trim({text_field}) = '' then 1 else 0 end) / nullif(count(*), 0) as empty_rate
+        from {database_name}.{table_name}
+        {optional_recent_partition_filter};
+      enum_value_snapshot: |
+        select {status_field} as value, count(*) as cnt
+        from {database_name}.{table_name}
+        {optional_recent_partition_filter}
+        group by {status_field}
+        order by cnt desc
+        limit 50;
+    manual_review_required:
+      - "Field type is text but business semantic may be numeric/date/status."
+      - "Blank strings may be valid for optional fields."
+      - "Enum drift needs baseline values before alerting."
+
+  stale_table_risk:
+    description: "Observation-list handling for suspected abandoned tables. This group does not generate strong data-quality rules."
+    applicable_risk_tags:
+      - stale_table_risk
+      - stale_unused
+      - empty_table
+      - no_recent_usage
+      - isolated
+      - temp_or_intermediate_like
+    required_metadata:
+      - table_name
+      - database_name
+      - row_count
+      - latest_update_time
+      - unused_days
+      - used_by_report_count
+      - used_by_collection_count
+      - used_by_task_count
+      - queried_recently_count
+      - downstream_task_count
+      - downstream_table_count
+    default_threshold:
+      unused_days_for_observation: 90
+      minimum_observation_days_before_cleanup_review: 30
+      generate_strong_quality_rules: false
+      todo: "Confirm cleanup owner and retention requirement before archive/delete decisions."
+    default_alert_level_by_importance:
+      S: review
+      A: review
+      B: low
+      C: low
+      REVIEW: review
+      IGNORE: none
+    rule_sql_template:
+      stale_observation_candidate: |
+        -- Observation only. Do not use this as a delete instruction.
+        select
+          '{table_name}' as table_name,
+          {unused_days} as unused_days,
+          {row_count} as row_count,
+          '{latest_update_time}' as latest_update_time,
+          'cleanup_observation_only' as action_candidate;
+    manual_review_required:
+      - "Always required before cleanup, archive, delete, or rule suppression."
+      - "If new usage evidence appears, remove stale_table_risk."
+      - "Retain evidence even when importance_candidate is IGNORE."

@@ -1,0 +1,209 @@
+table_name: ods_api_jstbz_stock_info_du
+database: cubeappdata
+importance_candidate: C
+data_role_candidate: source_like
+quality_rule_needed: review
+manual_confirm_required: true
+evidence_summary: importance=C; role=source_like; usage=task_used; reports=0; collections=0; tasks=1; queries=0; downstream_tasks=1; row_count=1514751;
+  physical_status=active
+generation_reasons:
+- Table is active or consumed by report/dataset/downstream task.
+- External source-like table requires silent missing, row anomaly, schema change, and core field rules.
+temporary_no_governance_reason: ''
+rules:
+- rule_name: ods_api_jstbz_stock_info_du__freshness__latest_date_exists
+  rule_group: freshness
+  description: 检查最新分区或业务日期是否存在。
+  target_fields:
+  - dt
+  - '`dt`'
+  check_grain: partition
+  check_frequency: daily
+  default_threshold:
+    expected_delay_hours: 36
+    recent_continuous_days: 7
+    max_missing_days: 0
+    todo: Confirm expected_update_frequency and expected_delay_hours with table owner.
+    profiling_status: TODO
+    profiling_todo: 历史基线未在当前画像中落表。
+  alert_level: low
+  required_metadata:
+  - table_name
+  - database_name
+  - partition_field_candidate
+  - biz_date_field_candidate
+  - latest_partition
+  - latest_update_time
+  - expected_update_frequency
+  - expected_delay_hours
+  sql_template: "select\n  case when max({biz_date_field}) is null then 1 else 0 end as violation_count\nfrom {database_name}.{table_name};\n"
+  evidence:
+  - '生成原因: 表活跃或存在报表/数据集/下游任务消费。'
+  - 'information_schema.tables: row_count=1514751, data_size=271864177, update_time=2026-07-09 02:08:22'
+  - 'information_schema.columns: field_count=26'
+  - 'ods_db_cube_tables_config: primary_key=`dt`, `__id`'
+  - 'ods_db_cube_tables_config: partition_key=`dt`'
+  - 'std_data_government_meta_table: owner=管理员, unused_days=0, layer_raw=ods'
+  todo:
+  - 确认该表期望更新频率和允许延迟。
+  - '补齐或确认元数据: expected_update_frequency, expected_delay_hours'
+- rule_name: ods_api_jstbz_stock_info_du__silent_missing__yesterday_partition_not_empty
+  rule_group: silent_missing
+  description: 检查昨日或最近业务分区是否存在且非空。
+  target_fields:
+  - dt
+  - '`dt`'
+  check_grain: partition
+  check_frequency: daily
+  default_threshold:
+    check_days: 7
+    min_partition_rows: 1
+    row_count_low_ratio_to_history: 0.5
+    history_window_days: 30
+    todo: Confirm which dates are expected to have data for this source.
+    profiling_status: TODO
+    profiling_todo: 历史基线未在当前画像中落表。
+  alert_level: low
+  required_metadata:
+  - table_name
+  - database_name
+  - partition_field_candidate
+  - biz_date_field_candidate
+  - row_count
+  - partition_count
+  - latest_partition
+  - partition_row_count_history
+  sql_template: "select\n  case when count(*) < {min_partition_rows} then 1 else 0 end as violation_count\nfrom {database_name}.{table_name}\n\
+    where cast({biz_date_field} as date) = date_sub(current_date(), interval 1 day);\n"
+  evidence:
+  - '生成原因: source_like 且具有 API/影刀/ERP/钉钉/外部接入线索。'
+  - 'information_schema.tables: row_count=1514751, data_size=271864177, update_time=2026-07-09 02:08:22'
+  - 'information_schema.columns: field_count=26'
+  - 'ods_db_cube_tables_config: primary_key=`dt`, `__id`'
+  - 'ods_db_cube_tables_config: partition_key=`dt`'
+  - 'std_data_government_meta_table: owner=管理员, unused_days=0, layer_raw=ods'
+  todo:
+  - 确认该来源是否每日都应产生数据。
+  - '补齐或确认元数据: partition_row_count_history'
+- rule_name: ods_api_jstbz_stock_info_du__row_count_anomaly__partition_row_count_anomaly
+  rule_group: row_count_anomaly
+  description: 检查当前分区行数相对历史 7/14/30 天均值或中位数是否异常。
+  target_fields:
+  - dt
+  check_grain: partition
+  check_frequency: daily
+  default_threshold:
+    history_windows_days:
+    - 7
+    - 14
+    - 30
+    low_ratio_to_history: 0.5
+    high_ratio_to_history: 2.0
+    default_compare_statistic: median
+    todo: Confirm whether weekday/weekend or promotion cycles need separate baselines.
+    profiling_status: TODO
+    profiling_todo: 历史基线未在当前画像中落表。
+  alert_level: low
+  required_metadata:
+  - table_name
+  - database_name
+  - biz_date_field_candidate
+  - row_count_history
+  - latest_partition
+  sql_template: "with daily_rows as (\n  select cast({biz_date_field} as date) as biz_date, count(*) as row_count\n  from {database_name}.{table_name}\n\
+    \  where cast({biz_date_field} as date) >= date_sub(current_date(), interval {history_window_days} day)\n  group by cast({biz_date_field}\
+    \ as date)\n),\nbaseline as (\n  select avg(row_count) as baseline_row_count\n  from daily_rows\n  where biz_date < date_sub(current_date(),\
+    \ interval 1 day)\n),\ncurrent_day as (\n  select coalesce(sum(row_count), 0) as current_row_count\n  from daily_rows\n  where biz_date =\
+    \ date_sub(current_date(), interval 1 day)\n)\nselect\n  case\n    when current_row_count < baseline_row_count * {low_ratio_to_history}\n\
+    \      or current_row_count > baseline_row_count * {high_ratio_to_history}\n    then 1 else 0\n  end as violation_count\nfrom current_day\
+    \ cross join baseline;\n"
+  evidence:
+  - '生成原因: 活跃表、结果表、接入表或高优先级表需要行数波动监控。'
+  - 'information_schema.tables: row_count=1514751, data_size=271864177, update_time=2026-07-09 02:08:22'
+  - 'information_schema.columns: field_count=26'
+  - 'ods_db_cube_tables_config: primary_key=`dt`, `__id`'
+  - 'ods_db_cube_tables_config: partition_key=`dt`'
+  - 'std_data_government_meta_table: owner=管理员, unused_days=0, layer_raw=ods'
+  todo:
+  - 当前画像未包含分区行数历史基线，50%/200% 仅为默认建议，需 profiling 后确认。
+  - '补齐或确认元数据: row_count_history'
+  - 缺少历史 profiling 或业务口径证据，阈值需人工确认后才能生产告警。
+- rule_name: ods_api_jstbz_stock_info_du__schema_change__schema_snapshot_change
+  rule_group: schema_change
+  description: 检查字段新增、删除、类型变化和注释变化。
+  target_fields: []
+  check_grain: schema
+  check_frequency: daily
+  default_threshold:
+    field_added_alert: true
+    field_deleted_alert: true
+    field_type_changed_alert: true
+    field_comment_changed_alert: review
+    todo: Confirm which schema changes are compatible for each connector.
+    profiling_status: TODO
+    profiling_todo: 历史基线未在当前画像中落表。
+  alert_level: low
+  required_metadata:
+  - table_name
+  - database_name
+  - field_count
+  - column_name_list
+  - column_type_list
+  - column_comment_list
+  - schema_snapshot_history
+  sql_template: "-- This template compares metadata snapshots, not business rows.\nselect\n  table_name,\n  change_type,\n  column_name,\n  old_type,\n\
+    \  new_type,\n  old_comment,\n  new_comment\nfrom {metadata_database}.{schema_change_snapshot_table}\nwhere table_name = '{table_name}'\n\
+    \  and snapshot_date = current_date();\n"
+  evidence:
+  - '生成原因: 外部接入或 DB 同步来源表需要 schema drift 监控。'
+  - 'information_schema.tables: row_count=1514751, data_size=271864177, update_time=2026-07-09 02:08:22'
+  - 'information_schema.columns: field_count=26'
+  - 'ods_db_cube_tables_config: primary_key=`dt`, `__id`'
+  - 'ods_db_cube_tables_config: partition_key=`dt`'
+  - 'std_data_government_meta_table: owner=管理员, unused_days=0, layer_raw=ods'
+  todo:
+  - 建立字段 schema 快照表后才能生产化对比。
+  - '补齐或确认元数据: column_name_list, column_type_list, column_comment_list, schema_snapshot_history'
+- rule_name: ods_api_jstbz_stock_info_du__core_field_null__core_fields_null_rate
+  rule_group: core_field_null
+  description: 检查主键、业务日期、店铺、商品、SKU、订单、金额等核心字段空值率。
+  target_fields:
+  - __id
+  - sku_id
+  - i_id
+  - wms_co_id
+  - yuce_cube_shop_id
+  - yuce_task_instance_id
+  - dt
+  - modified
+  check_grain: partition
+  check_frequency: daily
+  default_threshold:
+    primary_key_null_rate_max: 0
+    biz_date_null_rate_max: 0
+    core_field_null_rate_max: 0.01
+    amount_field_null_rate_max: 0.05
+    todo: Confirm nullable business fields and optional dimensions.
+    profiling_status: TODO
+    profiling_todo: 历史基线未在当前画像中落表。
+  alert_level: low
+  required_metadata:
+  - table_name
+  - database_name
+  - primary_key_candidate
+  - biz_date_field_candidate
+  - core_fields_candidate
+  - join_key_fields
+  - amount_fields
+  sql_template: "select\n  case\n    when sum(case when {field_name} is null then 1 else 0 end) / nullif(count(*), 0) > {null_rate_max}\n    then\
+    \ 1 else 0\n  end as violation_count\nfrom {database_name}.{table_name}\n{optional_recent_partition_filter};\n"
+  evidence:
+  - '生成原因: 表存在核心字段候选或被业务链路消费。'
+  - 'information_schema.tables: row_count=1514751, data_size=271864177, update_time=2026-07-09 02:08:22'
+  - 'information_schema.columns: field_count=26'
+  - 'ods_db_cube_tables_config: primary_key=`dt`, `__id`'
+  - 'ods_db_cube_tables_config: partition_key=`dt`'
+  - 'std_data_government_meta_table: owner=管理员, unused_days=0, layer_raw=ods'
+  todo:
+  - 确认哪些核心字段允许为空、空字符串或 0。
+  - '补齐或确认元数据: amount_fields'

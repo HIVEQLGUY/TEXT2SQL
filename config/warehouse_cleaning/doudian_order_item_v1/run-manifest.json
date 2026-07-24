@@ -1,0 +1,553 @@
+{
+  "run_id": "doudian_order_item_v1_20260723_0904",
+  "run_time": "2026-07-23T09:04:04+08:00",
+  "engine": "ClickHouse",
+  "source": {
+    "database": "youmei_sandbox",
+    "table": "ods_api_dd_sale_order_list_info_f",
+    "source_rows": 52431,
+    "expanded_item_rows": 90279,
+    "snapshot_partition": "2026-07-21",
+    "source_mode": "window_full_snapshot"
+  },
+  "contract": {
+    "id": "doudian_order_item",
+    "version": "1.2.0",
+    "status": "reviewed",
+    "sha256": "57c72657f01b53fda2354ec0701e6d570f31c97920b46598e9635b29b48162ab",
+    "file_sha256": "6B7BAA5A9B01AC9E22FC9EF4E79092CBE0D1642657228353EA59FA8A0DC7D858"
+  },
+  "key": {
+    "fields": [
+      "shop_order_id",
+      "item_index"
+    ],
+    "unique_rows": 90279,
+    "status": "confirmed_for_current_snapshot"
+  },
+  "quality": {
+    "status": "passed_for_shadow_cleaning_and_json_contract_inventory",
+    "product_id_null_count": 0,
+    "sku_id_null_count": 0,
+    "quantity_parse_error_count": 0,
+    "amount_parse_error_count": 0,
+    "goods_amount_empty_count": 0,
+    "goods_amount_invalid_count": 0,
+    "item_paid_amount_empty_count": 0,
+    "item_paid_amount_invalid_count": 0,
+    "room_id_missing_or_zero_count": 51936,
+    "author_id_missing_or_zero_count": 45840,
+    "shadow_row_count": 90279,
+    "shadow_key_count": 90279,
+    "shadow_raw_json_column_count": 0,
+    "json_documented_path_count": 622,
+    "json_documented_scalar_field_count": 502,
+    "json_documented_business_relation_count": 51
+  },
+  "validation": {
+    "clickhouse_version": "26.6.1.1193",
+    "quality_sql_executed": true,
+    "quality_sql_status": "passed_for_current_snapshot",
+    "decimal_conversion_expression_status": "passed"
+  },
+  "execution": {
+    "dwd_formal_table_created": false,
+    "shadow_table_created": true,
+    "shadow_table": "dwd_trade_order_item_shadow_1_2_0",
+    "amount_conversion_executed": false,
+    "shadow_amount_conversion_executed": true,
+    "pay_amount_conversion_ready": true,
+    "goods_price_conversion_blocked": false,
+    "json_full_expansion_contract_generated": true,
+    "shadow_quality_status": "passed",
+    "formal_execution_authorized": false,
+    "blocked_reason": "full_field_type_contract_pending_before_formal_dwd"
+  },
+  "openmetadata": {
+    "status": "passed",
+    "server_version": "1.12.11",
+    "table_fqn": "youmei_clickhouse.default.youmei_sandbox.ods_api_dd_sale_order_list_info_f",
+    "desired_column_count": 92,
+    "desired_custom_property_count": 25,
+    "read_back_verified": true,
+    "previous_verified_version": "1.2.0",
+    "shadow_table_fqn": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0",
+    "shadow_desired_column_count": 36,
+    "shadow_desired_custom_property_count": 25,
+    "shadow_read_back_verified": true
+  },
+  "artifact_sha256": {
+    "source-profile.json": "AB84D96969518A12A2DB1C7112D9E0076C46A2776F8FF72A38E0B4ED2D3FF89F",
+    "cleaning-contract.yaml": "6B7BAA5A9B01AC9E22FC9EF4E79092CBE0D1642657228353EA59FA8A0DC7D858",
+    "amount-rule-candidate.yaml": "9ABDB7ADB71A16BA09B586D9D43F17802D0A4F26A3FC631EB7C0D5E6229D6D25",
+    "cleaning-sql.review.sql": "0D68A9CD94945C1D1EE419F7A4A4363B763F3CFD386003F8A89A2CF55759283F",
+    "dwd_trade_order_item_df.review.sql": "742841634FB7C64903DC5DF614784D6F9DC503EB134BC052841F92C52D1C7772",
+    "quality-checks.sql": "397CE47DB57AF54174A33FE93D45EA2115F23851AC4B59111F2596CCE25F898A",
+    "metadata-contract-ods.yaml": "C9A99AA4BADAAB5CF7982AD68FC288ABDE5418A06CB4289D69044EFB52EE98D9",
+    "metadata-contract-shadow.yaml": "019033038ADE519025B94053629DCE9C65D6A4451D74FE59D24A2C50FF369814",
+    "enum-dictionary.yaml": "53DBB6535EA75354C03DD800BB214AD0E45A89F253FC90A8F4B64CB9EE52687F",
+    "enum-profile.yaml": "9D462317DAF9B21F2A7485B8DBB45B17621037A15771D120E723591F5F3B3DB6",
+    "questions.yaml": "3CB916EBFFCE0510D623EB5497B7F7B3518E4FEC5AA55AF2D86CC733C952D21B",
+    "清洗契约说明.md": "AC79B30AA244770AC720773391C4FD56F30B5A1178C5FC1A3FC398DDC9EAC5E9",
+    "cleaning-review.md": "604BCCAA600BB7290D1F75B72546061214268B7125DEB82197273A86EA07D508",
+    "cleaning-execution-plan.yaml": "C8F27C9152C273EAF66C00D1EDB0DE7A158FA8F91A9DA8962624E082702BBD23",
+    "approval.yaml": "E47AEFE1C956D79130B8530FFB271CAF5D1E36EF6394C5863B9CBADA6FB39D83",
+    "json-expansion-inventory.yaml": "2C8D555D00B70C8FE4C6AF7ACBDB024C4CF2A1CA7E89D5B222566E7EB411E2C3",
+    "json-runtime-profile.sql": "8EE325B84DCE62BD32FE8E8A3FE2D041FC172CA675DD5A655874EE16CE4B1D81",
+    "json-field-contracts.yaml": "C3E1F7BB5E153341C1811A799C5B2F44793D163B7C2DACA2DFD07122B8E553F4",
+    "json-relation-contracts.yaml": "A1018D010C63FF69333A5B1A71DC7877932BB3A9E2C575BD514054C8DC8A6853",
+    "json-type-candidates.yaml": "321A52772D46F3E9A1CEEF7C12FEA4B82B162D10CCB33A7A1AB425DD4651D8F8",
+    "shadow-execution.sql": "633571DDA56B00837AFBB2AA8F7A8E10D81D1B931DE8B8A8DCEE6D7FA3AD9937",
+    "shadow-quality-checks.sql": "69D2E9449C7BE0CD54CA970C5DB09B50136D652115B2C48195DB56BF29E065DC"
+  },
+  "order_header_shadow": {
+    "run_id": "doudian_order_header_v1_20260723_1318_shadow_core_1_2_0",
+    "run_time": "2026-07-23T13:18:00+08:00",
+    "source": {
+      "database": "youmei_sandbox",
+      "table": "ods_api_dd_sale_order_list_info_f",
+      "snapshot_partition": "2026-07-22",
+      "source_rows": 51878,
+      "source_unique_shop_order_keys": 49695,
+      "duplicate_keys": 2183,
+      "duplicate_rows": 4366,
+      "conflicting_duplicate_keys": 0
+    },
+    "target_shadow": {
+      "database": "youmei_sandbox",
+      "table": "dwd_trade_order_shadow_1_2_0",
+      "chinese_name": "DWD_???????????",
+      "row_count": 49695,
+      "key_count": 49695,
+      "disk_usage": "46.03 MiB",
+      "column_count": 65
+    },
+    "quality": {
+      "status": "passed_after_business_field_retention_revision",
+      "raw_json_or_sensitive_contact_address_columns": 0,
+      "paid_at_null_count": 1110,
+      "finished_at_null_count": 37842,
+      "order_amount_min_yuan": "0",
+      "order_amount_max_yuan": "15780",
+      "paid_amount_min_yuan": "0",
+      "paid_amount_max_yuan": "15759",
+      "paid_amount_sum_yuan": "6070022.38",
+      "expected_business_text_columns_present": 7
+    },
+    "physical_table_policy": {
+      "governance_fields_in_business_table": false,
+      "governance_storage": [
+        "run-manifest.json",
+        "order-cleaning-contract-addendum.yaml",
+        "quality sql result",
+        "OpenMetadata contract"
+      ]
+    },
+    "openmetadata": {
+      "status": "not_applied_missing_OPENMETADATA_PASSWORD",
+      "server_version": "1.12.11",
+      "metadata_contract": "metadata-contract-order-shadow.yaml",
+      "desired_column_count": 65
+    },
+    "rerun_time": "2026-07-23T13:36:10+08:00",
+    "field_policy_revision": {
+      "business_fields_excluded_by_sensitivity": false,
+      "included_after_revision": [
+        "post_receiver",
+        "post_phone",
+        "post_address",
+        "encrypted_post_phone",
+        "encrypted_post_receiver",
+        "masked_post_receiver",
+        "masked_post_phone",
+        "masked_post_address",
+        "buyer_words",
+        "seller_words",
+        "pay_phone",
+        "open_address_id",
+        "greet_words",
+        "channel_payment_no"
+      ]
+    }
+  },
+  "formal_dwd": {
+    "run_id": "doudian_order_core_v1_20260723_1428_formal_core_1_2_0",
+    "run_time": "2026-07-23T14:28:00+08:00",
+    "status": "formal_core_passed_metadata_applied_and_verified",
+    "source": {
+      "database": "youmei_sandbox",
+      "table": "ods_api_dd_sale_order_list_info_f",
+      "snapshot_partition": "2026-07-22",
+      "source_rows": 51878,
+      "source_unique_shop_order_keys": 49695,
+      "expanded_item_rows": 89561,
+      "expanded_item_unique_keys": 85770,
+      "duplicate_order_rows": 2183,
+      "duplicate_item_rows": 3791,
+      "conflicting_duplicate_order_keys": 0,
+      "conflicting_duplicate_item_keys": 0
+    },
+    "targets": {
+      "order_header": {
+        "chinese_name": "DWD_?????????????",
+        "physical_name": "dwd_trade_order_df",
+        "row_count": 49695,
+        "key_count": 49695,
+        "column_count": 65,
+        "disk_usage": "46.03 MiB",
+        "grain": "??ID + ?????",
+        "key": [
+          "shop_id",
+          "shop_order_id"
+        ],
+        "paid_amount_sum_yuan": "6070022.38"
+      },
+      "order_item": {
+        "chinese_name": "DWD_???????????????",
+        "physical_name": "dwd_trade_order_item_df",
+        "row_count": 85770,
+        "key_count": 85770,
+        "column_count": 29,
+        "disk_usage": "4.57 MiB",
+        "grain": "??ID + ????? + ????????",
+        "key": [
+          "shop_id",
+          "shop_order_id",
+          "item_index"
+        ],
+        "room_id_null_count": 49537,
+        "author_id_null_count": 43563
+      }
+    },
+    "quality": {
+      "status": "passed",
+      "formal_conflict_checks_sql": "formal-conflict-checks.sql",
+      "formal_execution_sql": "formal-execution.sql",
+      "formal_quality_checks_sql": "formal-quality-checks.sql",
+      "formal_postcheck_sql": "formal-postcheck.sql",
+      "raw_json_column_count": 0,
+      "order_item_parent_missing_count": 0,
+      "required_item_identifier_or_quantity_null_count": 0
+    },
+    "openmetadata": {
+      "status": "applied_and_verified",
+      "server_version": "1.12.11",
+      "metadata_contracts": [
+        "metadata-contract-formal-order.yaml",
+        "metadata-contract-formal-item.yaml"
+      ],
+      "order_header_table_fqn": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_df",
+      "order_header_verified_column_count": 65,
+      "order_header_verified_custom_property_count": 26,
+      "order_item_table_fqn": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_df",
+      "order_item_verified_column_count": 29,
+      "order_item_verified_custom_property_count": 26,
+      "credential_resource_alias": "openmetadata-local"
+    },
+    "scope": {
+      "formal_core_authorized": true,
+      "full_json_formal_authorized": false,
+      "not_in_scope": [
+        "??502???????????",
+        "51????????????",
+        "?????????"
+      ]
+    }
+  },
+  "formal_child_relations": {
+    "run_id": "doudian_order_child_relations_v1_20260723_1532_formal_1_2_1",
+    "run_time": "2026-07-23T15:32:00+08:00",
+    "status": "formal_passed_metadata_applied_and_verified",
+    "source": {
+      "database": "youmei_sandbox",
+      "table": "ods_api_dd_sale_order_list_info_f",
+      "snapshot_partition": "2026-07-22",
+      "source_rows": 51878,
+      "actual_receive_amount_detail_expanded_rows": 75760,
+      "actual_receive_amount_detail_unique_keys": 72575,
+      "logistics_info_expanded_rows": 44718,
+      "logistics_info_unique_keys": 42839
+    },
+    "targets": {
+      "actual_receive_amount_detail": {
+        "chinese_name": "DWD_抖店订单商家收入金额明细项事实全量快照表",
+        "physical_name": "dwd_json_actual_receive_amount_info_actual_receive_amount_details_df",
+        "row_count": 72575,
+        "key_count": 72575,
+        "column_count": 8,
+        "grain": "店铺ID + 店铺订单号 + 商家收入金额明细项序号",
+        "key": [
+          "shop_id",
+          "shop_order_id",
+          "json_item_index"
+        ],
+        "amount_sum_yuan": "6352569.57",
+        "unknown_type_count": 1110
+      },
+      "logistics_info": {
+        "chinese_name": "DWD_抖店订单物流信息事实全量快照表",
+        "physical_name": "dwd_json_logistics_info_df",
+        "row_count": 42839,
+        "key_count": 42839,
+        "column_count": 20,
+        "grain": "店铺ID + 店铺订单号 + 物流信息序号",
+        "key": [
+          "shop_id",
+          "shop_order_id",
+          "json_item_index"
+        ],
+        "tracking_no_null_count": 0,
+        "shipped_at_null_count": 0,
+        "platform_delivery_payable_amount_sum_yuan": "0"
+      }
+    },
+    "quality": {
+      "status": "passed",
+      "formal_child_execution_sql": "formal-child-execution-1.2.1.sql",
+      "formal_child_quality_checks_sql": "formal-child-quality-checks-1.2.1.sql",
+      "raw_json_column_count": 0,
+      "parent_missing_count": 0,
+      "target_duplicate_key_count": 0,
+      "amount_or_time_parse_error_count": 0
+    },
+    "openmetadata": {
+      "status": "applied_and_verified",
+      "server_version": "1.12.11",
+      "metadata_contracts": [
+        "metadata-contract-formal-actual-receive-detail.yaml",
+        "metadata-contract-formal-logistics.yaml"
+      ],
+      "actual_receive_amount_detail_table_fqn": "youmei_clickhouse.default.youmei_sandbox.dwd_json_actual_receive_amount_info_actual_receive_amount_details_df",
+      "actual_receive_amount_detail_verified_column_count": 8,
+      "actual_receive_amount_detail_verified_custom_property_count": 26,
+      "logistics_info_table_fqn": "youmei_clickhouse.default.youmei_sandbox.dwd_json_logistics_info_df",
+      "logistics_info_verified_column_count": 20,
+      "logistics_info_verified_custom_property_count": 26,
+      "credential_resource_alias": "openmetadata-local"
+    },
+    "scope": {
+      "formal_child_relation_authorized": true,
+      "formalized_business_relation_count": 2,
+      "remaining_business_relation_count": 49
+    }
+  },
+  "formal_parent_grain_refactor": {
+    "run_id": "doudian_order_parent_grain_refactor_v1_20260723_1626_formal_1_3_0",
+    "run_time": "2026-07-23T16:26:00+08:00",
+    "status": "formal_passed_metadata_applied_and_verified",
+    "rule_change": "订单类DWD只保留订单粒度和商品明细粒度；无独立业务价值的明细项数组值转列或汇总回父粒度。",
+    "source": {
+      "database": "youmei_sandbox",
+      "table": "ods_api_dd_sale_order_list_info_f",
+      "snapshot_partition": "2026-07-22",
+      "source_rows": 51878
+    },
+    "targets": {
+      "order_header": {
+        "chinese_name": "DWD_抖店订单主单事实全量快照表",
+        "physical_name": "dwd_trade_order_df",
+        "row_count": 49695,
+        "key_count": 49695,
+        "column_count": 82,
+        "grain": "店铺ID + 店铺订单号",
+        "actual_receive_amount_sum_yuan": "6352569.57",
+        "logistics_package_count": 42839
+      },
+      "order_item": {
+        "chinese_name": "DWD_抖店订单商品明细事实全量快照表",
+        "physical_name": "dwd_trade_order_item_df",
+        "row_count": 85770,
+        "key_count": 85770,
+        "column_count": 37,
+        "grain": "店铺ID + 店铺订单号 + 商品明细序号",
+        "item_actual_receive_amount_sum_yuan": "6352569.57"
+      }
+    },
+    "deprecated_tables": {
+      "actual_receive_amount_detail": "dwd_deprecated_actual_receive_amount_detail_backup_1_2_1",
+      "logistics_info": "dwd_deprecated_logistics_info_backup_1_2_1",
+      "status": "deprecated_backup_not_formal_dwd_grain"
+    },
+    "quality": {
+      "status": "passed",
+      "formal_refactor_execution_sql": "formal-refactor-execution-1.3.0.sql",
+      "formal_refactor_quality_checks_sql": "formal-refactor-quality-checks-1.3.0.sql",
+      "formal_refactor_swap_sql": "formal-refactor-swap-1.3.0.sql",
+      "raw_json_or_child_grain_column_count": 0,
+      "parent_missing_count": 0
+    },
+    "openmetadata": {
+      "status": "applied_and_verified",
+      "server_version": "1.12.11",
+      "metadata_contracts": [
+        "metadata-contract-formal-order-1.3.0.yaml",
+        "metadata-contract-formal-item-1.3.0.yaml"
+      ],
+      "order_header_verified_column_count": 82,
+      "order_header_verified_custom_property_count": 26,
+      "order_item_verified_column_count": 37,
+      "order_item_verified_custom_property_count": 26,
+      "credential_resource_alias": "openmetadata-local"
+    }
+  },
+  "formal_logistics_grain_refactor": {
+    "run_id": "doudian_order_logistics_grain_refactor_v1_20260723_1700_formal_1_3_1",
+    "run_time": "2026-07-23T17:00:00+08:00",
+    "status": "formal_passed_metadata_applied_and_verified",
+    "rule_change": "?????????????????????????????????????????????????????????",
+    "source": {
+      "database": "youmei_sandbox",
+      "table": "ods_api_dd_sale_order_list_info_f",
+      "snapshot_partition": "2026-07-22",
+      "source_rows": 51878
+    },
+    "grain_probe": {
+      "item_rows": 85770,
+      "item_sku_order_key_count": 85770,
+      "package_rows": 42839,
+      "package_id_key_count": 42839,
+      "tracking_no_key_count": 42838,
+      "package_product_rows": 73934,
+      "package_product_key_count": 73934,
+      "logistics_sku_order_matched_item_count": 73934,
+      "logistics_sku_order_unmatched_item_count": 0,
+      "multi_sku_order_packages": 30752,
+      "multi_package_sku_orders": 5,
+      "max_sku_order_per_package": 6,
+      "max_package_per_sku_order": 2
+    },
+    "targets": {
+      "order_header": {
+        "chinese_name": "DWD_?????????????",
+        "physical_name": "dwd_trade_order_df",
+        "row_count": 49695,
+        "column_count": 82,
+        "grain": "??ID + ?????",
+        "changed_in_this_release": false
+      },
+      "order_item": {
+        "chinese_name": "DWD_???????????????",
+        "physical_name": "dwd_trade_order_item_df",
+        "row_count": 85770,
+        "key_count": 85770,
+        "column_count": 38,
+        "grain": "??ID + ????? + ?????",
+        "key": [
+          "shop_id",
+          "shop_order_id",
+          "sku_order_id"
+        ],
+        "backup_previous_table": "dwd_trade_order_item_df_backup_1_3_0"
+      },
+      "logistics_package": {
+        "chinese_name": "DWD_???????????????",
+        "physical_name": "dwd_trade_order_logistics_package_df",
+        "row_count": 42839,
+        "key_count": 42839,
+        "column_count": 21,
+        "grain": "??ID + ????? + ??ID",
+        "key": [
+          "shop_id",
+          "shop_order_id",
+          "package_id"
+        ]
+      },
+      "logistics_package_item": {
+        "chinese_name": "DWD_?????????????????????",
+        "physical_name": "dwd_trade_order_logistics_package_item_df",
+        "row_count": 73934,
+        "key_count": 73934,
+        "column_count": 19,
+        "grain": "??ID + ????? + ??ID + ?????",
+        "key": [
+          "shop_id",
+          "shop_order_id",
+          "package_id",
+          "sku_order_id"
+        ]
+      }
+    },
+    "quality": {
+      "status": "passed",
+      "formal_execution_sql": "formal-logistics-refactor-execution-1.3.1.sql",
+      "formal_quality_checks_sql": "formal-logistics-refactor-quality-checks-1.3.1.sql",
+      "formal_swap_sql": "formal-logistics-refactor-swap-1.3.1.sql",
+      "formal_postcheck_sql": "formal-logistics-refactor-postcheck-1.3.1.sql",
+      "package_not_in_order_count": 0,
+      "package_item_not_in_item_count": 0,
+      "package_item_not_in_package_count": 0
+    },
+    "openmetadata": {
+      "status": "applied_and_verified",
+      "server_version": "1.12.11",
+      "metadata_contracts": [
+        "metadata-contract-formal-item-1.3.1.yaml",
+        "metadata-contract-formal-logistics-package-1.3.1.yaml",
+        "metadata-contract-formal-logistics-package-item-1.3.1.yaml"
+      ],
+      "order_item_verified_column_count": 38,
+      "logistics_package_verified_column_count": 21,
+      "logistics_package_item_verified_column_count": 19,
+      "credential_resource_alias": "openmetadata-local"
+    }
+  },
+  "tracking_no_shadow_corrective_release": {
+    "run_id": "doudian_order_tracking_no_shadow_corrective_v1_20260723_1720_1_3_2",
+    "run_time": "2026-07-23T17:20:00+08:00",
+    "status": "shadow_passed_pending_user_review",
+    "reason": "?????????????????????????1.3.1 ????? DWD ????",
+    "rule_change": {
+      "grain_alignment_only_shadow": true,
+      "tracking_no_business_grain_for_freight_matching": true,
+      "package_id_business_value": false,
+      "package_id_target_field_retention": "excluded",
+      "package_level_numeric_policy": {
+        "additive_metrics": "sum_to_tracking_no",
+        "average_metrics": "avg_to_tracking_no"
+      }
+    },
+    "corrective_actions": {
+      "formal_item_restored_from": "dwd_trade_order_item_df_backup_1_3_0",
+      "direct_item_1_3_1_backup": "dwd_trade_order_item_df_direct_logistics_backup_1_3_1",
+      "direct_logistics_tables_renamed_to_validation": [
+        "dwd_trade_order_logistics_package_validation_1_3_1",
+        "dwd_trade_order_logistics_package_item_validation_1_3_1"
+      ]
+    },
+    "formal_dwd_current": {
+      "order_table": {
+        "physical_name": "dwd_trade_order_df",
+        "row_count": 49695,
+        "column_count": 82
+      },
+      "item_table": {
+        "physical_name": "dwd_trade_order_item_df",
+        "row_count": 85770,
+        "column_count": 37
+      },
+      "direct_logistics_formal_table_count": 0
+    },
+    "shadow_target": {
+      "chinese_name": "DWD_???????????????",
+      "physical_name": "dwd_trade_order_logistics_tracking_no_shadow_1_3_2",
+      "grain": "??ID + ????? + ????",
+      "row_count": 42838,
+      "key_count": 42838,
+      "column_count": 18,
+      "package_id_column_count": 0,
+      "package_count_sum": 42839,
+      "package_product_row_count_sum": 73934,
+      "sku_order_count_sum": 73934,
+      "shipped_product_count_sum": 74275
+    },
+    "openmetadata": {
+      "status": "applied_and_verified",
+      "formal_item_verified_column_count": 37,
+      "tracking_no_shadow_verified_column_count": 18,
+      "contracts": [
+        "metadata-contract-formal-item-1.3.2.yaml",
+        "metadata-contract-shadow-logistics-tracking-no-1.3.2.yaml"
+      ]
+    }
+  }
+}

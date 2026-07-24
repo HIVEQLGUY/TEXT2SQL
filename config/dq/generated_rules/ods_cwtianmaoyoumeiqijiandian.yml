@@ -1,0 +1,12 @@
+table_name: ods_cwtianmaoyoumeiqijiandian
+database: cubeappdata
+importance_candidate: B
+data_role_candidate: unknown
+quality_rule_needed: review
+manual_confirm_required: true
+evidence_summary: importance=B; role=unknown; usage=collection_used; reports=0; collections=6; tasks=1; queries=0; downstream_tasks=0; row_count=10251758;
+  physical_status=unknown
+generation_reasons:
+- 'Excel/upload/test-like isolated table without report/query/downstream evidence: no strong rule generated.'
+temporary_no_governance_reason: 'Excel/upload/test-like isolated table without report/query/downstream evidence: no strong rule generated.'
+rules: []

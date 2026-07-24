@@ -1,0 +1,160 @@
+table_name: ods_api_tb_shop_info_f
+database: cubeappdata
+importance_candidate: C
+data_role_candidate: detail_like
+quality_rule_needed: review
+manual_confirm_required: true
+evidence_summary: importance=C; role=detail_like; usage=collection_used; reports=0; collections=2; tasks=1; queries=7; downstream_tasks=4; row_count=3;
+  physical_status=active
+generation_reasons:
+- Table is active or consumed by report/dataset/downstream task.
+- Detail/dimension-like table requires key uniqueness and core field completeness suggestions.
+- Join key fields detected on fact/result-like table.
+temporary_no_governance_reason: ''
+rules:
+- rule_name: ods_api_tb_shop_info_f__freshness__latest_date_exists
+  rule_group: freshness
+  description: 检查最新分区或业务日期是否存在。
+  target_fields:
+  - dt
+  check_grain: partition
+  check_frequency: daily
+  default_threshold:
+    expected_delay_hours: 36
+    recent_continuous_days: 7
+    max_missing_days: 0
+    todo: Confirm expected_update_frequency and expected_delay_hours with table owner.
+    profiling_status: TODO
+    profiling_todo: 历史基线未在当前画像中落表。
+  alert_level: low
+  required_metadata:
+  - table_name
+  - database_name
+  - partition_field_candidate
+  - biz_date_field_candidate
+  - latest_partition
+  - latest_update_time
+  - expected_update_frequency
+  - expected_delay_hours
+  sql_template: "select\n  case when max({biz_date_field}) is null then 1 else 0 end as violation_count\nfrom {database_name}.{table_name};\n"
+  evidence:
+  - '生成原因: 表活跃或存在报表/数据集/下游任务消费。'
+  - 'information_schema.tables: row_count=3, data_size=5498, update_time=2026-07-09 01:00:22'
+  - 'information_schema.columns: field_count=9'
+  - 'ods_db_cube_tables_config: primary_key=`__id`'
+  - 'std_data_government_meta_table: owner=管理员, unused_days=0, layer_raw=ods'
+  - 'ods_db_cube_partitions_meta: partition_count=1, latest_partition=ods_api_tb_shop_info_f'
+  todo:
+  - 确认该表期望更新频率和允许延迟。
+  - '补齐或确认元数据: partition_field_candidate, expected_update_frequency, expected_delay_hours'
+- rule_name: ods_api_tb_shop_info_f__primary_key_unique__candidate_key_duplicate
+  rule_group: primary_key_unique
+  description: 检查候选主键或唯一键重复数和重复率。
+  target_fields:
+  - '`__id`'
+  - __id
+  check_grain: partition
+  check_frequency: daily
+  default_threshold:
+    duplicate_count_max: 0
+    duplicate_rate_max: 0
+    todo: Confirm whether candidate key is globally unique or unique within business date/partition.
+    profiling_status: TODO
+    profiling_todo: 历史基线未在当前画像中落表。
+  alert_level: low
+  required_metadata:
+  - table_name
+  - database_name
+  - primary_key_candidate
+  - unique_key_candidate
+  - biz_date_field_candidate
+  sql_template: "select count(*) as violation_count\nfrom (\n  select {primary_key_fields}, count(*) as cnt\n  from {database_name}.{table_name}\n\
+    \  where {primary_key_not_null_predicate}\n  group by {primary_key_fields}\n  having count(*) > 1\n) t;\n"
+  evidence:
+  - '生成原因: 明细表、维表、结果表或写出表需要主键唯一性保障。'
+  - 'information_schema.tables: row_count=3, data_size=5498, update_time=2026-07-09 01:00:22'
+  - 'information_schema.columns: field_count=9'
+  - 'ods_db_cube_tables_config: primary_key=`__id`'
+  - 'std_data_government_meta_table: owner=管理员, unused_days=0, layer_raw=ods'
+  - 'ods_db_cube_partitions_meta: partition_count=1, latest_partition=ods_api_tb_shop_info_f'
+  todo:
+  - 确认候选主键是否为全局唯一，还是需要按店铺/日期/渠道组合唯一。
+- rule_name: ods_api_tb_shop_info_f__core_field_null__core_fields_null_rate
+  rule_group: core_field_null
+  description: 检查主键、业务日期、店铺、商品、SKU、订单、金额等核心字段空值率。
+  target_fields:
+  - __id
+  - sid
+  - yuce_cube_shop_id
+  - yuce_task_instance_id
+  - dt
+  - yuce_data_create_time
+  check_grain: partition
+  check_frequency: daily
+  default_threshold:
+    primary_key_null_rate_max: 0
+    biz_date_null_rate_max: 0
+    core_field_null_rate_max: 0.01
+    amount_field_null_rate_max: 0.05
+    todo: Confirm nullable business fields and optional dimensions.
+    profiling_status: TODO
+    profiling_todo: 历史基线未在当前画像中落表。
+  alert_level: low
+  required_metadata:
+  - table_name
+  - database_name
+  - primary_key_candidate
+  - biz_date_field_candidate
+  - core_fields_candidate
+  - join_key_fields
+  - amount_fields
+  sql_template: "select\n  case\n    when sum(case when {field_name} is null then 1 else 0 end) / nullif(count(*), 0) > {null_rate_max}\n    then\
+    \ 1 else 0\n  end as violation_count\nfrom {database_name}.{table_name}\n{optional_recent_partition_filter};\n"
+  evidence:
+  - '生成原因: 表存在核心字段候选或被业务链路消费。'
+  - 'information_schema.tables: row_count=3, data_size=5498, update_time=2026-07-09 01:00:22'
+  - 'information_schema.columns: field_count=9'
+  - 'ods_db_cube_tables_config: primary_key=`__id`'
+  - 'std_data_government_meta_table: owner=管理员, unused_days=0, layer_raw=ods'
+  - 'ods_db_cube_partitions_meta: partition_count=1, latest_partition=ods_api_tb_shop_info_f'
+  todo:
+  - 确认哪些核心字段允许为空、空字符串或 0。
+  - '补齐或确认元数据: amount_fields'
+- rule_name: ods_api_tb_shop_info_f__referential_integrity__dimension_join_coverage
+  rule_group: referential_integrity
+  description: 检查事实/结果表关联商品、店铺、成本、渠道、组织等维表的覆盖率和失败率。
+  target_fields:
+  - __id
+  - sid
+  - yuce_cube_shop_id
+  - yuce_task_instance_id
+  check_grain: partition
+  check_frequency: daily
+  default_threshold:
+    join_failure_rate_max: 0.01
+    dimension_coverage_rate_min: 0.99
+    core_object_missing_rate_max: 0.01
+    todo: Confirm valid unknown/other dimension handling and join grain.
+    profiling_status: TODO
+    profiling_todo: 历史基线未在当前画像中落表。
+  alert_level: low
+  required_metadata:
+  - fact_table_name
+  - dimension_table_name
+  - database_name
+  - join_key_fields
+  - dimension_key_fields
+  - biz_date_field_candidate
+  sql_template: "select\n  case\n    when sum(case when d.{dimension_key_field} is null then 1 else 0 end) / nullif(count(*), 0) > {join_failure_rate_max}\n\
+    \    then 1 else 0\n  end as violation_count\nfrom {database_name}.{fact_table_name} f\nleft join {database_name}.{dimension_table_name} d\n\
+    \  on {join_condition}\n{optional_recent_partition_filter};\n"
+  evidence:
+  - '生成原因: 表含关联键并具有事实/结果类角色线索。'
+  - 'information_schema.tables: row_count=3, data_size=5498, update_time=2026-07-09 01:00:22'
+  - 'information_schema.columns: field_count=9'
+  - 'ods_db_cube_tables_config: primary_key=`__id`'
+  - 'std_data_government_meta_table: owner=管理员, unused_days=0, layer_raw=ods'
+  - 'ods_db_cube_partitions_meta: partition_count=1, latest_partition=ods_api_tb_shop_info_f'
+  todo:
+  - 确认需要关联的维表、关联键和是否需要生效日期条件。
+  - '补齐或确认元数据: fact_table_name, dimension_table_name, dimension_key_fields'

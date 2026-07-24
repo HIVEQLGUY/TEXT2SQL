@@ -1,0 +1,132 @@
+plan_id: doudian_order_item_execution_v1_2
+contract_id: doudian_order_item
+contract_version: 1.2.0
+status: approved_for_shadow_execution
+source:
+  chinese_name: 销售订单列表信息表(抖店API)
+  physical_name: ods_api_dd_sale_order_list_info_f
+  database: youmei_sandbox
+target:
+  chinese_name: 抖店订单商品明细事实全量快照表
+  physical_name: dwd_trade_order_item_df
+  database: youmei_sandbox
+  grain: 店铺订单号 + 商品明细数组序号
+  key: [shop_order_id, item_index]
+outputs:
+  - physical_name: dwd_trade_order_df
+    chinese_name: 抖店订单主单事实全量快照表
+    grain: 店铺订单号
+    key: [shop_order_id]
+  - physical_name: dwd_trade_order_item_df
+    chinese_name: 抖店订单商品明细事实全量快照表
+    grain: 店铺订单号 + 商品明细数组序号
+    key: [shop_order_id, item_index]
+  - physical_name: dwd_api_order_search_response_meta_df
+    chinese_name: 抖店订单列表接口响应页元数据表
+    grain: 一次接口响应页
+    key: [source_task_instance_id]
+    status: not_observable_in_current_ods
+execution_mode:
+  first_step: clickhouse_shadow_target
+  shadow_table:
+    database: youmei_sandbox
+    physical_name: dwd_trade_order_item_shadow_1_2_0
+    chinese_name: 抖店订单商品明细影子清洗表
+    sql_file: shadow-execution.sql
+    grain: 店铺订单号 + 商品明细数组序号
+  final_step: formal_dwd_after_quality_gate
+  preserve_raw_json_in_target: false
+  preserve_source_raw_values_in_target: false
+json_expansion:
+  inventory_file: json-expansion-inventory.yaml
+  scalar_field_contract_file: json-field-contracts.yaml
+  relation_contract_file: json-relation-contracts.yaml
+  type_candidate_file: json-type-candidates.yaml
+  documented_path_count: 622
+  documented_scalar_field_count: 502
+  documented_business_array_count: 51
+  type_candidate_summary:
+    field_count: 502
+    confirmed_count: 243
+    candidate_count: 218
+    blocked_count: 41
+    amount_candidate_count: 85
+    time_candidate_count: 48
+    enum_candidate_count: 41
+    identifier_candidate_count: 21
+  transport_array_not_materialized: shop_order_list
+  scalar_policy: all_documented_scalar_fields_flattened
+  object_policy: recursive_flatten_to_scalar_leaves
+  array_policy: separate_relation_by_parent_key_and_json_item_index
+  raw_json_retained: false
+  unknown_runtime_field_policy: quarantine_and_report
+field_transform_rules:
+  amount:
+    strategy: field_level_unit_evidence
+    default_action: block_unknown_unit
+    target_type: Decimal128(2)
+    scale: 2
+    sign: preserve_source_sign
+    empty: empty_or_null_to_NULL
+    invalid: non_empty_unparseable_to_exception_count
+    zero: preserve_zero
+    fields:
+      - source_field: sku_order_list.pay_amount
+        chinese_name: 商品支付金额
+        target_field: item_paid_amount
+        unit: fen
+        unit_evidence: 接口文档明确“支付金额（单位：分）”
+        action: divide_by_100
+        status: ready_after_approval
+      - source_field: sku_order_list.goods_price
+        chinese_name: 商品原价
+        target_field: goods_amount
+        unit: yuan
+        unit_evidence: 用户确认商品原价按元处理
+        action: preserve_and_standardize_scale_2
+        status: ready_after_approval
+  json_array:
+    source_field: sku_order_list
+    action: arrayJoin_with_1_based_item_index
+    output_key: [shop_order_id, item_index]
+    child_relations: all_relations_in_json_relation_contracts
+  identifiers:
+    zero_or_empty_to_NULL: [room_id, author_id]
+  time:
+    source_unit: unix_seconds
+    timezone: Asia/Shanghai
+    zero_to_NULL: [pay_time]
+  enums:
+    scan_only: [ad_env_type, b_type, sub_b_type, pay_type, order_status, main_status]
+    no_enum_scan: [product_id, sku_id, item_num, pay_time, create_time, update_time]
+quality_gates:
+  - source_row_count_reconciles
+  - expanded_item_count_reconciles
+  - composite_key_unique
+  - required_identifier_not_null
+  - numeric_parse_errors_zero_for_confirmed_fields
+  - amount_exception_count_reported
+  - raw_json_absent_from_target
+  - openmetadata_read_back_passed
+shadow_result:
+  status: passed
+  executed_at: '2026-07-23T09:04:04+08:00'
+  table: dwd_trade_order_item_shadow_1_2_0
+  row_count: 90279
+  unique_key_count: 90279
+  product_id_parse_error_count: 0
+  sku_id_parse_error_count: 0
+  item_quantity_parse_error_count: 0
+  goods_amount_parse_error_count: 0
+  item_paid_amount_parse_error_count: 0
+  raw_json_column_count: 0
+  documented_json_path_count: 622
+  documented_scalar_field_count: 502
+  documented_business_relation_count: 51
+  formal_dwd_created: false
+  formal_dwd_block_reason: full_field_type_contract_pending
+approval:
+  required_reply_fields:
+    - review_all_json_field_and_relation_contracts
+    - approval_for_shadow_execution
+  formal_dwd_authorization: blocked_pending_full_field_type_contract

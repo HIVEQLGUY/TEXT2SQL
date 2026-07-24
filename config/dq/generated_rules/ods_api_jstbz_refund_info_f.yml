@@ -1,0 +1,140 @@
+table_name: ods_api_jstbz_refund_info_f
+database: cubeappdata
+importance_candidate: B
+data_role_candidate: summary_like
+quality_rule_needed: review
+manual_confirm_required: true
+evidence_summary: importance=B; role=summary_like; usage=collection_used; reports=0; collections=4; tasks=1; queries=7; downstream_tasks=0; row_count=1259774;
+  physical_status=active
+generation_reasons:
+- Table is active or consumed by report/dataset/downstream task.
+- Amount fields detected.
+- Join key fields detected on fact/result-like table.
+temporary_no_governance_reason: ''
+rules:
+- rule_name: ods_api_jstbz_refund_info_f__freshness__latest_date_exists
+  rule_group: freshness
+  description: 检查最新分区或业务日期是否存在。
+  target_fields:
+  - dt
+  check_grain: partition
+  check_frequency: daily
+  default_threshold:
+    expected_delay_hours: 36
+    recent_continuous_days: 7
+    max_missing_days: 0
+    todo: Confirm expected_update_frequency and expected_delay_hours with table owner.
+    profiling_status: TODO
+    profiling_todo: 历史基线未在当前画像中落表。
+  alert_level: medium
+  required_metadata:
+  - table_name
+  - database_name
+  - partition_field_candidate
+  - biz_date_field_candidate
+  - latest_partition
+  - latest_update_time
+  - expected_update_frequency
+  - expected_delay_hours
+  sql_template: "select\n  case when max({biz_date_field}) is null then 1 else 0 end as violation_count\nfrom {database_name}.{table_name};\n"
+  evidence:
+  - '生成原因: 表活跃或存在报表/数据集/下游任务消费。'
+  - 'information_schema.tables: row_count=1259774, data_size=1349108920, update_time=2026-07-09 02:28:07'
+  - 'information_schema.columns: field_count=51'
+  - 'ods_db_cube_tables_config: primary_key=`__id`'
+  - 'std_data_government_meta_table: owner=管理员, unused_days=0, layer_raw=ods'
+  - 'ods_db_cube_partitions_meta: partition_count=1, latest_partition=ods_api_jstbz_refund_info_f'
+  todo:
+  - 确认该表期望更新频率和允许延迟。
+  - '补齐或确认元数据: partition_field_candidate, expected_update_frequency, expected_delay_hours'
+- rule_name: ods_api_jstbz_refund_info_f__amount_abnormal__amount_reasonableness
+  rule_group: amount_abnormal
+  description: 检查金额字段非负、极值、分位数异常和历史波动。
+  target_fields:
+  - refund
+  - payment
+  - buyer_apply_refund
+  - refund_version
+  - refund_phase
+  - free_amount
+  check_grain: partition
+  check_frequency: daily
+  default_threshold:
+    non_negative_required: true
+    extreme_value_max: TODO_CONFIRM
+    current_sum_low_ratio_to_history: 0.5
+    current_sum_high_ratio_to_history: 2.0
+    quantile_check:
+      p99_to_p50_max_ratio: TODO_CONFIRM
+    todo: Confirm which amount fields can be negative, such as refund or adjustment fields.
+    profiling_status: TODO
+    profiling_todo: 历史基线未在当前画像中落表。
+  alert_level: medium
+  required_metadata:
+  - table_name
+  - database_name
+  - amount_fields
+  - biz_date_field_candidate
+  - row_count_history
+  sql_template: "with daily_amount as (\n  select cast({biz_date_field} as date) as biz_date, sum({amount_field}) as amount_sum\n  from {database_name}.{table_name}\n\
+    \  where cast({biz_date_field} as date) >= date_sub(current_date(), interval {history_window_days} day)\n  group by cast({biz_date_field}\
+    \ as date)\n),\nbaseline as (\n  select avg(amount_sum) as baseline_amount\n  from daily_amount\n  where biz_date < date_sub(current_date(),\
+    \ interval 1 day)\n),\ncurrent_day as (\n  select coalesce(sum(amount_sum), 0) as current_amount\n  from daily_amount\n  where biz_date =\
+    \ date_sub(current_date(), interval 1 day)\n)\nselect\n  case\n    when current_amount < baseline_amount * {current_sum_low_ratio_to_history}\n\
+    \      or current_amount > baseline_amount * {current_sum_high_ratio_to_history}\n    then 1 else 0\n  end as violation_count\nfrom current_day\
+    \ cross join baseline;\n"
+  evidence:
+  - '生成原因: 字段画像识别到金额类字段。'
+  - 'information_schema.tables: row_count=1259774, data_size=1349108920, update_time=2026-07-09 02:28:07'
+  - 'information_schema.columns: field_count=51'
+  - 'ods_db_cube_tables_config: primary_key=`__id`'
+  - 'std_data_government_meta_table: owner=管理员, unused_days=0, layer_raw=ods'
+  - 'ods_db_cube_partitions_meta: partition_count=1, latest_partition=ods_api_jstbz_refund_info_f'
+  todo:
+  - 确认销售额、退款额、调整金额等字段是否允许负数及极值阈值。
+  - '补齐或确认元数据: row_count_history'
+  - 缺少历史 profiling 或业务口径证据，阈值需人工确认后才能生产告警。
+- rule_name: ods_api_jstbz_refund_info_f__referential_integrity__dimension_join_coverage
+  rule_group: referential_integrity
+  description: 检查事实/结果表关联商品、店铺、成本、渠道、组织等维表的覆盖率和失败率。
+  target_fields:
+  - __id
+  - as_id
+  - outer_as_id
+  - o_id
+  - so_id
+  - shop_id
+  - l_id
+  - wh_id
+  - wms_co_id
+  - drp_co_id_from
+  check_grain: partition
+  check_frequency: daily
+  default_threshold:
+    join_failure_rate_max: 0.01
+    dimension_coverage_rate_min: 0.99
+    core_object_missing_rate_max: 0.01
+    todo: Confirm valid unknown/other dimension handling and join grain.
+    profiling_status: TODO
+    profiling_todo: 历史基线未在当前画像中落表。
+  alert_level: medium
+  required_metadata:
+  - fact_table_name
+  - dimension_table_name
+  - database_name
+  - join_key_fields
+  - dimension_key_fields
+  - biz_date_field_candidate
+  sql_template: "select\n  case\n    when sum(case when d.{dimension_key_field} is null then 1 else 0 end) / nullif(count(*), 0) > {join_failure_rate_max}\n\
+    \    then 1 else 0\n  end as violation_count\nfrom {database_name}.{fact_table_name} f\nleft join {database_name}.{dimension_table_name} d\n\
+    \  on {join_condition}\n{optional_recent_partition_filter};\n"
+  evidence:
+  - '生成原因: 表含关联键并具有事实/结果类角色线索。'
+  - 'information_schema.tables: row_count=1259774, data_size=1349108920, update_time=2026-07-09 02:28:07'
+  - 'information_schema.columns: field_count=51'
+  - 'ods_db_cube_tables_config: primary_key=`__id`'
+  - 'std_data_government_meta_table: owner=管理员, unused_days=0, layer_raw=ods'
+  - 'ods_db_cube_partitions_meta: partition_count=1, latest_partition=ods_api_jstbz_refund_info_f'
+  todo:
+  - 确认需要关联的维表、关联键和是否需要生效日期条件。
+  - '补齐或确认元数据: fact_table_name, dimension_table_name, dimension_key_fields'

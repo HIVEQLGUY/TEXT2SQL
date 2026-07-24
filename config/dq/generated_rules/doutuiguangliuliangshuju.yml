@@ -1,0 +1,89 @@
+table_name: doutuiguangliuliangshuju
+database: cubeappdata
+importance_candidate: C
+data_role_candidate: source_like
+quality_rule_needed: review
+manual_confirm_required: true
+evidence_summary: importance=C; role=source_like; usage=collection_used; reports=0; collections=2; tasks=1; queries=0; downstream_tasks=1; row_count=117790;
+  physical_status=unknown
+generation_reasons:
+- Table is active or consumed by report/dataset/downstream task.
+- Promotion or ad fee fields detected.
+temporary_no_governance_reason: ''
+rules:
+- rule_name: doutuiguangliuliangshuju__freshness__latest_date_exists
+  rule_group: freshness
+  description: 检查最新分区或业务日期是否存在。
+  target_fields: []
+  check_grain: table
+  check_frequency: daily
+  default_threshold:
+    expected_delay_hours: 36
+    recent_continuous_days: 7
+    max_missing_days: 0
+    todo: Confirm expected_update_frequency and expected_delay_hours with table owner.
+    profiling_status: TODO
+    profiling_todo: 历史基线未在当前画像中落表。
+  alert_level: low
+  required_metadata:
+  - table_name
+  - database_name
+  - partition_field_candidate
+  - biz_date_field_candidate
+  - latest_partition
+  - latest_update_time
+  - expected_update_frequency
+  - expected_delay_hours
+  sql_template: "select\n  case when max({biz_date_field}) is null then 1 else 0 end as violation_count\nfrom {database_name}.{table_name};\n"
+  evidence:
+  - '生成原因: 表活跃或存在报表/数据集/下游任务消费。'
+  - 'information_schema.tables: row_count=117790, data_size=9163144, update_time=2026-06-08 10:49:40'
+  - 'information_schema.columns: field_count=28'
+  - 'ods_db_cube_tables_config: primary_key=`__id`'
+  - 'std_data_government_meta_table: owner=包彦, unused_days=30, layer_raw=不规范命名'
+  - 'ods_db_cube_partitions_meta: partition_count=1, latest_partition=doutuiguangliuliangshuju'
+  todo:
+  - 确认该表期望更新频率和允许延迟。
+  - '补齐或确认元数据: partition_field_candidate, biz_date_field_candidate, expected_update_frequency, expected_delay_hours'
+- rule_name: doutuiguangliuliangshuju__promotion_fee_abnormal__promotion_fee_reasonableness
+  rule_group: promotion_fee_abnormal
+  description: 检查推广费/广告费非负，并按店铺/渠道/计划/日期与历史基线比较。
+  target_fields:
+  - 投放消耗推商品
+  - 投放消耗店铺被投
+  check_grain: table
+  check_frequency: daily
+  default_threshold:
+    promotion_fee_min: 0
+    high_ratio_to_history: 3.0
+    history_window_days: 30
+    zero_fee_alert_policy: Do not alert on zero fee by default; compare with historical zero-rate and business calendar.
+    todo: Confirm campaign calendar, channel grain, and whether zero-spend days are expected.
+    profiling_status: TODO
+    profiling_todo: 历史基线未在当前画像中落表。
+  alert_level: low
+  required_metadata:
+  - table_name
+  - database_name
+  - promotion_fee_fields
+  - biz_date_field_candidate
+  - shop_field_candidate
+  - channel_field_candidate
+  - campaign_or_plan_field_candidate
+  sql_template: "with daily_fee as (\n  select\n    cast({biz_date_field} as date) as biz_date,\n    {shop_channel_plan_fields},\n    sum({promotion_fee_field})\
+    \ as fee_sum\n  from {database_name}.{table_name}\n  where cast({biz_date_field} as date) >= date_sub(current_date(), interval {history_window_days}\
+    \ day)\n  group by cast({biz_date_field} as date), {shop_channel_plan_fields}\n),\nbaseline as (\n  select {shop_channel_plan_fields}, avg(fee_sum)\
+    \ as avg_fee\n  from daily_fee\n  where biz_date < date_sub(current_date(), interval 1 day)\n  group by {shop_channel_plan_fields}\n),\ncurrent_day\
+    \ as (\n  select {shop_channel_plan_fields}, fee_sum\n  from daily_fee\n  where biz_date = date_sub(current_date(), interval 1 day)\n)\nselect\
+    \ count(*) as violation_count\nfrom current_day c\njoin baseline b using ({shop_channel_plan_fields})\nwhere c.fee_sum > b.avg_fee * {high_ratio_to_history};\n"
+  evidence:
+  - '生成原因: 字段画像识别到推广费、广告费或投放费用字段。'
+  - 'information_schema.tables: row_count=117790, data_size=9163144, update_time=2026-06-08 10:49:40'
+  - 'information_schema.columns: field_count=28'
+  - 'ods_db_cube_tables_config: primary_key=`__id`'
+  - 'std_data_government_meta_table: owner=包彦, unused_days=30, layer_raw=不规范命名'
+  - 'ods_db_cube_partitions_meta: partition_count=1, latest_partition=doutuiguangliuliangshuju'
+  todo:
+  - 推广费为 0 不默认报警；需确认投放日历、渠道和计划粒度。
+  - '补齐或确认元数据: biz_date_field_candidate'
+  - 缺少历史 profiling 或业务口径证据，阈值需人工确认后才能生产告警。

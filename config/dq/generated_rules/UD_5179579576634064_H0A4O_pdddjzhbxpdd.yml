@@ -1,0 +1,89 @@
+table_name: UD_5179579576634064_H0A4O_pdddjzhbxpdd
+database: cubeappdata
+importance_candidate: C
+data_role_candidate: source_like
+quality_rule_needed: review
+manual_confirm_required: true
+evidence_summary: importance=C; role=source_like; usage=collection_used; reports=0; collections=2; tasks=1; queries=0; downstream_tasks=1; row_count=89;
+  physical_status=active
+generation_reasons:
+- Table is active or consumed by report/dataset/downstream task.
+- Amount fields detected.
+temporary_no_governance_reason: ''
+rules:
+- rule_name: UD_5179579576634064_H0A4O_pdddjzhbxpdd__freshness__latest_date_exists
+  rule_group: freshness
+  description: 检查最新分区或业务日期是否存在。
+  target_fields: []
+  check_grain: table
+  check_frequency: daily
+  default_threshold:
+    expected_delay_hours: 36
+    recent_continuous_days: 7
+    max_missing_days: 0
+    todo: Confirm expected_update_frequency and expected_delay_hours with table owner.
+    profiling_status: TODO
+    profiling_todo: 历史基线未在当前画像中落表。
+  alert_level: low
+  required_metadata:
+  - table_name
+  - database_name
+  - partition_field_candidate
+  - biz_date_field_candidate
+  - latest_partition
+  - latest_update_time
+  - expected_update_frequency
+  - expected_delay_hours
+  sql_template: "select\n  case when max({biz_date_field}) is null then 1 else 0 end as violation_count\nfrom {database_name}.{table_name};\n"
+  evidence:
+  - '生成原因: 表活跃或存在报表/数据集/下游任务消费。'
+  - 'information_schema.tables: row_count=89, data_size=20498, update_time=2026-07-09 13:00:11'
+  - 'information_schema.columns: field_count=5'
+  - 'ods_db_cube_tables_config: primary_key=`__id`'
+  - 'std_data_government_meta_table: owner=李梦丽, unused_days=0, layer_raw=不规范命名'
+  - 'ods_db_cube_partitions_meta: partition_count=1, latest_partition=UD_5179579576634064_H0A4O_pdddjzhbxpdd'
+  todo:
+  - 确认该表期望更新频率和允许延迟。
+  - '补齐或确认元数据: partition_field_candidate, biz_date_field_candidate, expected_update_frequency, expected_delay_hours'
+- rule_name: UD_5179579576634064_H0A4O_pdddjzhbxpdd__amount_abnormal__amount_reasonableness
+  rule_group: amount_abnormal
+  description: 检查金额字段非负、极值、分位数异常和历史波动。
+  target_fields:
+  - yf
+  check_grain: table
+  check_frequency: daily
+  default_threshold:
+    non_negative_required: true
+    extreme_value_max: TODO_CONFIRM
+    current_sum_low_ratio_to_history: 0.5
+    current_sum_high_ratio_to_history: 2.0
+    quantile_check:
+      p99_to_p50_max_ratio: TODO_CONFIRM
+    todo: Confirm which amount fields can be negative, such as refund or adjustment fields.
+    profiling_status: TODO
+    profiling_todo: 历史基线未在当前画像中落表。
+  alert_level: low
+  required_metadata:
+  - table_name
+  - database_name
+  - amount_fields
+  - biz_date_field_candidate
+  - row_count_history
+  sql_template: "with daily_amount as (\n  select cast({biz_date_field} as date) as biz_date, sum({amount_field}) as amount_sum\n  from {database_name}.{table_name}\n\
+    \  where cast({biz_date_field} as date) >= date_sub(current_date(), interval {history_window_days} day)\n  group by cast({biz_date_field}\
+    \ as date)\n),\nbaseline as (\n  select avg(amount_sum) as baseline_amount\n  from daily_amount\n  where biz_date < date_sub(current_date(),\
+    \ interval 1 day)\n),\ncurrent_day as (\n  select coalesce(sum(amount_sum), 0) as current_amount\n  from daily_amount\n  where biz_date =\
+    \ date_sub(current_date(), interval 1 day)\n)\nselect\n  case\n    when current_amount < baseline_amount * {current_sum_low_ratio_to_history}\n\
+    \      or current_amount > baseline_amount * {current_sum_high_ratio_to_history}\n    then 1 else 0\n  end as violation_count\nfrom current_day\
+    \ cross join baseline;\n"
+  evidence:
+  - '生成原因: 字段画像识别到金额类字段。'
+  - 'information_schema.tables: row_count=89, data_size=20498, update_time=2026-07-09 13:00:11'
+  - 'information_schema.columns: field_count=5'
+  - 'ods_db_cube_tables_config: primary_key=`__id`'
+  - 'std_data_government_meta_table: owner=李梦丽, unused_days=0, layer_raw=不规范命名'
+  - 'ods_db_cube_partitions_meta: partition_count=1, latest_partition=UD_5179579576634064_H0A4O_pdddjzhbxpdd'
+  todo:
+  - 确认销售额、退款额、调整金额等字段是否允许负数及极值阈值。
+  - '补齐或确认元数据: biz_date_field_candidate, row_count_history'
+  - 缺少历史 profiling 或业务口径证据，阈值需人工确认后才能生产告警。

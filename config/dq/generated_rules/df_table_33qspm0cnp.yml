@@ -1,0 +1,47 @@
+table_name: df_table_33qspm0cnp
+database: cubeappdata
+importance_candidate: C
+data_role_candidate: source_like
+quality_rule_needed: review
+manual_confirm_required: true
+evidence_summary: importance=C; role=source_like; usage=collection_used; reports=0; collections=2; tasks=1; queries=0; downstream_tasks=1; row_count=1;
+  physical_status=active
+generation_reasons:
+- Table is active or consumed by report/dataset/downstream task.
+temporary_no_governance_reason: ''
+rules:
+- rule_name: df_table_33qspm0cnp__freshness__latest_date_exists
+  rule_group: freshness
+  description: 检查最新分区或业务日期是否存在。
+  target_fields:
+  - update_time
+  check_grain: partition
+  check_frequency: daily
+  default_threshold:
+    expected_delay_hours: 36
+    recent_continuous_days: 7
+    max_missing_days: 0
+    todo: Confirm expected_update_frequency and expected_delay_hours with table owner.
+    profiling_status: TODO
+    profiling_todo: 历史基线未在当前画像中落表。
+  alert_level: low
+  required_metadata:
+  - table_name
+  - database_name
+  - partition_field_candidate
+  - biz_date_field_candidate
+  - latest_partition
+  - latest_update_time
+  - expected_update_frequency
+  - expected_delay_hours
+  sql_template: "select\n  case when max({biz_date_field}) is null then 1 else 0 end as violation_count\nfrom {database_name}.{table_name};\n"
+  evidence:
+  - '生成原因: 表活跃或存在报表/数据集/下游任务消费。'
+  - 'information_schema.tables: row_count=1, data_size=2726, update_time=2025-08-18 11:02:10'
+  - 'information_schema.columns: field_count=11'
+  - 'ods_db_cube_tables_config: primary_key=`id`'
+  - 'std_data_government_meta_table: owner=管理员, unused_days=0, layer_raw=不规范命名'
+  - 'ods_db_cube_partitions_meta: partition_count=1, latest_partition=df_table_33qspm0cnp'
+  todo:
+  - 确认该表期望更新频率和允许延迟。
+  - '补齐或确认元数据: partition_field_candidate, expected_update_frequency, expected_delay_hours'

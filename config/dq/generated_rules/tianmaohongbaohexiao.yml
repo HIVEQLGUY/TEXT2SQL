@@ -1,0 +1,13 @@
+table_name: tianmaohongbaohexiao
+database: cubeappdata
+importance_candidate: C
+data_role_candidate: detail_like
+quality_rule_needed: review
+manual_confirm_required: false
+evidence_summary: importance=C; role=detail_like; usage=collection_used; reports=0; collections=2; tasks=1; queries=0; downstream_tasks=1; row_count=801332;
+  physical_status=active
+generation_reasons:
+- 'Static/periodic fixed downstream dependency with no direct business consumption or core risk evidence: no rule and no manual confirmation needed.'
+temporary_no_governance_reason: 'Static/periodic fixed downstream dependency with no direct business consumption or core risk evidence: no rule
+  and no manual confirmation needed.'
+rules: []

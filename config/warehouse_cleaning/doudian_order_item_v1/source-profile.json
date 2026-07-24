@@ -1,0 +1,574 @@
+{
+  "profile_version": "1.0.0",
+  "generated_at": "2026-07-22T07:55:01.599706+00:00",
+  "source": {
+    "database": "youmei_sandbox",
+    "table": "ods_api_dd_sale_order_list_info_f"
+  },
+  "table": {
+    "engine": "MergeTree",
+    "partition_key": "dt",
+    "sorting_key": "",
+    "total_rows": 52431,
+    "total_bytes": 556461121,
+    "comment": "ODS_销售订单列表信息表(抖店API)"
+  },
+  "columns": [
+    {
+      "position": 1,
+      "name": "accept_order_status",
+      "type": "String",
+      "comment": "小时达订单接单状态"
+    },
+    {
+      "position": 2,
+      "name": "shop_id",
+      "type": "String",
+      "comment": "店铺ID"
+    },
+    {
+      "position": 3,
+      "name": "shop_name",
+      "type": "String",
+      "comment": "商户名称"
+    },
+    {
+      "position": 4,
+      "name": "open_id",
+      "type": "String",
+      "comment": "抖音小程序ID"
+    },
+    {
+      "position": 5,
+      "name": "order_id",
+      "type": "String",
+      "comment": "店铺订单号"
+    },
+    {
+      "position": 6,
+      "name": "order_level",
+      "type": "String",
+      "comment": "订单层级"
+    },
+    {
+      "position": 7,
+      "name": "biz",
+      "type": "String",
+      "comment": "业务来源"
+    },
+    {
+      "position": 8,
+      "name": "biz_desc",
+      "type": "String",
+      "comment": "业务来源描述"
+    },
+    {
+      "position": 9,
+      "name": "order_type",
+      "type": "String",
+      "comment": "订单类型"
+    },
+    {
+      "position": 10,
+      "name": "order_type_desc",
+      "type": "String",
+      "comment": "订单类型描述"
+    },
+    {
+      "position": 11,
+      "name": "trade_type",
+      "type": "String",
+      "comment": "交易类型(弃用)"
+    },
+    {
+      "position": 12,
+      "name": "trade_type_desc",
+      "type": "String",
+      "comment": "交易类型描述(弃用)"
+    },
+    {
+      "position": 13,
+      "name": "order_status",
+      "type": "String",
+      "comment": "订单状态"
+    },
+    {
+      "position": 14,
+      "name": "order_status_desc",
+      "type": "String",
+      "comment": "订单状态描述"
+    },
+    {
+      "position": 15,
+      "name": "main_status",
+      "type": "String",
+      "comment": "主流程状态"
+    },
+    {
+      "position": 16,
+      "name": "main_status_desc",
+      "type": "String",
+      "comment": "主流程状态描述"
+    },
+    {
+      "position": 17,
+      "name": "pay_time",
+      "type": "String",
+      "comment": "支付时间"
+    },
+    {
+      "position": 18,
+      "name": "order_expire_time",
+      "type": "String",
+      "comment": "订单过期时间"
+    },
+    {
+      "position": 19,
+      "name": "finish_time",
+      "type": "String",
+      "comment": "订单完成时间"
+    },
+    {
+      "position": 20,
+      "name": "create_time",
+      "type": "String",
+      "comment": "下单时间"
+    },
+    {
+      "position": 21,
+      "name": "update_time",
+      "type": "String",
+      "comment": "订单更新时间"
+    },
+    {
+      "position": 22,
+      "name": "cancel_reason",
+      "type": "String",
+      "comment": "取消原因"
+    },
+    {
+      "position": 23,
+      "name": "buyer_words",
+      "type": "String",
+      "comment": "买家留言"
+    },
+    {
+      "position": 24,
+      "name": "seller_words",
+      "type": "String",
+      "comment": "商家备注"
+    },
+    {
+      "position": 25,
+      "name": "b_type",
+      "type": "String",
+      "comment": "下单端编码"
+    },
+    {
+      "position": 26,
+      "name": "b_type_desc",
+      "type": "String",
+      "comment": "下单端描述"
+    },
+    {
+      "position": 27,
+      "name": "sub_b_type",
+      "type": "String",
+      "comment": "下单场景编码"
+    },
+    {
+      "position": 28,
+      "name": "sub_b_type_desc",
+      "type": "String",
+      "comment": "下单场景描述"
+    },
+    {
+      "position": 29,
+      "name": "app_id",
+      "type": "String",
+      "comment": "具体小程序ID"
+    },
+    {
+      "position": 30,
+      "name": "pay_type",
+      "type": "String",
+      "comment": "支付类型"
+    },
+    {
+      "position": 31,
+      "name": "channel_payment_no",
+      "type": "String",
+      "comment": "支付渠道流水号"
+    },
+    {
+      "position": 32,
+      "name": "order_amount",
+      "type": "String",
+      "comment": "订单金额"
+    },
+    {
+      "position": 33,
+      "name": "pay_amount",
+      "type": "String",
+      "comment": "支付金额"
+    },
+    {
+      "position": 34,
+      "name": "post_amount",
+      "type": "String",
+      "comment": "快递费"
+    },
+    {
+      "position": 35,
+      "name": "post_insurance_amount",
+      "type": "String",
+      "comment": "运费险金额"
+    },
+    {
+      "position": 36,
+      "name": "modify_amount",
+      "type": "String",
+      "comment": "改价金额变化量"
+    },
+    {
+      "position": 37,
+      "name": "modify_post_amount",
+      "type": "String",
+      "comment": "改价运费金额变化量"
+    },
+    {
+      "position": 38,
+      "name": "promotion_amount",
+      "type": "String",
+      "comment": "订单优惠总金额"
+    },
+    {
+      "position": 39,
+      "name": "promotion_shop_amount",
+      "type": "String",
+      "comment": "店铺优惠金额"
+    },
+    {
+      "position": 40,
+      "name": "promotion_platform_amount",
+      "type": "String",
+      "comment": "平台优惠金额"
+    },
+    {
+      "position": 41,
+      "name": "shop_cost_amount",
+      "type": "String",
+      "comment": "商家承担金额"
+    },
+    {
+      "position": 42,
+      "name": "platform_cost_amount",
+      "type": "String",
+      "comment": "平台承担金额"
+    },
+    {
+      "position": 43,
+      "name": "promotion_talent_amount",
+      "type": "String",
+      "comment": "达人优惠金额"
+    },
+    {
+      "position": 44,
+      "name": "promotion_pay_amount",
+      "type": "String",
+      "comment": "支付优惠金额"
+    },
+    {
+      "position": 45,
+      "name": "encrypt_post_tel",
+      "type": "String",
+      "comment": "收件人电话"
+    },
+    {
+      "position": 46,
+      "name": "encrypt_post_receiver",
+      "type": "String",
+      "comment": "收件人姓名"
+    },
+    {
+      "position": 47,
+      "name": "post_addr",
+      "type": "String",
+      "comment": "收件人地址"
+    },
+    {
+      "position": 48,
+      "name": "exp_ship_time",
+      "type": "String",
+      "comment": "预计发货时间"
+    },
+    {
+      "position": 49,
+      "name": "ship_time",
+      "type": "String",
+      "comment": "发货时间"
+    },
+    {
+      "position": 50,
+      "name": "logistics_info",
+      "type": "String",
+      "comment": "物流信息"
+    },
+    {
+      "position": 51,
+      "name": "sku_order_list",
+      "type": "String",
+      "comment": "订单详情信息"
+    },
+    {
+      "position": 52,
+      "name": "seller_remark_stars",
+      "type": "String",
+      "comment": "插旗信息"
+    },
+    {
+      "position": 53,
+      "name": "order_phase_list",
+      "type": "String",
+      "comment": "定金预售阶段单"
+    },
+    {
+      "position": 54,
+      "name": "doudian_open_id",
+      "type": "String",
+      "comment": "加密用户ID串"
+    },
+    {
+      "position": 55,
+      "name": "serial_number_list",
+      "type": "String",
+      "comment": "商品序列号"
+    },
+    {
+      "position": 56,
+      "name": "promotion_redpack_amount",
+      "type": "String",
+      "comment": "红包优惠金额"
+    },
+    {
+      "position": 57,
+      "name": "promotion_redpack_platform_amount",
+      "type": "String",
+      "comment": "平台优惠信息"
+    },
+    {
+      "position": 58,
+      "name": "promotion_redpack_talent_amount",
+      "type": "String",
+      "comment": "达人优惠信息"
+    },
+    {
+      "position": 59,
+      "name": "appointment_ship_time",
+      "type": "String",
+      "comment": "预约发货时间"
+    },
+    {
+      "position": 60,
+      "name": "d_car_shop_biz_data",
+      "type": "String",
+      "comment": "懂车帝购车信息"
+    },
+    {
+      "position": 61,
+      "name": "shop_order_tag_ui",
+      "type": "String",
+      "comment": "店铺单标签"
+    },
+    {
+      "position": 62,
+      "name": "total_promotion_amount",
+      "type": "String",
+      "comment": "总优惠金额"
+    },
+    {
+      "position": 63,
+      "name": "post_origin_amount",
+      "type": "String",
+      "comment": "运费原价"
+    },
+    {
+      "position": 64,
+      "name": "post_promotion_amount",
+      "type": "String",
+      "comment": "运费优惠金额"
+    },
+    {
+      "position": 65,
+      "name": "user_tag_ui",
+      "type": "String",
+      "comment": "用户特征标签"
+    },
+    {
+      "position": 66,
+      "name": "author_cost_amount",
+      "type": "String",
+      "comment": "作者达人承担金额"
+    },
+    {
+      "position": 67,
+      "name": "only_platform_cost_amount",
+      "type": "String",
+      "comment": "仅平台承担金额"
+    },
+    {
+      "position": 68,
+      "name": "promise_info",
+      "type": "String",
+      "comment": "履约时效信息"
+    },
+    {
+      "position": 69,
+      "name": "mask_post_receiver",
+      "type": "String",
+      "comment": "收件人姓名(脱敏)"
+    },
+    {
+      "position": 70,
+      "name": "mask_post_tel",
+      "type": "String",
+      "comment": "收件人电话(脱敏)"
+    },
+    {
+      "position": 71,
+      "name": "mask_post_addr",
+      "type": "String",
+      "comment": "收件人地址(脱敏)"
+    },
+    {
+      "position": 72,
+      "name": "user_coordinate",
+      "type": "String",
+      "comment": "收货地址经纬度信息"
+    },
+    {
+      "position": 73,
+      "name": "earliest_receipt_time",
+      "type": "String",
+      "comment": "预计最早到达时间"
+    },
+    {
+      "position": 74,
+      "name": "latest_receipt_time",
+      "type": "String",
+      "comment": "预计最晚到达时间"
+    },
+    {
+      "position": 75,
+      "name": "early_arrival",
+      "type": "String",
+      "comment": "是否尽快送达"
+    },
+    {
+      "position": 76,
+      "name": "target_arrival_time",
+      "type": "String",
+      "comment": "尽快送达时间点"
+    },
+    {
+      "position": 77,
+      "name": "packing_amount",
+      "type": "String",
+      "comment": "打包费"
+    },
+    {
+      "position": 78,
+      "name": "supermarket_order_serial_no",
+      "type": "String",
+      "comment": "门店流水号"
+    },
+    {
+      "position": 79,
+      "name": "tax_amount",
+      "type": "String",
+      "comment": "税费"
+    },
+    {
+      "position": 80,
+      "name": "address_tag_ui",
+      "type": "String",
+      "comment": "地址标签列表"
+    },
+    {
+      "position": 81,
+      "name": "mask_pay_tel",
+      "type": "String",
+      "comment": "脱敏下单人手机号(鲜花订单)"
+    },
+    {
+      "position": 82,
+      "name": "encrypt_pay_tel",
+      "type": "String",
+      "comment": "下单人手机号(鲜花订单)加密"
+    },
+    {
+      "position": 83,
+      "name": "greet_words",
+      "type": "String",
+      "comment": "贺卡文字(鲜花订单)"
+    },
+    {
+      "position": 84,
+      "name": "pay_tel",
+      "type": "String",
+      "comment": "下单人手机号"
+    },
+    {
+      "position": 85,
+      "name": "post_receiver",
+      "type": "String",
+      "comment": "收件人姓名"
+    },
+    {
+      "position": 86,
+      "name": "open_address_id",
+      "type": "String",
+      "comment": "标识收件人地址的id"
+    },
+    {
+      "position": 87,
+      "name": "post_tel",
+      "type": "String",
+      "comment": "收件人电话"
+    },
+    {
+      "position": 88,
+      "name": "origin_data",
+      "type": "String",
+      "comment": "原始数据"
+    },
+    {
+      "position": 89,
+      "name": "dt",
+      "type": "String",
+      "comment": "日分区"
+    },
+    {
+      "position": 90,
+      "name": "yuce_cube_shop_id",
+      "type": "String",
+      "comment": "魔方店铺标识"
+    },
+    {
+      "position": 91,
+      "name": "yuce_task_instance_id",
+      "type": "String",
+      "comment": "任务实例id"
+    },
+    {
+      "position": 92,
+      "name": "yuce_data_create_time",
+      "type": "String",
+      "comment": "数据创建时间"
+    }
+  ],
+  "safety": {
+    "raw_samples_emitted": false,
+    "sensitive_values_emitted": false
+  }
+}

@@ -1,0 +1,13 @@
+table_name: UD_4971200913022541_AP00A_pddzhbxpddzh
+database: cubeappdata
+importance_candidate: B
+data_role_candidate: source_like
+quality_rule_needed: review
+manual_confirm_required: false
+evidence_summary: importance=B; role=source_like; usage=collection_used; reports=0; collections=8; tasks=1; queries=0; downstream_tasks=2; row_count=9972;
+  physical_status=active
+generation_reasons:
+- 'Static/periodic fixed downstream dependency with no direct business consumption or core risk evidence: no rule and no manual confirmation needed.'
+temporary_no_governance_reason: 'Static/periodic fixed downstream dependency with no direct business consumption or core risk evidence: no rule
+  and no manual confirmation needed.'
+rules: []

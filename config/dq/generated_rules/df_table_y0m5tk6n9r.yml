@@ -1,0 +1,12 @@
+table_name: df_table_y0m5tk6n9r
+database: cubeappdata
+importance_candidate: IGNORE
+data_role_candidate: unknown
+quality_rule_needed: review
+manual_confirm_required: true
+evidence_summary: importance=IGNORE; role=unknown; usage=task_used; reports=0; collections=0; tasks=1; queries=0; downstream_tasks=0; row_count=1;
+  physical_status=active
+generation_reasons:
+- 'IGNORE/stale candidate: only observation reason is generated.'
+temporary_no_governance_reason: 'IGNORE/stale candidate: only observation reason is generated.'
+rules: []

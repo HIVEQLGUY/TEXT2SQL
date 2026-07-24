@@ -1,0 +1,46 @@
+contract_id: doudian_order_header_core
+parent_contract_id: doudian_order_item
+contract_version: 1.2.0
+status: approved_for_shadow_execution
+scope: order_header_core_fields
+source:
+  chinese_name: ODS_销售订单列表信息表(抖店API)
+  physical_name: ods_api_dd_sale_order_list_info_f
+  database: youmei_sandbox
+  source_partition: '2026-07-22'
+  source_rows: 51878
+target_shadow:
+  chinese_name: DWD_抖店订单主单影子清洗表
+  physical_name: dwd_trade_order_shadow_1_2_0
+  database: youmei_sandbox
+target_formal:
+  chinese_name: DWD_抖店订单主单事实全量快照表
+  physical_name: dwd_trade_order_df
+  database: youmei_sandbox
+grain: 店铺ID + 店铺订单号
+key: [shop_id, shop_order_id]
+deduplication:
+  source_duplicate_keys: 2183
+  source_duplicate_rows: 4366
+  max_duplicate_rows_per_key: 2
+  conflicting_duplicate_keys: 0
+  rule: 完全相同重复行按目标字段DISTINCT折叠；同键不同内容进入阻断，不自动覆盖
+field_scope:
+  included:
+    - 订单标识、店铺、订单状态、主流程状态、下单端、下单场景、支付方式
+    - 下单、支付、过期、完成、预计发货、发货、更新时间
+    - 接口文档明确单位为分的订单金额、支付金额、运费、优惠、承担金额、打包费
+    - 收件人、电话、地址、加密/脱敏联系信息、地址ID、买家留言、商家备注、支付渠道流水号等订单业务文本字段
+  excluded:
+    - 原始JSON字段
+    - 单位未确认的税费字段
+    - 完整502标量字段与数组子关系
+business_field_policy:
+  field_retention_basis: business_semantics_grain_type_quality_downstream
+  rule: 业务字段不按安全、保密、脱敏或敏感性做排除/打标；字段是否保留只由业务语义、粒度、类型契约、质量结果和下游用途决定
+physical_table_policy:
+  governance_fields_in_business_table: false
+  governance_storage: run-manifest, release yaml, quality sql result, OpenMetadata
+files:
+  shadow_sql: order-shadow-execution.sql
+  quality_sql: order-shadow-quality-checks.sql

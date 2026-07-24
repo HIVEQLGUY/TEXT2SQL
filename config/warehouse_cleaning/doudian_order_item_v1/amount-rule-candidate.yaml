@@ -1,0 +1,52 @@
+rule_id: doudian_order_amount_v1
+version: 1.2.0
+status: reviewed_field_level_gate
+source_api: order.searchList
+source_document: https://op.jinritemai.com/docs/api-docs/15/1342
+scope:
+  - sku_order_list.goods_price
+  - sku_order_list.pay_amount
+strategy:
+  name: field_level_unit_evidence
+  default_when_unit_unknown: block
+  accepted_unit_evidence:
+    - field_name_explicitly_contains_unit_marker
+    - official_interface_description_explicitly_contains_unit
+    - approved_business_data_dictionary
+field_decisions:
+  - source_field: sku_order_list.pay_amount
+    chinese_name: 商品支付金额
+    unit_status: confirmed
+    source_unit: fen
+    evidence: 官方接口文档字段说明“支付金额（单位：分）”
+    action: convert
+    formula: source_value / 100
+  - source_field: sku_order_list.goods_price
+    chinese_name: 商品原价
+    unit_status: confirmed
+    source_unit: yuan
+    evidence: 用户确认商品原价按元处理；接口文档未明确单位，不覆盖用户确认
+    action: preserve_and_standardize_scale_2
+confirmed_common_rules:
+  target_unit: yuan
+  target_scale: 2
+  target_type: Decimal128(2)
+  rounding: round_to_scale_2_only_if_source_precision_requires
+  sign_policy: preserve_source_sign
+  empty_policy: empty_or_null_to_nullable_null
+  invalid_policy: non_empty_unparseable_to_exception_and_count
+  zero_policy: preserve_zero_as_zero
+evidence:
+  - pay_amount接口字段说明明确使用单位为分
+  - goods_price接口字段说明未明确金额单位，但用户确认按元处理
+  - 当前样本金额字段均可解析为数值
+  - 金额字段当前ODS物理类型为String
+confirmation_required:
+  - 确认按字段单位证据决定是否换算，不对所有金额字段统一处理
+  - 确认目标金额统一保留两位小数
+  - 确认负数保留原值符号，不取绝对值
+  - 确认空值转NULL，非空非法值进入异常统计
+execution_gate:
+  amount_conversion: pay_amount_convert_goods_price_preserve_yuan
+  json_expansion_gate: all_documented_fields_and_relations_must_be_reviewed
+  formal_dwd_ddl: blocked

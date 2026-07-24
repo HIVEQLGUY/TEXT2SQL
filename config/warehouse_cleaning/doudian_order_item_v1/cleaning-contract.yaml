@@ -1,0 +1,356 @@
+contract_id: doudian_order_item
+contract_version: 1.2.0
+status: reviewed
+decision_log:
+  - decision: source_mode
+    result: window_full_snapshot
+    evidence:
+      - table_suffix_is_f
+      - one_snapshot_partition_2026-07-21
+      - create_time_range_2026-04-23_to_2026-07-22
+      - api_searchList_supports_recent_90_days
+    limitation: not_historical_full
+  - decision: grain
+    result: one_sku_order_list_element_per_shop_order
+    evidence:
+      - sku_order_list_is_json_array
+      - no_sku_order_id_coverage_in_current_ods
+  - decision: key
+    result: shop_order_id_plus_item_index
+    evidence:
+      - shop_order_id_unique_at_header_grain
+      - product_id_sku_id_has_28_duplicate_combinations
+    limitation: item_index_is_technical_source_array_position_not_business_suborder_id
+  - decision: amount_unit_strategy
+    result: field_level_unit_evidence
+    evidence:
+      - pay_amount_document_explicitly_states_unit_fen
+      - goods_price_document_does_not_state_unit
+    rule: only_amount_fields_with_explicit_unit_evidence_are_converted
+    limitation: goods_price_uses_user_approved_yuan_unit_even_though_interface_text_is_silent
+  - decision: goods_price_unit
+    result: yuan
+    evidence:
+      - user_confirmed_goods_price_is_yuan
+    rule: preserve_numeric_value_and_standardize_to_decimal128_scale_2
+  - decision: json_expansion_scope
+    result: all_interface_defined_json_fields
+    evidence:
+      - official_response_schema_inventory_contains_622_paths
+      - current_ods_item_payload_contains_137_top_level_fields
+    rule: scalar_flatten_object_recursive_flatten_array_separate_child_relation
+    limitation: response_metadata_fields_not_observable_in_current_ods_are_registered_but_blocked
+source:
+  database: youmei_sandbox
+  table: ods_api_dd_sale_order_list_info_f
+  chinese_name: ODS_销售订单列表信息表(抖店API)
+  source_system: doudian_api
+  api_name: order.searchList
+  api_doc: https://op.jinritemai.com/docs/api-docs/15/1342
+  api_doc_version_observed: 2026-05-28
+target:
+  database: youmei_sandbox
+  table: dwd_trade_order_item_df
+  chinese_name: DWD_抖店订单商品明细事实全量快照表
+  layer: DWD
+  grain: 店铺订单号 + 商品明细数组序号
+  refresh_mode: window_full_snapshot
+  source_partition: dt
+outputs:
+  - database: youmei_sandbox
+    table: dwd_trade_order_df
+    chinese_name: DWD_抖店订单主单事实全量快照表
+    grain: 店铺订单号
+    key: [shop_order_id]
+  - database: youmei_sandbox
+    table: dwd_trade_order_item_df
+    chinese_name: DWD_抖店订单商品明细事实全量快照表
+    grain: 店铺订单号 + 商品明细数组序号
+    key: [shop_order_id, item_index]
+  - database: youmei_sandbox
+    table: dwd_api_order_search_response_meta_df
+    chinese_name: DWD_抖店订单列表接口响应页元数据表
+    grain: 一次接口响应页
+    key: [source_task_instance_id]
+    status: not_observable_in_current_ods
+key:
+  fields: [shop_order_id, item_index]
+  type: technical_composite
+  uniqueness_status: confirmed_for_current_snapshot
+  deduplication: do_not_deduplicate_by_product_id_or_sku_id
+json_expansion:
+  source_field: sku_order_list
+  inventory_file: json-expansion-inventory.yaml
+  scalar_field_contract_file: json-field-contracts.yaml
+  relation_contract_file: json-relation-contracts.yaml
+  runtime_profile_sql: json-runtime-profile.sql
+  status: reviewed_inventory_622_paths_and_generated_relations
+  policy:
+    scalar_fields: flatten_all_interface_defined_scalar_fields_to_target_relations
+    object_fields: recursive_flatten
+    array_fields: separate_child_relation_with_parent_key_and_array_index
+    raw_json_in_any_dwd_target: false
+    unknown_runtime_fields: quarantine_and_report
+  schema_summary:
+    interface_defined_paths: 622
+    scalar_paths: 502
+    object_paths: 68
+    array_paths: 52
+    current_item_top_level_fields: 137
+  relation_rules:
+    order_item_base: scalar_fields_under_sku_order_list_item
+    array_children: parent_key_plus_array_index
+    naming: path_based_english_physical_name_plus_interface_chinese_description
+    transport_container: shop_order_list_already_materialized_as_one_ods_row_per_order
+  generated_contracts:
+    documented_paths: 622
+    documented_scalar_fields: 502
+    observable_business_scalar_fields: 499
+    response_metadata_scalar_fields_not_observable_in_current_ods: 3
+    business_array_relations: 51
+    transport_arrays_not_materialized: [shop_order_list]
+fields:
+  - source_fields: [dt]
+    chinese_name: 数据快照日期
+    physical_name: snapshot_date
+    target_type: Date
+    semantic_status: confirmed
+    transform: parse_yyyy_mm_dd
+    primary_key: false
+  - source_fields: [shop_id]
+    chinese_name: 店铺ID
+    physical_name: shop_id
+    target_type: String
+    semantic_status: confirmed
+    transform: trim_non_empty
+    primary_key: false
+  - source_fields: [shop_name]
+    chinese_name: 店铺名称
+    physical_name: shop_name
+    target_type: String
+    semantic_status: confirmed
+    transform: trim
+    primary_key: false
+  - source_fields: [order_id]
+    chinese_name: 店铺订单号
+    physical_name: shop_order_id
+    target_type: String
+    semantic_status: confirmed
+    transform: trim_non_empty
+    primary_key: true
+  - source_fields: [sku_order_list.item_index]
+    chinese_name: 商品明细序号
+    physical_name: item_index
+    target_type: UInt16
+    semantic_status: confirmed
+    transform: json_array_position_1_based
+    primary_key: true
+  - source_fields: [sku_order_list.product_id, sku_order_list.product_id_str]
+    chinese_name: 商品ID
+    physical_name: product_id
+    target_type: String
+    semantic_status: confirmed
+    transform: first_non_empty_identifier
+    primary_key: false
+  - source_fields: [sku_order_list.product_name]
+    chinese_name: 商品名称
+    physical_name: product_name
+    target_type: String
+    semantic_status: confirmed
+    transform: trim
+    primary_key: false
+  - source_fields: [sku_order_list.sku_id]
+    chinese_name: SKU ID
+    physical_name: sku_id
+    target_type: String
+    semantic_status: confirmed
+    transform: trim_identifier
+    primary_key: false
+  - source_fields: [sku_order_list.spec]
+    chinese_name: SKU规格
+    physical_name: sku_specification
+    target_type: String
+    semantic_status: confirmed
+    transform: flatten_spec_array_as_name_value_pairs
+    primary_key: false
+  - source_fields: [sku_order_list.item_num]
+    chinese_name: 商品数量
+    physical_name: item_quantity
+    target_type: Int64
+    semantic_status: confirmed
+    transform: parse_integer
+    primary_key: false
+  - source_fields: [sku_order_list.goods_price]
+    chinese_name: 商品金额
+    physical_name: goods_amount
+    target_type: Decimal128(2)
+    semantic_status: confirmed
+    transform: parse_decimal_preserve_yuan_scale_2
+    amount_unit_status: confirmed_yuan_from_user
+    amount_rule_ref: doudian_order_amount_v1.goods_price
+    primary_key: false
+  - source_fields: [sku_order_list.pay_amount]
+    chinese_name: 商品支付金额
+    physical_name: item_paid_amount
+    target_type: Decimal128(2)
+    semantic_status: confirmed
+    transform: parse_decimal_then_divide_100_preserve_sign
+    amount_unit_status: confirmed_fen_from_interface_document
+    amount_rule_ref: doudian_order_amount_v1.pay_amount
+    primary_key: false
+  - source_fields: [sku_order_list.room_id, sku_order_list.room_id_str]
+    chinese_name: 直播间ID
+    physical_name: room_id
+    target_type: String
+    semantic_status: confirmed
+    transform: zero_or_empty_to_null
+    primary_key: false
+  - source_fields: [sku_order_list.author_id]
+    chinese_name: 达人ID
+    physical_name: author_id
+    target_type: String
+    semantic_status: confirmed
+    transform: zero_or_empty_to_null
+    primary_key: false
+  - source_fields: [sku_order_list.author_name]
+    chinese_name: 达人名称
+    physical_name: author_name
+    target_type: String
+    semantic_status: candidate
+    transform: trim
+    primary_key: false
+  - source_fields: [sku_order_list.content_id]
+    chinese_name: 内容ID
+    physical_name: content_id
+    target_type: String
+    semantic_status: confirmed
+    transform: trim_identifier
+    primary_key: false
+  - source_fields: [sku_order_list.ad_env_type]
+    chinese_name: 广告环境类型
+    physical_name: ad_environment_type
+    target_type: Enum(String)
+    semantic_status: confirmed
+    transform: normalize_enum
+    primary_key: false
+  - source_fields: [sku_order_list.b_type]
+    chinese_name: 下单端编码
+    physical_name: order_entry_code
+    target_type: String
+    semantic_status: confirmed
+    transform: trim
+    primary_key: false
+  - source_fields: [sku_order_list.b_type_desc]
+    chinese_name: 下单端名称
+    physical_name: order_entry_name
+    target_type: String
+    semantic_status: confirmed
+    transform: trim
+    primary_key: false
+  - source_fields: [sku_order_list.sub_b_type]
+    chinese_name: 下单场景编码
+    physical_name: order_scene_code
+    target_type: String
+    semantic_status: confirmed
+    transform: trim
+    primary_key: false
+  - source_fields: [sku_order_list.sub_b_type_desc]
+    chinese_name: 下单场景名称
+    physical_name: order_scene_name
+    target_type: String
+    semantic_status: confirmed
+    transform: trim
+    primary_key: false
+  - source_fields: [sku_order_list.pay_type]
+    chinese_name: 支付方式编码
+    physical_name: payment_type_code
+    target_type: Enum(String)
+    semantic_status: confirmed
+    transform: normalize_enum
+    primary_key: false
+  - source_fields: [sku_order_list.pay_time]
+    chinese_name: 支付时间
+    physical_name: paid_at
+    target_type: Nullable(DateTime)
+    semantic_status: confirmed
+    transform: unix_seconds_zero_to_null_asia_shanghai
+    primary_key: false
+  - source_fields: [sku_order_list.create_time]
+    chinese_name: 下单时间
+    physical_name: created_at
+    target_type: Nullable(DateTime)
+    semantic_status: confirmed
+    transform: unix_seconds_asia_shanghai
+    primary_key: false
+  - source_fields: [sku_order_list.update_time]
+    chinese_name: 订单更新时间
+    physical_name: updated_at
+    target_type: Nullable(DateTime)
+    semantic_status: confirmed
+    transform: unix_seconds_asia_shanghai
+    primary_key: false
+  - source_fields: [sku_order_list.order_status]
+    chinese_name: 商品订单状态编码
+    physical_name: order_status_code
+    target_type: Enum(String)
+    semantic_status: confirmed
+    transform: normalize_enum
+    primary_key: false
+  - source_fields: [sku_order_list.order_status_desc]
+    chinese_name: 商品订单状态名称
+    physical_name: order_status_name
+    target_type: String
+    semantic_status: confirmed
+    transform: trim
+    primary_key: false
+  - source_fields: [sku_order_list.main_status]
+    chinese_name: 主流程状态编码
+    physical_name: main_status_code
+    target_type: Enum(String)
+    semantic_status: confirmed
+    transform: normalize_enum
+    primary_key: false
+  - source_fields: [sku_order_list.main_status_desc]
+    chinese_name: 主流程状态名称
+    physical_name: main_status_name
+    target_type: String
+    semantic_status: confirmed
+    transform: trim
+    primary_key: false
+quality:
+  source_row_count: 52431
+  expanded_item_count: 90279
+  expected_key_unique: true
+  product_sku_duplicate_combinations: 28
+  room_id_zero_or_empty_rows: 51936
+  author_id_zero_or_empty_rows: 45840
+  unknown_enum_policy: reject_and_count
+  raw_json_in_target: false
+  raw_unparsed_payload_fields_in_target: false
+amount_rules:
+  status: reviewed_field_level_gate
+  strategy: field_level_unit_evidence
+  default_unknown_unit_action: block
+  target_scale: 2
+  formula_when_unit_is_fen: source_value / 100
+  sign_policy: preserve_source_sign
+  empty_policy: empty_or_null_to_nullable_null
+  invalid_policy: non_empty_unparseable_to_exception_and_count
+  zero_policy: preserve_zero_as_zero
+  field_decisions:
+    pay_amount:
+      source_unit: fen
+      action: convert
+      evidence: 官方接口文档字段说明“支付金额（单位：分）”
+    goods_price:
+      source_unit: yuan
+      action: preserve_and_standardize_scale_2
+      evidence: 用户确认商品原价按元处理
+  evidence:
+    - pay_amount_document_explicitly_states_unit_fen
+    - goods_price_document_unit_missing_but_user_confirmed_yuan
+  required_confirmation: none_for_current_two_amount_fields
+metadata:
+  status: pending
+  cleaning_contract_version: 1.2.0
+  openmetadata_apply: blocked_until_dwd_table_and_amount_rule_approval

@@ -1,0 +1,7 @@
+RENAME TABLE
+    youmei_sandbox.dwd_trade_order_df TO youmei_sandbox.dwd_trade_order_df_backup_1_2_0,
+    youmei_sandbox.dwd_trade_order_item_df TO youmei_sandbox.dwd_trade_order_item_df_backup_1_2_0,
+    youmei_sandbox.dwd_trade_order_df_rebuild_1_3_0 TO youmei_sandbox.dwd_trade_order_df,
+    youmei_sandbox.dwd_trade_order_item_df_rebuild_1_3_0 TO youmei_sandbox.dwd_trade_order_item_df,
+    youmei_sandbox.dwd_json_actual_receive_amount_info_actual_receive_amount_details_df TO youmei_sandbox.dwd_deprecated_actual_receive_amount_detail_backup_1_2_1,
+    youmei_sandbox.dwd_json_logistics_info_df TO youmei_sandbox.dwd_deprecated_logistics_info_backup_1_2_1;

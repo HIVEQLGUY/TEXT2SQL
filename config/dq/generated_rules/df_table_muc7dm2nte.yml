@@ -1,0 +1,12 @@
+table_name: df_table_muc7dm2nte
+database: cubeappdata
+importance_candidate: C
+data_role_candidate: result_like
+quality_rule_needed: review
+manual_confirm_required: true
+evidence_summary: importance=C; role=result_like; usage=collection_used; reports=0; collections=2; tasks=1; queries=0; downstream_tasks=0; row_count=3;
+  physical_status=active
+generation_reasons:
+- 'Excel/upload/test-like isolated table without report/query/downstream evidence: no strong rule generated.'
+temporary_no_governance_reason: 'Excel/upload/test-like isolated table without report/query/downstream evidence: no strong rule generated.'
+rules: []

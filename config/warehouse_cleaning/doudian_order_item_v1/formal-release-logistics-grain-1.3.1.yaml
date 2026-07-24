@@ -1,0 +1,96 @@
+release_id: doudian_order_logistics_grain_refactor_1_3_1
+release_time: '2026-07-23T17:00:00+08:00'
+status: formal_passed_metadata_applied_and_verified
+engine: ClickHouse
+database: youmei_sandbox
+source:
+  chinese_name: ODS_销售订单列表信息表(抖店API)
+  physical_name: ods_api_dd_sale_order_list_info_f
+  snapshot_partition: '2026-07-22'
+  source_rows: 51878
+rule_change:
+  summary: 物流单号/包裹粒度具有独立业务价值，不能被解释型明细项规则压回订单粒度。
+  cleaning_skill_updated: true
+  project_rule_updated: true
+  explanatory_arrays_still_parent_normalized:
+    - 商家收入金额明细项(actual_receive_amount_details)
+    - 优惠明细项
+    - 标签明细项
+    - 状态明细项
+  independent_business_arrays:
+    - 物流信息(logistics_info)
+    - 物流商品信息(product_info)
+    - 快递单号(tracking_no)
+    - 包裹ID(package_id)
+grain_evidence:
+  item_rows: 85770
+  item_sku_order_key_count: 85770
+  package_rows: 42839
+  package_id_key_count: 42839
+  tracking_no_key_count: 42838
+  package_product_rows: 73934
+  package_product_key_count: 73934
+  logistics_sku_order_matched_item_count: 73934
+  logistics_sku_order_unmatched_item_count: 0
+  one_sku_order_packages: 12087
+  multi_sku_order_packages: 30752
+  max_sku_order_per_package: 6
+  shipped_sku_order_keys: 73929
+  multi_package_sku_orders: 5
+  max_package_per_sku_order: 2
+targets:
+  - chinese_name: DWD_抖店订单主单事实全量快照表
+    physical_name: dwd_trade_order_df
+    grain: 店铺ID(shop_id) + 店铺订单号(shop_order_id)
+    row_count: 49695
+    column_count: 82
+    changed_in_this_release: false
+  - chinese_name: DWD_抖店订单商品明细事实全量快照表
+    physical_name: dwd_trade_order_item_df
+    grain: 店铺ID(shop_id) + 店铺订单号(shop_order_id) + 商品子单号(sku_order_id)
+    row_count: 85770
+    key_count: 85770
+    column_count: 38
+    changed_in_this_release: true
+    backup_previous_table: dwd_trade_order_item_df_backup_1_3_0
+  - chinese_name: DWD_抖店订单物流包裹事实全量快照表
+    physical_name: dwd_trade_order_logistics_package_df
+    grain: 店铺ID(shop_id) + 店铺订单号(shop_order_id) + 包裹ID(package_id)
+    row_count: 42839
+    key_count: 42839
+    column_count: 21
+    changed_in_this_release: true
+  - chinese_name: DWD_抖店订单物流包裹商品子单关系事实全量快照表
+    physical_name: dwd_trade_order_logistics_package_item_df
+    grain: 店铺ID(shop_id) + 店铺订单号(shop_order_id) + 包裹ID(package_id) + 商品子单号(sku_order_id)
+    row_count: 73934
+    key_count: 73934
+    column_count: 19
+    changed_in_this_release: true
+quality:
+  status: passed
+  package_not_in_order_count: 0
+  package_item_not_in_item_count: 0
+  package_item_not_in_package_count: 0
+  sku_order_id_null_count: 0
+  package_id_null_count: 0
+  tracking_no_null_count: 0
+openmetadata:
+  status: applied_and_verified
+  server_version: 1.12.11
+  contracts:
+    - metadata-contract-formal-item-1.3.1.yaml
+    - metadata-contract-formal-logistics-package-1.3.1.yaml
+    - metadata-contract-formal-logistics-package-item-1.3.1.yaml
+artifacts:
+  probes:
+    - logistics-grain-probe-1.3.1-fixed.sql
+    - logistics-item-key-probe-1.3.1.sql
+    - logistics-item-mapping-probe-1.3.1.sql
+    - logistics-cardinality-probe-1.3.1.sql
+    - logistics-cardinality-examples-1.3.1.sql
+  execution:
+    - formal-logistics-refactor-execution-1.3.1.sql
+    - formal-logistics-refactor-quality-checks-1.3.1.sql
+    - formal-logistics-refactor-swap-1.3.1.sql
+    - formal-logistics-refactor-postcheck-1.3.1.sql

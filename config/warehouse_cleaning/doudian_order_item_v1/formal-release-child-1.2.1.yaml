@@ -1,0 +1,49 @@
+release_id: doudian_order_child_relations_1_2_1
+release_version: 1.2.1
+release_time: '2026-07-23T15:32:00+08:00'
+status: formal_passed_metadata_applied_and_verified
+source:
+  database: youmei_sandbox
+  table: ods_api_dd_sale_order_list_info_f
+  chinese_name: ODS_销售订单列表信息表(抖店API)
+  snapshot_partition: '2026-07-22'
+  source_mode: window_full_snapshot
+targets:
+  - chinese_name: DWD_抖店订单商家收入金额明细项事实全量快照表
+    physical_name: dwd_json_actual_receive_amount_info_actual_receive_amount_details_df
+    grain: 店铺ID + 店铺订单号 + 商家收入金额明细项序号
+    key:
+      - shop_id
+      - shop_order_id
+      - json_item_index
+    source_json_column: origin_data.actual_receive_amount_info.actual_receive_amount_details
+    expected_row_count: 72575
+    amount_unit_policy: 明细项金额(amount)源单位分，清洗后单位元，保留两位小数
+  - chinese_name: DWD_抖店订单物流信息事实全量快照表
+    physical_name: dwd_json_logistics_info_df
+    grain: 店铺ID + 店铺订单号 + 物流信息序号
+    key:
+      - shop_id
+      - shop_order_id
+      - json_item_index
+    source_json_column: logistics_info
+    expected_row_count: 42839
+    amount_unit_policy: 保价金额和即时零售平台运力配送金额源单位分，清洗后单位元，保留两位小数
+quality_gates:
+  - 子表复合键唯一
+  - 同键不同内容冲突为0
+  - 子表均可匹配订单主单
+  - 正式子表不保留原始JSON列
+  - 金额和时间解析异常为0
+openmetadata:
+  status: applied_and_verified
+  contracts:
+    - metadata-contract-formal-actual-receive-detail.yaml
+    - metadata-contract-formal-logistics.yaml
+  verified:
+    - table: dwd_json_actual_receive_amount_info_actual_receive_amount_details_df
+      column_count: 8
+      custom_property_count: 26
+    - table: dwd_json_logistics_info_df
+      column_count: 20
+      custom_property_count: 26

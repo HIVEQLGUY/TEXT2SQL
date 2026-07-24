@@ -1,0 +1,12 @@
+table_name: ods_api_jstqm_archive_refund_info_f
+database: cubeappdata
+importance_candidate: C
+data_role_candidate: summary_like
+quality_rule_needed: review
+manual_confirm_required: true
+evidence_summary: importance=C; role=summary_like; usage=collection_used; reports=0; collections=2; tasks=1; queries=0; downstream_tasks=0; row_count=0;
+  physical_status=empty
+generation_reasons:
+- 'Excel/upload/test-like isolated table without report/query/downstream evidence: no strong rule generated.'
+temporary_no_governance_reason: 'Excel/upload/test-like isolated table without report/query/downstream evidence: no strong rule generated.'
+rules: []

@@ -1,0 +1,34 @@
+contract_id: doudian_order_item
+contract_version: 1.2.0
+status: pending_full_field_type_contract
+questions:
+  - id: amount_unit_and_precision
+    status: partially_confirmed
+    fields: [goods_amount, item_paid_amount]
+    candidate: 金额单位按字段证据判断；目标精度统一为Decimal128(2)
+    confirmed: pay_amount按接口文档分转元；保留两位小数；负数保留符号；空值转NULL；非法值单独进入异常统计
+    required_confirmation: 商品原价(goods_price)已确认按元；无需再次确认单位，但正式执行前仍需批准全字段JSON契约和影子清洗
+    execution_effect: 未完成JSON字段和关系契约审阅前不得执行正式DWD
+  - id: enum_dictionary_approval
+    status: pending
+    fields: [payment_type_code, order_entry_code, order_scene_code, ad_environment_type, order_status_code, main_status_code]
+    evidence: enum-dictionary.yaml and enum-profile.yaml
+    required_confirmation: 审批已知编码映射及未知编码保留并标记策略
+    execution_effect: OpenMetadata枚举版本保持pending，未知编码不得静默丢弃
+  - id: author_name_semantics
+    status: candidate
+    fields: [author_name]
+    evidence: 源字段与达人ID同组出现，但名称字段覆盖率和变更语义未单独核验
+    required_confirmation: 后续达人分析前确认达人名称以接口返回值为准或关联达人维表
+  - id: json_full_expansion_contract
+    status: shadow_passed_formal_type_pending
+    fields: [all_interface_defined_json_fields]
+    evidence: json-expansion-inventory.yaml, json-field-contracts.yaml and json-relation-contracts.yaml
+    required_confirmation: 审阅502个标量字段和51个业务数组关系的目标关系、中文名、类型和数组主键
+    execution_effect: 未批准前只允许静态校验和ClickHouse只读探查，不允许创建正式DWD
+  - id: json_scalar_type_contract
+    status: blocked_pending_field_level_typing
+    fields: [all_502_documented_scalar_fields]
+    evidence: json-field-contracts.yaml和json-type-candidates.yaml中的NUMBER_OR_IDENTIFIER字段及接口中文描述
+    required_confirmation: 逐字段确定ID、数量、金额、时间、布尔或字符串目标类型，并固化金额单位和时间语义
+    execution_effect: 未完成前不得创建完整正式DWD及数组子关系表

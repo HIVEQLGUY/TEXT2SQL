@@ -1,0 +1,338 @@
+table_name: ods_api_jlqc_uni_promition_root_report_info_du
+database: cubeappdata
+importance_candidate: B
+data_role_candidate: source_like
+quality_rule_needed: review
+manual_confirm_required: true
+evidence_summary: importance=B; role=source_like; usage=collection_used; reports=0; collections=14; tasks=1; queries=0; downstream_tasks=3; row_count=1956;
+  physical_status=active
+generation_reasons:
+- Table is active or consumed by report/dataset/downstream task.
+- External source-like table requires silent missing, row anomaly, schema change, and core field rules.
+- Amount fields detected.
+- Cost or purchase price fields detected.
+- Promotion or ad fee fields detected.
+temporary_no_governance_reason: ''
+rules:
+- rule_name: ods_api_jlqc_uni_promition_root_report_info_du__freshness__latest_date_exists
+  rule_group: freshness
+  description: 检查最新分区或业务日期是否存在。
+  target_fields:
+  - dt
+  - '`dt`'
+  check_grain: partition
+  check_frequency: daily
+  default_threshold:
+    expected_delay_hours: 36
+    recent_continuous_days: 7
+    max_missing_days: 0
+    todo: Confirm expected_update_frequency and expected_delay_hours with table owner.
+    profiling_status: TODO
+    profiling_todo: 历史基线未在当前画像中落表。
+  alert_level: medium
+  required_metadata:
+  - table_name
+  - database_name
+  - partition_field_candidate
+  - biz_date_field_candidate
+  - latest_partition
+  - latest_update_time
+  - expected_update_frequency
+  - expected_delay_hours
+  sql_template: "select\n  case when max({biz_date_field}) is null then 1 else 0 end as violation_count\nfrom {database_name}.{table_name};\n"
+  evidence:
+  - '生成原因: 表活跃或存在报表/数据集/下游任务消费。'
+  - 'information_schema.tables: row_count=1956, data_size=633242, update_time=2026-07-09 05:16:31'
+  - 'information_schema.columns: field_count=20'
+  - 'ods_db_cube_tables_config: primary_key=`dt`, `__id`'
+  - 'ods_db_cube_tables_config: partition_key=`dt`'
+  - 'std_data_government_meta_table: owner=包彦, unused_days=0, layer_raw=ods'
+  todo:
+  - 确认该表期望更新频率和允许延迟。
+  - '补齐或确认元数据: expected_update_frequency, expected_delay_hours'
+- rule_name: ods_api_jlqc_uni_promition_root_report_info_du__silent_missing__yesterday_partition_not_empty
+  rule_group: silent_missing
+  description: 检查昨日或最近业务分区是否存在且非空。
+  target_fields:
+  - dt
+  - '`dt`'
+  check_grain: partition
+  check_frequency: daily
+  default_threshold:
+    check_days: 7
+    min_partition_rows: 1
+    row_count_low_ratio_to_history: 0.5
+    history_window_days: 30
+    todo: Confirm which dates are expected to have data for this source.
+    profiling_status: TODO
+    profiling_todo: 历史基线未在当前画像中落表。
+  alert_level: medium
+  required_metadata:
+  - table_name
+  - database_name
+  - partition_field_candidate
+  - biz_date_field_candidate
+  - row_count
+  - partition_count
+  - latest_partition
+  - partition_row_count_history
+  sql_template: "select\n  case when count(*) < {min_partition_rows} then 1 else 0 end as violation_count\nfrom {database_name}.{table_name}\n\
+    where cast({biz_date_field} as date) = date_sub(current_date(), interval 1 day);\n"
+  evidence:
+  - '生成原因: source_like 且具有 API/影刀/ERP/钉钉/外部接入线索。'
+  - 'information_schema.tables: row_count=1956, data_size=633242, update_time=2026-07-09 05:16:31'
+  - 'information_schema.columns: field_count=20'
+  - 'ods_db_cube_tables_config: primary_key=`dt`, `__id`'
+  - 'ods_db_cube_tables_config: partition_key=`dt`'
+  - 'std_data_government_meta_table: owner=包彦, unused_days=0, layer_raw=ods'
+  todo:
+  - 确认该来源是否每日都应产生数据。
+  - '补齐或确认元数据: partition_row_count_history'
+- rule_name: ods_api_jlqc_uni_promition_root_report_info_du__row_count_anomaly__partition_row_count_anomaly
+  rule_group: row_count_anomaly
+  description: 检查当前分区行数相对历史 7/14/30 天均值或中位数是否异常。
+  target_fields:
+  - dt
+  check_grain: partition
+  check_frequency: daily
+  default_threshold:
+    history_windows_days:
+    - 7
+    - 14
+    - 30
+    low_ratio_to_history: 0.5
+    high_ratio_to_history: 2.0
+    default_compare_statistic: median
+    todo: Confirm whether weekday/weekend or promotion cycles need separate baselines.
+    profiling_status: TODO
+    profiling_todo: 历史基线未在当前画像中落表。
+  alert_level: medium
+  required_metadata:
+  - table_name
+  - database_name
+  - biz_date_field_candidate
+  - row_count_history
+  - latest_partition
+  sql_template: "with daily_rows as (\n  select cast({biz_date_field} as date) as biz_date, count(*) as row_count\n  from {database_name}.{table_name}\n\
+    \  where cast({biz_date_field} as date) >= date_sub(current_date(), interval {history_window_days} day)\n  group by cast({biz_date_field}\
+    \ as date)\n),\nbaseline as (\n  select avg(row_count) as baseline_row_count\n  from daily_rows\n  where biz_date < date_sub(current_date(),\
+    \ interval 1 day)\n),\ncurrent_day as (\n  select coalesce(sum(row_count), 0) as current_row_count\n  from daily_rows\n  where biz_date =\
+    \ date_sub(current_date(), interval 1 day)\n)\nselect\n  case\n    when current_row_count < baseline_row_count * {low_ratio_to_history}\n\
+    \      or current_row_count > baseline_row_count * {high_ratio_to_history}\n    then 1 else 0\n  end as violation_count\nfrom current_day\
+    \ cross join baseline;\n"
+  evidence:
+  - '生成原因: 活跃表、结果表、接入表或高优先级表需要行数波动监控。'
+  - 'information_schema.tables: row_count=1956, data_size=633242, update_time=2026-07-09 05:16:31'
+  - 'information_schema.columns: field_count=20'
+  - 'ods_db_cube_tables_config: primary_key=`dt`, `__id`'
+  - 'ods_db_cube_tables_config: partition_key=`dt`'
+  - 'std_data_government_meta_table: owner=包彦, unused_days=0, layer_raw=ods'
+  todo:
+  - 当前画像未包含分区行数历史基线，50%/200% 仅为默认建议，需 profiling 后确认。
+  - '补齐或确认元数据: row_count_history'
+  - 缺少历史 profiling 或业务口径证据，阈值需人工确认后才能生产告警。
+- rule_name: ods_api_jlqc_uni_promition_root_report_info_du__schema_change__schema_snapshot_change
+  rule_group: schema_change
+  description: 检查字段新增、删除、类型变化和注释变化。
+  target_fields: []
+  check_grain: schema
+  check_frequency: daily
+  default_threshold:
+    field_added_alert: true
+    field_deleted_alert: true
+    field_type_changed_alert: true
+    field_comment_changed_alert: review
+    todo: Confirm which schema changes are compatible for each connector.
+    profiling_status: TODO
+    profiling_todo: 历史基线未在当前画像中落表。
+  alert_level: medium
+  required_metadata:
+  - table_name
+  - database_name
+  - field_count
+  - column_name_list
+  - column_type_list
+  - column_comment_list
+  - schema_snapshot_history
+  sql_template: "-- This template compares metadata snapshots, not business rows.\nselect\n  table_name,\n  change_type,\n  column_name,\n  old_type,\n\
+    \  new_type,\n  old_comment,\n  new_comment\nfrom {metadata_database}.{schema_change_snapshot_table}\nwhere table_name = '{table_name}'\n\
+    \  and snapshot_date = current_date();\n"
+  evidence:
+  - '生成原因: 外部接入或 DB 同步来源表需要 schema drift 监控。'
+  - 'information_schema.tables: row_count=1956, data_size=633242, update_time=2026-07-09 05:16:31'
+  - 'information_schema.columns: field_count=20'
+  - 'ods_db_cube_tables_config: primary_key=`dt`, `__id`'
+  - 'ods_db_cube_tables_config: partition_key=`dt`'
+  - 'std_data_government_meta_table: owner=包彦, unused_days=0, layer_raw=ods'
+  todo:
+  - 建立字段 schema 快照表后才能生产化对比。
+  - '补齐或确认元数据: column_name_list, column_type_list, column_comment_list, schema_snapshot_history'
+- rule_name: ods_api_jlqc_uni_promition_root_report_info_du__core_field_null__core_fields_null_rate
+  rule_group: core_field_null
+  description: 检查主键、业务日期、店铺、商品、SKU、订单、金额等核心字段空值率。
+  target_fields:
+  - __id
+  - advertiser_id
+  - room_id
+  - total_ecom_platform_subsidy_amount_for_roi2
+  - yuce_cube_shop_id
+  - yuce_task_instance_id
+  - dt
+  - stat_datetime
+  check_grain: partition
+  check_frequency: daily
+  default_threshold:
+    primary_key_null_rate_max: 0
+    biz_date_null_rate_max: 0
+    core_field_null_rate_max: 0.01
+    amount_field_null_rate_max: 0.05
+    todo: Confirm nullable business fields and optional dimensions.
+    profiling_status: TODO
+    profiling_todo: 历史基线未在当前画像中落表。
+  alert_level: medium
+  required_metadata:
+  - table_name
+  - database_name
+  - primary_key_candidate
+  - biz_date_field_candidate
+  - core_fields_candidate
+  - join_key_fields
+  - amount_fields
+  sql_template: "select\n  case\n    when sum(case when {field_name} is null then 1 else 0 end) / nullif(count(*), 0) > {null_rate_max}\n    then\
+    \ 1 else 0\n  end as violation_count\nfrom {database_name}.{table_name}\n{optional_recent_partition_filter};\n"
+  evidence:
+  - '生成原因: 表存在核心字段候选或被业务链路消费。'
+  - 'information_schema.tables: row_count=1956, data_size=633242, update_time=2026-07-09 05:16:31'
+  - 'information_schema.columns: field_count=20'
+  - 'ods_db_cube_tables_config: primary_key=`dt`, `__id`'
+  - 'ods_db_cube_tables_config: partition_key=`dt`'
+  - 'std_data_government_meta_table: owner=包彦, unused_days=0, layer_raw=ods'
+  todo:
+  - 确认哪些核心字段允许为空、空字符串或 0。
+- rule_name: ods_api_jlqc_uni_promition_root_report_info_du__amount_abnormal__amount_reasonableness
+  rule_group: amount_abnormal
+  description: 检查金额字段非负、极值、分位数异常和历史波动。
+  target_fields:
+  - stat_cost_for_roi2
+  - total_cost_per_pay_order_for_roi2
+  - total_pay_order_coupon_amount_for_roi2
+  - total_ecom_platform_subsidy_amount_for_roi2
+  check_grain: partition
+  check_frequency: daily
+  default_threshold:
+    non_negative_required: true
+    extreme_value_max: TODO_CONFIRM
+    current_sum_low_ratio_to_history: 0.5
+    current_sum_high_ratio_to_history: 2.0
+    quantile_check:
+      p99_to_p50_max_ratio: TODO_CONFIRM
+    todo: Confirm which amount fields can be negative, such as refund or adjustment fields.
+    profiling_status: TODO
+    profiling_todo: 历史基线未在当前画像中落表。
+  alert_level: medium
+  required_metadata:
+  - table_name
+  - database_name
+  - amount_fields
+  - biz_date_field_candidate
+  - row_count_history
+  sql_template: "with daily_amount as (\n  select cast({biz_date_field} as date) as biz_date, sum({amount_field}) as amount_sum\n  from {database_name}.{table_name}\n\
+    \  where cast({biz_date_field} as date) >= date_sub(current_date(), interval {history_window_days} day)\n  group by cast({biz_date_field}\
+    \ as date)\n),\nbaseline as (\n  select avg(amount_sum) as baseline_amount\n  from daily_amount\n  where biz_date < date_sub(current_date(),\
+    \ interval 1 day)\n),\ncurrent_day as (\n  select coalesce(sum(amount_sum), 0) as current_amount\n  from daily_amount\n  where biz_date =\
+    \ date_sub(current_date(), interval 1 day)\n)\nselect\n  case\n    when current_amount < baseline_amount * {current_sum_low_ratio_to_history}\n\
+    \      or current_amount > baseline_amount * {current_sum_high_ratio_to_history}\n    then 1 else 0\n  end as violation_count\nfrom current_day\
+    \ cross join baseline;\n"
+  evidence:
+  - '生成原因: 字段画像识别到金额类字段。'
+  - 'information_schema.tables: row_count=1956, data_size=633242, update_time=2026-07-09 05:16:31'
+  - 'information_schema.columns: field_count=20'
+  - 'ods_db_cube_tables_config: primary_key=`dt`, `__id`'
+  - 'ods_db_cube_tables_config: partition_key=`dt`'
+  - 'std_data_government_meta_table: owner=包彦, unused_days=0, layer_raw=ods'
+  todo:
+  - 确认销售额、退款额、调整金额等字段是否允许负数及极值阈值。
+  - '补齐或确认元数据: row_count_history'
+  - 缺少历史 profiling 或业务口径证据，阈值需人工确认后才能生产告警。
+- rule_name: ods_api_jlqc_uni_promition_root_report_info_du__cost_price_abnormal__cost_price_reasonableness
+  rule_group: cost_price_abnormal
+  description: 检查成本价/采购价非空、非负，以及同 SKU/商品相对近 30 天中位数的异常波动。
+  target_fields:
+  - stat_cost_for_roi2
+  - total_cost_per_pay_order_for_roi2
+  check_grain: partition
+  check_frequency: daily
+  default_threshold:
+    cost_price_null_rate_max: TODO_CONFIRM
+    cost_price_min: 0
+    high_ratio_to_30d_median: 3.0
+    low_ratio_to_30d_median: 0.2
+    history_window_days: 30
+    todo: Confirm valid zero-cost scenarios, cost-source priority, and SKU/product comparison grain.
+    profiling_status: TODO
+    profiling_todo: 历史基线未在当前画像中落表。
+  alert_level: medium
+  required_metadata:
+  - table_name
+  - database_name
+  - cost_price_fields
+  - join_key_fields
+  - biz_date_field_candidate
+  - sku_or_product_key
+  sql_template: "-- TODO_CONFIRM: replace median expression with the SQL engine's approved percentile function.\nwith history_price as (\n  select\n\
+    \    {sku_or_product_key},\n    percentile_approx({cost_price_field}, 0.5) as median_cost_price\n  from {database_name}.{table_name}\n  where\
+    \ cast({biz_date_field} as date) >= date_sub(current_date(), interval {history_window_days} day)\n    and cast({biz_date_field} as date) <\
+    \ current_date()\n  group by {sku_or_product_key}\n),\ncurrent_price as (\n  select {sku_or_product_key}, {cost_price_field}\n  from {database_name}.{table_name}\n\
+    \  where cast({biz_date_field} as date) = date_sub(current_date(), interval 1 day)\n)\nselect count(*) as violation_count\nfrom current_price\
+    \ c\njoin history_price h on c.{sku_or_product_key} = h.{sku_or_product_key}\nwhere c.{cost_price_field} > h.median_cost_price * {high_ratio_to_30d_median}\n\
+    \   or c.{cost_price_field} < h.median_cost_price * {low_ratio_to_30d_median};\n"
+  evidence:
+  - '生成原因: 字段画像识别到成本价或采购价字段。'
+  - 'information_schema.tables: row_count=1956, data_size=633242, update_time=2026-07-09 05:16:31'
+  - 'information_schema.columns: field_count=20'
+  - 'ods_db_cube_tables_config: primary_key=`dt`, `__id`'
+  - 'ods_db_cube_tables_config: partition_key=`dt`'
+  - 'std_data_government_meta_table: owner=包彦, unused_days=0, layer_raw=ods'
+  todo:
+  - 阈值 3 倍和 0.2 倍必须人工确认；确认成本比较粒度是 SKU、商品还是店铺+SKU。
+  - 缺少历史 profiling 或业务口径证据，阈值需人工确认后才能生产告警。
+- rule_name: ods_api_jlqc_uni_promition_root_report_info_du__promotion_fee_abnormal__promotion_fee_reasonableness
+  rule_group: promotion_fee_abnormal
+  description: 检查推广费/广告费非负，并按店铺/渠道/计划/日期与历史基线比较。
+  target_fields:
+  - advertiser_id
+  check_grain: partition
+  check_frequency: daily
+  default_threshold:
+    promotion_fee_min: 0
+    high_ratio_to_history: 3.0
+    history_window_days: 30
+    zero_fee_alert_policy: Do not alert on zero fee by default; compare with historical zero-rate and business calendar.
+    todo: Confirm campaign calendar, channel grain, and whether zero-spend days are expected.
+    profiling_status: TODO
+    profiling_todo: 历史基线未在当前画像中落表。
+  alert_level: medium
+  required_metadata:
+  - table_name
+  - database_name
+  - promotion_fee_fields
+  - biz_date_field_candidate
+  - shop_field_candidate
+  - channel_field_candidate
+  - campaign_or_plan_field_candidate
+  sql_template: "with daily_fee as (\n  select\n    cast({biz_date_field} as date) as biz_date,\n    {shop_channel_plan_fields},\n    sum({promotion_fee_field})\
+    \ as fee_sum\n  from {database_name}.{table_name}\n  where cast({biz_date_field} as date) >= date_sub(current_date(), interval {history_window_days}\
+    \ day)\n  group by cast({biz_date_field} as date), {shop_channel_plan_fields}\n),\nbaseline as (\n  select {shop_channel_plan_fields}, avg(fee_sum)\
+    \ as avg_fee\n  from daily_fee\n  where biz_date < date_sub(current_date(), interval 1 day)\n  group by {shop_channel_plan_fields}\n),\ncurrent_day\
+    \ as (\n  select {shop_channel_plan_fields}, fee_sum\n  from daily_fee\n  where biz_date = date_sub(current_date(), interval 1 day)\n)\nselect\
+    \ count(*) as violation_count\nfrom current_day c\njoin baseline b using ({shop_channel_plan_fields})\nwhere c.fee_sum > b.avg_fee * {high_ratio_to_history};\n"
+  evidence:
+  - '生成原因: 字段画像识别到推广费、广告费或投放费用字段。'
+  - 'information_schema.tables: row_count=1956, data_size=633242, update_time=2026-07-09 05:16:31'
+  - 'information_schema.columns: field_count=20'
+  - 'ods_db_cube_tables_config: primary_key=`dt`, `__id`'
+  - 'ods_db_cube_tables_config: partition_key=`dt`'
+  - 'std_data_government_meta_table: owner=包彦, unused_days=0, layer_raw=ods'
+  todo:
+  - 推广费为 0 不默认报警；需确认投放日历、渠道和计划粒度。
+  - 缺少历史 profiling 或业务口径证据，阈值需人工确认后才能生产告警。

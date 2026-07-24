@@ -1,0 +1,78 @@
+release_id: doudian_order_core_formal_1_2_0
+released_at: '2026-07-23T14:28:00+08:00'
+status: formal_core_passed_metadata_pending_credentials
+scope: core_order_header_and_order_item_fields
+scope_chinese_name: 订单主单与商品明细核心字段阶段性正式版
+not_in_scope:
+  - 完整502个接口标量字段正式落表
+  - 51个业务数组子关系正式落表
+  - 接口响应页元数据表
+source:
+  chinese_name: ODS_销售订单列表信息表(抖店API)
+  physical_name: ods_api_dd_sale_order_list_info_f
+  database: youmei_sandbox
+  source_partition: '2026-07-22'
+  source_rows: 51878
+  source_unique_order_keys: 49695
+  expanded_item_rows: 89561
+  expanded_item_unique_keys: 85770
+duplicate_policy:
+  order_duplicate_rows: 2183
+  item_duplicate_rows: 3791
+  conflicting_duplicate_order_keys: 0
+  conflicting_duplicate_item_keys: 0
+  rule: 完全相同重复行按目标字段DISTINCT折叠；同键不同内容阻断
+targets:
+  - chinese_name: DWD_抖店订单主单事实全量快照表
+    physical_name: dwd_trade_order_df
+    database: youmei_sandbox
+    grain: 店铺ID + 店铺订单号
+    key: [shop_id, shop_order_id]
+    row_count: 49695
+    key_count: 49695
+    column_count: 65
+    disk_usage: 46.03 MiB
+  - chinese_name: DWD_抖店订单商品明细事实全量快照表
+    physical_name: dwd_trade_order_item_df
+    database: youmei_sandbox
+    grain: 店铺ID + 店铺订单号 + 商品明细数组序号
+    key: [shop_id, shop_order_id, item_index]
+    row_count: 85770
+    key_count: 85770
+    column_count: 29
+    disk_usage: 4.57 MiB
+contract:
+  id: doudian_order_item
+  version: 1.2.0
+  rule_scope: core_fields_formalized_full_json_pending
+execution:
+  conflict_check_sql_file: formal-conflict-checks.sql
+  sql_file: formal-execution.sql
+  quality_file: formal-quality-checks.sql
+  postcheck_sql_file: formal-postcheck.sql
+  metadata_contract_files:
+    - metadata-contract-formal-order.yaml
+    - metadata-contract-formal-item.yaml
+  run_id: doudian_order_core_v1_20260723_1428_formal_core_1_2_0
+quality:
+  status: passed
+  raw_json_column_count: 0
+  order_item_parent_missing_count: 0
+  required_item_identifier_or_quantity_null_count: 0
+openmetadata:
+  status: applied_and_verified
+  server_version: 1.12.11
+  verified_tables:
+    - table_fqn: youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_df
+      column_count: 65
+      custom_property_count: 26
+    - table_fqn: youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_df
+      column_count: 29
+      custom_property_count: 26
+approval:
+  user_confirmation: 用户确认“继续下一步”
+  formal_core_authorized: true
+  full_json_formal_authorized: false
+rollback:
+  strategy: Git保存可重建规则；如需回滚，按上一发布包重建并切换当前对象
+  previous_formal_table: none

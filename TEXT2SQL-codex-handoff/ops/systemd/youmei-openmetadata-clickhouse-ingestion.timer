@@ -1,0 +1,12 @@
+[Unit]
+Description=Run Youmei OpenMetadata official ClickHouse metadata ingestion every 10 minutes
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=10min
+AccuracySec=30s
+Persistent=true
+Unit=youmei-openmetadata-clickhouse-ingestion.service
+
+[Install]
+WantedBy=timers.target

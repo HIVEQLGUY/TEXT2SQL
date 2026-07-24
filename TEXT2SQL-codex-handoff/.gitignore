@@ -1,0 +1,16 @@
+.env
+.env.*
+!.env.example
+!*.example.env
+.codex_deps/
+.runtime/
+local/
+config/*.local.json
+web/data-agent-workspace/credentials.local.json
+.venv/
+.codegraph/
+.research/
+semantic/wren/*/
+*.egg-info/
+__pycache__/
+*.pyc

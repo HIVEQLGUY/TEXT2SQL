@@ -1,0 +1,144 @@
+from __future__ import annotations
+
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(PROJECT_ROOT))
+
+from scripts.warehouse_release import build_context, release_lock, validate_context  # noqa: E402
+
+
+PHASE_SQL = {
+    "preflight": "SELECT currentDatabase();",
+    "build": "CREATE TABLE youmei_sandbox.dwd_demo__candidate__1_0_0 (id UInt64) ENGINE = MergeTree ORDER BY id; INSERT INTO youmei_sandbox.dwd_demo__candidate__1_0_0 SELECT number FROM numbers(1);",
+    "quality": "SELECT throwIf((SELECT count() FROM youmei_sandbox.dwd_demo__candidate__1_0_0) = 0, 'empty');",
+    "swap": "RENAME TABLE youmei_sandbox.dwd_demo TO youmei_sandbox.dwd_demo__previous__1_0_0, youmei_sandbox.dwd_demo__candidate__1_0_0 TO youmei_sandbox.dwd_demo;",
+    "postcheck": "SELECT count() FROM youmei_sandbox.dwd_demo;",
+    "rollback": "RENAME TABLE youmei_sandbox.dwd_demo TO youmei_sandbox.dwd_demo__candidate__1_0_0, youmei_sandbox.dwd_demo__previous__1_0_0 TO youmei_sandbox.dwd_demo;",
+    "cleanup": "DROP TABLE IF EXISTS youmei_sandbox.dwd_demo__candidate__1_0_0; DROP TABLE IF EXISTS youmei_sandbox.dwd_demo__previous__1_0_0;",
+}
+
+
+def create_package(root: Path, *, duplicate_phase: bool = False, direct_production_write: bool = False, readonly_mutation: bool = False) -> Path:
+    package = root / "release"
+    package.mkdir()
+    for phase, sql in PHASE_SQL.items():
+        if direct_production_write and phase == "build":
+            sql = "INSERT INTO youmei_sandbox.dwd_demo SELECT number FROM numbers(1);"
+        if readonly_mutation and phase == "preflight":
+            sql = "CREATE TABLE youmei_sandbox.bad_table (id UInt64) ENGINE = MergeTree ORDER BY id;"
+        (package / f"{phase}.sql").write_text(sql, encoding="utf-8")
+    if duplicate_phase:
+        (package / "quality.sql").write_text(PHASE_SQL["preflight"], encoding="utf-8")
+    (package / "metadata.yaml").write_text(
+        "status: approved\n"
+        "table:\n"
+        "  fully_qualified_name: youmei_clickhouse.default.youmei_sandbox.dwd_demo\n",
+        encoding="utf-8",
+    )
+    release = package / "release.yaml"
+    release.write_text(
+        "release_api_version: warehouse-release/v1\n"
+        "release_id: test_release_1_0_0\n"
+        "version: 1.0.0\n"
+        "release_type: formal\n"
+        "environment: test\n"
+        "status: approved\n"
+        "source:\n"
+        "  database: youmei_sandbox\n"
+        "  partitions: ['2026-07-22']\n"
+        "targets:\n"
+        "  - chinese_name: 测试事实表\n"
+        "    physical_name: dwd_demo\n"
+        "    production_physical_name: dwd_demo\n"
+        "    candidate_physical_name: dwd_demo__candidate__1_0_0\n"
+        "    previous_physical_name: dwd_demo__previous__1_0_0\n"
+        "    database: youmei_sandbox\n"
+        "    grain: 测试粒度\n"
+        "    key: [id]\n"
+        "publish:\n"
+        "  strategy: candidate_swap\n"
+        "  phases:\n"
+        + "".join(
+            f"    {phase}: {'preflight.sql' if duplicate_phase and phase == 'quality' else phase + '.sql'}\n"
+            for phase in PHASE_SQL
+        )
+        + "openmetadata:\n"
+        "  contracts: [metadata.yaml]\n"
+        "approval:\n"
+        "  status: approved\n"
+        "  formal_publish_authorized: true\n"
+        "git:\n"
+        "  required: true\n"
+        "  auto_commit: true\n"
+        "  auto_push: true\n"
+        "  remote: origin\n"
+        "  branch: main\n"
+        "  tag: warehouse/test-release-1.0.0\n",
+        encoding="utf-8",
+    )
+    return release
+
+
+class WarehouseReleaseValidationTests(unittest.TestCase):
+    def test_git_remote_push_settings_are_normalized(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            context = build_context(create_package(Path(directory)))
+            self.assertTrue(context.normalized["git"]["auto_push"])
+            self.assertEqual(context.normalized["git"]["remote"], "origin")
+            self.assertEqual(context.normalized["git"]["branch"], "main")
+
+    def test_valid_candidate_swap_manifest(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            release = create_package(Path(directory))
+            context = build_context(release)
+            validate_context(context, "full")
+            self.assertEqual(context.errors, [])
+            self.assertTrue(context.manifest_fingerprint)
+            with release_lock(context):
+                self.assertTrue((Path(directory) / "release" / ".warehouse-release-test_release_1_0_0.lock").exists())
+
+    def test_duplicate_phase_file_is_blocked(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            release = create_package(Path(directory), duplicate_phase=True)
+            context = build_context(release)
+            validate_context(context, "full")
+            self.assertTrue(any("重复使用" in item for item in context.errors))
+
+    def test_direct_production_write_is_blocked(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            release = create_package(Path(directory), direct_production_write=True)
+            context = build_context(release)
+            validate_context(context, "full")
+            self.assertTrue(any("直接操作生产表" in item for item in context.errors))
+
+    def test_readonly_phase_mutation_is_blocked(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            release = create_package(Path(directory), readonly_mutation=True)
+            context = build_context(release)
+            validate_context(context, "full")
+            self.assertTrue(any("必须只读" in item for item in context.errors))
+
+    def test_legacy_manifest_is_read_only_compatible(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            package = Path(directory) / "legacy"
+            package.mkdir()
+            release = package / "legacy.yaml"
+            release.write_text(
+                "release_id: legacy_release_1_0_0\n"
+                "openmetadata:\n"
+                "  contracts: []\n",
+                encoding="utf-8",
+            )
+            context = build_context(release)
+            validate_context(context, "plan")
+            self.assertEqual(context.errors, [])
+            self.assertTrue(context.warnings)
+
+
+if __name__ == "__main__":
+    unittest.main()

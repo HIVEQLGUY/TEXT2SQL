@@ -1,0 +1,247 @@
+table_name: ud_3418004512502203_n11addlshsjq
+database: cubeappdata
+importance_candidate: B
+data_role_candidate: result_like
+quality_rule_needed: review
+manual_confirm_required: true
+evidence_summary: importance=B; role=result_like; usage=collection_used; reports=0; collections=3; tasks=1; queries=98; downstream_tasks=1; row_count=22065503;
+  physical_status=active
+generation_reasons:
+- Table is active or consumed by report/dataset/downstream task.
+- Result/export/AI-or-external-use candidate requires freshness, row count, core field, key, and downstream consistency rules.
+- Join key fields detected on fact/result-like table.
+temporary_no_governance_reason: ''
+rules:
+- rule_name: ud_3418004512502203_n11addlshsjq__freshness__latest_date_exists
+  rule_group: freshness
+  description: 检查最新分区或业务日期是否存在。
+  target_fields:
+  - pay_date
+  check_grain: partition
+  check_frequency: daily
+  default_threshold:
+    expected_delay_hours: 36
+    recent_continuous_days: 7
+    max_missing_days: 0
+    todo: Confirm expected_update_frequency and expected_delay_hours with table owner.
+    profiling_status: TODO
+    profiling_todo: 历史基线未在当前画像中落表。
+  alert_level: medium
+  required_metadata:
+  - table_name
+  - database_name
+  - partition_field_candidate
+  - biz_date_field_candidate
+  - latest_partition
+  - latest_update_time
+  - expected_update_frequency
+  - expected_delay_hours
+  sql_template: "select\n  case when max({biz_date_field}) is null then 1 else 0 end as violation_count\nfrom {database_name}.{table_name};\n"
+  evidence:
+  - '生成原因: 表活跃或存在报表/数据集/下游任务消费。'
+  - 'information_schema.tables: row_count=22065503, data_size=1926706127, update_time=2026-07-09 06:47:51'
+  - 'information_schema.columns: field_count=15'
+  - 'ods_db_cube_tables_config: primary_key=`__id`'
+  - 'std_data_government_meta_table: owner=包彦, unused_days=0, layer_raw=不规范命名'
+  - 'ods_db_cube_partitions_meta: partition_count=1, latest_partition=ud_3418004512502203_n11addlshsjq'
+  todo:
+  - 确认该表期望更新频率和允许延迟。
+  - '补齐或确认元数据: partition_field_candidate, expected_update_frequency, expected_delay_hours'
+- rule_name: ud_3418004512502203_n11addlshsjq__row_count_anomaly__partition_row_count_anomaly
+  rule_group: row_count_anomaly
+  description: 检查当前分区行数相对历史 7/14/30 天均值或中位数是否异常。
+  target_fields:
+  - pay_date
+  check_grain: partition
+  check_frequency: daily
+  default_threshold:
+    history_windows_days:
+    - 7
+    - 14
+    - 30
+    low_ratio_to_history: 0.5
+    high_ratio_to_history: 2.0
+    default_compare_statistic: median
+    todo: Confirm whether weekday/weekend or promotion cycles need separate baselines.
+    profiling_status: TODO
+    profiling_todo: 历史基线未在当前画像中落表。
+  alert_level: medium
+  required_metadata:
+  - table_name
+  - database_name
+  - biz_date_field_candidate
+  - row_count_history
+  - latest_partition
+  sql_template: "with daily_rows as (\n  select cast({biz_date_field} as date) as biz_date, count(*) as row_count\n  from {database_name}.{table_name}\n\
+    \  where cast({biz_date_field} as date) >= date_sub(current_date(), interval {history_window_days} day)\n  group by cast({biz_date_field}\
+    \ as date)\n),\nbaseline as (\n  select avg(row_count) as baseline_row_count\n  from daily_rows\n  where biz_date < date_sub(current_date(),\
+    \ interval 1 day)\n),\ncurrent_day as (\n  select coalesce(sum(row_count), 0) as current_row_count\n  from daily_rows\n  where biz_date =\
+    \ date_sub(current_date(), interval 1 day)\n)\nselect\n  case\n    when current_row_count < baseline_row_count * {low_ratio_to_history}\n\
+    \      or current_row_count > baseline_row_count * {high_ratio_to_history}\n    then 1 else 0\n  end as violation_count\nfrom current_day\
+    \ cross join baseline;\n"
+  evidence:
+  - '生成原因: 活跃表、结果表、接入表或高优先级表需要行数波动监控。'
+  - 'information_schema.tables: row_count=22065503, data_size=1926706127, update_time=2026-07-09 06:47:51'
+  - 'information_schema.columns: field_count=15'
+  - 'ods_db_cube_tables_config: primary_key=`__id`'
+  - 'std_data_government_meta_table: owner=包彦, unused_days=0, layer_raw=不规范命名'
+  - 'ods_db_cube_partitions_meta: partition_count=1, latest_partition=ud_3418004512502203_n11addlshsjq'
+  todo:
+  - 当前画像未包含分区行数历史基线，50%/200% 仅为默认建议，需 profiling 后确认。
+  - '补齐或确认元数据: row_count_history'
+  - 缺少历史 profiling 或业务口径证据，阈值需人工确认后才能生产告警。
+- rule_name: ud_3418004512502203_n11addlshsjq__core_field_null__core_fields_null_rate
+  rule_group: core_field_null
+  description: 检查主键、业务日期、店铺、商品、SKU、订单、金额等核心字段空值率。
+  target_fields:
+  - __id
+  - spbmkcs
+  - so_id
+  - pay_date
+  - as_date
+  - sfpwt
+  - status
+  - shop_status
+  check_grain: partition
+  check_frequency: daily
+  default_threshold:
+    primary_key_null_rate_max: 0
+    biz_date_null_rate_max: 0
+    core_field_null_rate_max: 0.01
+    amount_field_null_rate_max: 0.05
+    todo: Confirm nullable business fields and optional dimensions.
+    profiling_status: TODO
+    profiling_todo: 历史基线未在当前画像中落表。
+  alert_level: medium
+  required_metadata:
+  - table_name
+  - database_name
+  - primary_key_candidate
+  - biz_date_field_candidate
+  - core_fields_candidate
+  - join_key_fields
+  - amount_fields
+  sql_template: "select\n  case\n    when sum(case when {field_name} is null then 1 else 0 end) / nullif(count(*), 0) > {null_rate_max}\n    then\
+    \ 1 else 0\n  end as violation_count\nfrom {database_name}.{table_name}\n{optional_recent_partition_filter};\n"
+  evidence:
+  - '生成原因: 表存在核心字段候选或被业务链路消费。'
+  - 'information_schema.tables: row_count=22065503, data_size=1926706127, update_time=2026-07-09 06:47:51'
+  - 'information_schema.columns: field_count=15'
+  - 'ods_db_cube_tables_config: primary_key=`__id`'
+  - 'std_data_government_meta_table: owner=包彦, unused_days=0, layer_raw=不规范命名'
+  - 'ods_db_cube_partitions_meta: partition_count=1, latest_partition=ud_3418004512502203_n11addlshsjq'
+  todo:
+  - 确认哪些核心字段允许为空、空字符串或 0。
+  - '补齐或确认元数据: amount_fields'
+- rule_name: ud_3418004512502203_n11addlshsjq__primary_key_unique__candidate_key_duplicate
+  rule_group: primary_key_unique
+  description: 检查候选主键或唯一键重复数和重复率。
+  target_fields:
+  - '`__id`'
+  - so_id
+  check_grain: partition
+  check_frequency: daily
+  default_threshold:
+    duplicate_count_max: 0
+    duplicate_rate_max: 0
+    todo: Confirm whether candidate key is globally unique or unique within business date/partition.
+    profiling_status: TODO
+    profiling_todo: 历史基线未在当前画像中落表。
+  alert_level: medium
+  required_metadata:
+  - table_name
+  - database_name
+  - primary_key_candidate
+  - unique_key_candidate
+  - biz_date_field_candidate
+  sql_template: "select count(*) as violation_count\nfrom (\n  select {primary_key_fields}, count(*) as cnt\n  from {database_name}.{table_name}\n\
+    \  where {primary_key_not_null_predicate}\n  group by {primary_key_fields}\n  having count(*) > 1\n) t;\n"
+  evidence:
+  - '生成原因: 明细表、维表、结果表或写出表需要主键唯一性保障。'
+  - 'information_schema.tables: row_count=22065503, data_size=1926706127, update_time=2026-07-09 06:47:51'
+  - 'information_schema.columns: field_count=15'
+  - 'ods_db_cube_tables_config: primary_key=`__id`'
+  - 'std_data_government_meta_table: owner=包彦, unused_days=0, layer_raw=不规范命名'
+  - 'ods_db_cube_partitions_meta: partition_count=1, latest_partition=ud_3418004512502203_n11addlshsjq'
+  todo:
+  - 确认候选主键是否为全局唯一，还是需要按店铺/日期/渠道组合唯一。
+- rule_name: ud_3418004512502203_n11addlshsjq__downstream_consistency__upstream_downstream_reconcile
+  rule_group: downstream_consistency
+  description: 检查上下游行数、核心对象数和核心指标口径一致性。
+  target_fields: []
+  check_grain: partition
+  check_frequency: daily
+  default_threshold:
+    row_count_diff_rate_max: 0.01
+    object_count_diff_rate_max: 0.01
+    metric_sum_diff_rate_max: 0.01
+    metrics_to_compare:
+    - order_count
+    - sales_amount
+    - cost_amount
+    - promotion_fee
+    - inventory_quantity
+    todo: Confirm comparable grain and metric formulas before production.
+    profiling_status: TODO
+    profiling_todo: 历史基线未在当前画像中落表。
+  alert_level: medium
+  required_metadata:
+  - upstream_tables
+  - downstream_tables
+  - producing_tasks
+  - consuming_tasks
+  - biz_date_field_candidate
+  - metric_fields
+  - join_key_fields
+  sql_template: "with upstream_metric as (\n  select sum({metric_field}) as metric_sum\n  from {database_name}.{upstream_table}\n  {upstream_filter}\n\
+    ),\ndownstream_metric as (\n  select sum({metric_field}) as metric_sum\n  from {database_name}.{downstream_table}\n  {downstream_filter}\n\
+    )\nselect\n  case\n    when abs(u.metric_sum - d.metric_sum) / nullif(abs(u.metric_sum), 0) > {metric_sum_diff_rate_max}\n    then 1 else\
+    \ 0\n  end as violation_count\nfrom upstream_metric u cross join downstream_metric d;\n"
+  evidence:
+  - '生成原因: 结果表、写出表、AI/外部使用表需要上下游对账。'
+  - 'information_schema.tables: row_count=22065503, data_size=1926706127, update_time=2026-07-09 06:47:51'
+  - 'information_schema.columns: field_count=15'
+  - 'ods_db_cube_tables_config: primary_key=`__id`'
+  - 'std_data_government_meta_table: owner=包彦, unused_days=0, layer_raw=不规范命名'
+  - 'ods_db_cube_partitions_meta: partition_count=1, latest_partition=ud_3418004512502203_n11addlshsjq'
+  todo:
+  - 确认上下游可比粒度、过滤条件和指标公式。
+  - '补齐或确认元数据: upstream_tables, downstream_tables, consuming_tasks, metric_fields'
+  - 缺少历史 profiling 或业务口径证据，阈值需人工确认后才能生产告警。
+- rule_name: ud_3418004512502203_n11addlshsjq__referential_integrity__dimension_join_coverage
+  rule_group: referential_integrity
+  description: 检查事实/结果表关联商品、店铺、成本、渠道、组织等维表的覆盖率和失败率。
+  target_fields:
+  - __id
+  - spbmkcs
+  - so_id
+  check_grain: partition
+  check_frequency: daily
+  default_threshold:
+    join_failure_rate_max: 0.01
+    dimension_coverage_rate_min: 0.99
+    core_object_missing_rate_max: 0.01
+    todo: Confirm valid unknown/other dimension handling and join grain.
+    profiling_status: TODO
+    profiling_todo: 历史基线未在当前画像中落表。
+  alert_level: medium
+  required_metadata:
+  - fact_table_name
+  - dimension_table_name
+  - database_name
+  - join_key_fields
+  - dimension_key_fields
+  - biz_date_field_candidate
+  sql_template: "select\n  case\n    when sum(case when d.{dimension_key_field} is null then 1 else 0 end) / nullif(count(*), 0) > {join_failure_rate_max}\n\
+    \    then 1 else 0\n  end as violation_count\nfrom {database_name}.{fact_table_name} f\nleft join {database_name}.{dimension_table_name} d\n\
+    \  on {join_condition}\n{optional_recent_partition_filter};\n"
+  evidence:
+  - '生成原因: 表含关联键并具有事实/结果类角色线索。'
+  - 'information_schema.tables: row_count=22065503, data_size=1926706127, update_time=2026-07-09 06:47:51'
+  - 'information_schema.columns: field_count=15'
+  - 'ods_db_cube_tables_config: primary_key=`__id`'
+  - 'std_data_government_meta_table: owner=包彦, unused_days=0, layer_raw=不规范命名'
+  - 'ods_db_cube_partitions_meta: partition_count=1, latest_partition=ud_3418004512502203_n11addlshsjq'
+  todo:
+  - 确认需要关联的维表、关联键和是否需要生效日期条件。
+  - '补齐或确认元数据: fact_table_name, dimension_table_name, dimension_key_fields'

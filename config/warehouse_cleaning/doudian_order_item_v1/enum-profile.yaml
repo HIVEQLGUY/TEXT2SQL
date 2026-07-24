@@ -1,0 +1,68 @@
+profile_version: 1.0.0
+source_table: ods_api_dd_sale_order_list_info_f
+expanded_rows: 90279
+observed:
+  ad_environment_type:
+    live: 29040
+    video: 8440
+  payment_type_code:
+    '1': 9427
+    '2': 12548
+    '4': 32105
+    '5': 292
+    '7': 161
+    '8': 34817
+    '9': 186
+    '13': 298
+    '14': 73
+    '16': 10
+    '19': 258
+    '24': 104
+  order_entry_code:
+    '0': 39
+    '2': 72618
+    '11': 4857
+    '29': 9053
+    '33': 93
+    '40': 3371
+    '42': 248
+  order_scene_code:
+    '0': 39
+    '1': 9
+    '3': 81178
+    '13': 1235
+    '32': 51
+    '35': 186
+    '1371': 82
+    '1775': 6
+    '1967': 2019
+    '3040': 191
+    '482431': 256
+    '507427': 9
+    '6589': 34
+    '8478': 48
+    '8661': 25
+    '8662': 4864
+    '8704': 47
+  order_status_code:
+    '1': 2
+    '2': 17045
+    '3': 43981
+    '4': 12276
+    '5': 16971
+    '105': 4
+  main_status_code:
+    '1': 2
+    '2': 17045
+    '3': 43981
+    '4': 1925
+    '5': 16385
+    '21': 6514
+    '22': 3837
+    '39': 586
+    '105': 4
+notes:
+  - payment_type_codes_7_16_24_are_observed_but_not_defined_by_the_loaded_faq
+  - order_entry_codes_11_33_40_42_need_current_interface_dictionary
+  - order_scene_code_is_not_a_small_business_enum_and_requires_codebook_lookup
+  - numeric_id_and_amount_fields_are_not_enum_candidates

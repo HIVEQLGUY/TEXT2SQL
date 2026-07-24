@@ -1,0 +1,1067 @@
+contract_version: 1.2.0
+source_inventory: json-expansion-inventory.yaml
+policy: every_documented_business_array_becomes_base_or_child_relation
+transport_arrays_not_materialized:
+- shop_order_list
+relations:
+- source_path: shop_order_list[].actual_receive_amount_info.actual_receive_amount_details
+  source_json_path: actual_receive_amount_info.actual_receive_amount_details
+  source_json_column: actual_receive_amount_info
+  chinese_name: 商家收入金额明细项列表
+  physical_table: dwd_json_actual_receive_amount_info_actual_receive_amount_details_df
+  grain: 一个order中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 2
+  scalar_field_paths:
+  - shop_order_list[].actual_receive_amount_info.actual_receive_amount_details[].amount
+  - shop_order_list[].actual_receive_amount_info.actual_receive_amount_details[].type
+  status: contract_generated_review_required
+- source_path: shop_order_list[].address_tag_ui
+  source_json_path: address_tag_ui
+  source_json_column: address_tag_ui
+  chinese_name: 地址标签列表
+  physical_table: dwd_json_address_tag_ui_df
+  grain: 一个order中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 3
+  scalar_field_paths:
+  - shop_order_list[].address_tag_ui[].hover_text
+  - shop_order_list[].address_tag_ui[].key
+  - shop_order_list[].address_tag_ui[].text
+  status: contract_generated_review_required
+- source_path: shop_order_list[].d_car_shop_biz_data.coupon_right
+  source_json_path: d_car_shop_biz_data.coupon_right
+  source_json_column: d_car_shop_biz_data
+  chinese_name: 权益信息
+  physical_table: dwd_json_d_car_shop_biz_data_coupon_right_df
+  grain: 一个order中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 3
+  scalar_field_paths:
+  - shop_order_list[].d_car_shop_biz_data.coupon_right[].quota
+  - shop_order_list[].d_car_shop_biz_data.coupon_right[].right_name
+  - shop_order_list[].d_car_shop_biz_data.coupon_right[].right_type
+  status: contract_generated_review_required
+- source_path: shop_order_list[].extra_promotion_amount_detail
+  source_json_path: extra_promotion_amount_detail
+  source_json_column: extra_promotion_amount_detail
+  chinese_name: 运费等额外优惠信息详情；参考文档：https://bytedance.larkoffice.com/docx/G7UodvZY0ojuF9x7fL7ceVF9nSe
+  physical_table: dwd_json_extra_promotion_amount_detail_df
+  grain: 一个order中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 5
+  scalar_field_paths:
+  - shop_order_list[].extra_promotion_amount_detail[].promotion_desc
+  - shop_order_list[].extra_promotion_amount_detail[].promotion_type
+  - shop_order_list[].extra_promotion_amount_detail[].share_cost.author_cost
+  - shop_order_list[].extra_promotion_amount_detail[].share_cost.platform_cost
+  - shop_order_list[].extra_promotion_amount_detail[].share_cost.shop_cost
+  status: contract_generated_review_required
+- source_path: shop_order_list[].free_interest.free_interest_detail
+  source_json_path: free_interest.free_interest_detail
+  source_json_column: free_interest
+  chinese_name: 抖音月付明细
+  physical_table: dwd_json_free_interest_free_interest_detail_df
+  grain: 一个order中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 4
+  scalar_field_paths:
+  - shop_order_list[].free_interest.free_interest_detail[].platform_clearing_amount
+  - shop_order_list[].free_interest.free_interest_detail[].shop_clearing_amount
+  - shop_order_list[].free_interest.free_interest_detail[].sku_order_id
+  - shop_order_list[].free_interest.free_interest_detail[].trade_type
+  status: contract_generated_review_required
+- source_path: shop_order_list[].logistics_info
+  source_json_path: logistics_info
+  source_json_column: logistics_info
+  chinese_name: 物流信息
+  physical_table: dwd_json_logistics_info_df
+  grain: 一个order中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 14
+  scalar_field_paths:
+  - shop_order_list[].logistics_info[].company
+  - shop_order_list[].logistics_info[].company_name
+  - shop_order_list[].logistics_info[].delivery_id
+  - shop_order_list[].logistics_info[].guarantee_amount
+  - shop_order_list[].logistics_info[].hour_up_pickup_code
+  - shop_order_list[].logistics_info[].reverse_express_info.logistics_code
+  - shop_order_list[].logistics_info[].reverse_express_info.logistics_company
+  - shop_order_list[].logistics_info[].reverse_express_info.logistics_company_name
+  - shop_order_list[].logistics_info[].ship_time
+  - shop_order_list[].logistics_info[].sp_discount_price
+  - shop_order_list[].logistics_info[].sp_price
+  - shop_order_list[].logistics_info[].sp_total_price
+  - shop_order_list[].logistics_info[].tracking_no
+  - shop_order_list[].logistics_info[].transit_merge_type
+  status: contract_generated_review_required
+- source_path: shop_order_list[].logistics_info[].product_info
+  source_json_path: logistics_info[].product_info
+  source_json_column: logistics_info
+  chinese_name: 商品信息
+  physical_table: dwd_json_logistics_info_product_info_df
+  grain: 一个order中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 8
+  scalar_field_paths:
+  - shop_order_list[].logistics_info[].product_info[].outer_sku_id
+  - shop_order_list[].logistics_info[].product_info[].price
+  - shop_order_list[].logistics_info[].product_info[].product_count
+  - shop_order_list[].logistics_info[].product_info[].product_id
+  - shop_order_list[].logistics_info[].product_info[].product_id_str
+  - shop_order_list[].logistics_info[].product_info[].product_name
+  - shop_order_list[].logistics_info[].product_info[].sku_id
+  - shop_order_list[].logistics_info[].product_info[].sku_order_id
+  status: contract_generated_review_required
+- source_path: shop_order_list[].logistics_info[].product_info[].sku_specs
+  source_json_path: logistics_info[].product_info[].sku_specs
+  source_json_column: logistics_info
+  chinese_name: 规格信息
+  physical_table: dwd_json_logistics_info_product_info_sku_specs_df
+  grain: 一个order中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 2
+  scalar_field_paths:
+  - shop_order_list[].logistics_info[].product_info[].sku_specs[].name
+  - shop_order_list[].logistics_info[].product_info[].sku_specs[].value
+  status: contract_generated_review_required
+- source_path: shop_order_list[].order_operate_record_list
+  source_json_path: order_operate_record_list
+  source_json_column: order_operate_record_list
+  chinese_name: 订单操作记录
+  physical_table: dwd_json_order_operate_record_list_df
+  grain: 一个order中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 4
+  scalar_field_paths:
+  - shop_order_list[].order_operate_record_list[].op_code
+  - shop_order_list[].order_operate_record_list[].op_id
+  - shop_order_list[].order_operate_record_list[].operate_time
+  - shop_order_list[].order_operate_record_list[].operator
+  status: contract_generated_review_required
+- source_path: shop_order_list[].order_phase_list
+  source_json_path: order_phase_list
+  source_json_column: order_phase_list
+  chinese_name: 定金预售阶段单
+  physical_table: dwd_json_order_phase_list_df
+  grain: 一个order中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 19
+  scalar_field_paths:
+  - shop_order_list[].order_phase_list[].campaign_id
+  - shop_order_list[].order_phase_list[].channel_payment_no
+  - shop_order_list[].order_phase_list[].current_phase
+  - shop_order_list[].order_phase_list[].current_phase_status_desc
+  - shop_order_list[].order_phase_list[].pay_success
+  - shop_order_list[].order_phase_list[].phase_close_time
+  - shop_order_list[].order_phase_list[].phase_open_time
+  - shop_order_list[].order_phase_list[].phase_order_amount
+  - shop_order_list[].order_phase_list[].phase_order_id
+  - shop_order_list[].order_phase_list[].phase_pay_amount
+  - shop_order_list[].order_phase_list[].phase_pay_time
+  - shop_order_list[].order_phase_list[].phase_pay_type
+  - shop_order_list[].order_phase_list[].phase_payable_price
+  - shop_order_list[].order_phase_list[].phase_post_amount
+  - shop_order_list[].order_phase_list[].phase_promotion_amount
+  - shop_order_list[].order_phase_list[].phase_sum_amount
+  - shop_order_list[].order_phase_list[].sku_order_id
+  - shop_order_list[].order_phase_list[].sku_price
+  - shop_order_list[].order_phase_list[].total_phase
+  status: contract_generated_review_required
+- source_path: shop_order_list[].promise_detail.recommend_logistics_list
+  source_json_path: promise_detail.recommend_logistics_list
+  source_json_column: promise_detail
+  chinese_name: 推荐的物流公司信息
+  physical_table: dwd_json_promise_detail_recommend_logistics_list_df
+  grain: 一个order中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 8
+  scalar_field_paths:
+  - shop_order_list[].promise_detail.recommend_logistics_list[].logistics_collection_end_time
+  - shop_order_list[].promise_detail.recommend_logistics_list[].logistics_company_code
+  - shop_order_list[].promise_detail.recommend_logistics_list[].logistics_company_name
+  - shop_order_list[].promise_detail.recommend_logistics_list[].logistics_company_product_type
+  - shop_order_list[].promise_detail.recommend_logistics_list[].logistics_company_product_type_name
+  - shop_order_list[].promise_detail.recommend_logistics_list[].logistics_latest_receipt_time
+  - shop_order_list[].promise_detail.recommend_logistics_list[].logistics_recommend_end_ship_time
+  - shop_order_list[].promise_detail.recommend_logistics_list[].logistics_recommend_start_ship_time
+  status: contract_generated_review_required
+- source_path: shop_order_list[].promotion_detail.kol_discount_detail.coupon_info
+  source_json_path: promotion_detail.kol_discount_detail.coupon_info
+  source_json_column: promotion_detail
+  chinese_name: 优惠券信息
+  physical_table: dwd_json_promotion_detail_kol_discount_detail_coupon_info_df
+  grain: 一个order中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 1
+  scalar_field_paths:
+  - shop_order_list[].promotion_detail.kol_discount_detail.coupon_info[].extra_map
+  status: contract_generated_review_required
+- source_path: shop_order_list[].promotion_detail.kol_discount_detail.full_discount_info
+  source_json_path: promotion_detail.kol_discount_detail.full_discount_info
+  source_json_column: promotion_detail
+  chinese_name: 优惠活动信息
+  physical_table: dwd_json_promotion_detail_kol_discount_detail_full_discount_info_df
+  grain: 一个order中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 1
+  scalar_field_paths:
+  - shop_order_list[].promotion_detail.kol_discount_detail.full_discount_info[].extra_map
+  status: contract_generated_review_required
+- source_path: shop_order_list[].promotion_detail.kol_discount_detail.redpack_info
+  source_json_path: promotion_detail.kol_discount_detail.redpack_info
+  source_json_column: promotion_detail
+  chinese_name: 红包信息
+  physical_table: dwd_json_promotion_detail_kol_discount_detail_redpack_info_df
+  grain: 一个order中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 1
+  scalar_field_paths:
+  - shop_order_list[].promotion_detail.kol_discount_detail.redpack_info[].extra_map
+  status: contract_generated_review_required
+- source_path: shop_order_list[].promotion_detail.platform_discount_detail.coupon_info
+  source_json_path: promotion_detail.platform_discount_detail.coupon_info
+  source_json_column: promotion_detail
+  chinese_name: 优惠券信息
+  physical_table: dwd_json_promotion_detail_platform_discount_detail_coupon_info_df
+  grain: 一个order中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 1
+  scalar_field_paths:
+  - shop_order_list[].promotion_detail.platform_discount_detail.coupon_info[].extra_map
+  status: contract_generated_review_required
+- source_path: shop_order_list[].promotion_detail.platform_discount_detail.full_discount_info
+  source_json_path: promotion_detail.platform_discount_detail.full_discount_info
+  source_json_column: promotion_detail
+  chinese_name: 优惠活动信息
+  physical_table: dwd_json_promotion_detail_platform_discount_detail_full_discount_info_df
+  grain: 一个order中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 1
+  scalar_field_paths:
+  - shop_order_list[].promotion_detail.platform_discount_detail.full_discount_info[].extra_map
+  status: contract_generated_review_required
+- source_path: shop_order_list[].promotion_detail.platform_discount_detail.redpack_info
+  source_json_path: promotion_detail.platform_discount_detail.redpack_info
+  source_json_column: promotion_detail
+  chinese_name: 红包信息
+  physical_table: dwd_json_promotion_detail_platform_discount_detail_redpack_info_df
+  grain: 一个order中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 1
+  scalar_field_paths:
+  - shop_order_list[].promotion_detail.platform_discount_detail.redpack_info[].extra_map
+  status: contract_generated_review_required
+- source_path: shop_order_list[].promotion_detail.shop_discount_detail.coupon_info
+  source_json_path: promotion_detail.shop_discount_detail.coupon_info
+  source_json_column: promotion_detail
+  chinese_name: 优惠券信息
+  physical_table: dwd_json_promotion_detail_shop_discount_detail_coupon_info_df
+  grain: 一个order中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 1
+  scalar_field_paths:
+  - shop_order_list[].promotion_detail.shop_discount_detail.coupon_info[].extra_map
+  status: contract_generated_review_required
+- source_path: shop_order_list[].promotion_detail.shop_discount_detail.full_discount_info
+  source_json_path: promotion_detail.shop_discount_detail.full_discount_info
+  source_json_column: promotion_detail
+  chinese_name: 优惠活动信息
+  physical_table: dwd_json_promotion_detail_shop_discount_detail_full_discount_info_df
+  grain: 一个order中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 1
+  scalar_field_paths:
+  - shop_order_list[].promotion_detail.shop_discount_detail.full_discount_info[].extra_map
+  status: contract_generated_review_required
+- source_path: shop_order_list[].promotion_detail.shop_discount_detail.redpack_info
+  source_json_path: promotion_detail.shop_discount_detail.redpack_info
+  source_json_column: promotion_detail
+  chinese_name: 红包明细
+  physical_table: dwd_json_promotion_detail_shop_discount_detail_redpack_info_df
+  grain: 一个order中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 1
+  scalar_field_paths:
+  - shop_order_list[].promotion_detail.shop_discount_detail.redpack_info[].extra_map
+  status: contract_generated_review_required
+- source_path: shop_order_list[].recommend_logistics_list
+  source_json_path: recommend_logistics_list
+  source_json_column: recommend_logistics_list
+  chinese_name: 推荐物流商
+  physical_table: dwd_json_recommend_logistics_list_df
+  grain: 一个order中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 8
+  scalar_field_paths:
+  - shop_order_list[].recommend_logistics_list[].logistics_collection_end_time
+  - shop_order_list[].recommend_logistics_list[].logistics_company_code
+  - shop_order_list[].recommend_logistics_list[].logistics_company_name
+  - shop_order_list[].recommend_logistics_list[].logistics_delivery_end_time
+  - shop_order_list[].recommend_logistics_list[].logistics_product_type
+  - shop_order_list[].recommend_logistics_list[].logistics_product_type_name
+  - shop_order_list[].recommend_logistics_list[].logistics_recommend_end_ship_time
+  - shop_order_list[].recommend_logistics_list[].logistics_recommend_start_ship_time
+  status: contract_generated_review_required
+- source_path: shop_order_list[].shop_order_tag_ui
+  source_json_path: shop_order_tag_ui
+  source_json_column: shop_order_tag_ui
+  chinese_name: 店铺单标签
+  physical_table: dwd_json_shop_order_tag_ui_df
+  grain: 一个order中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 4
+  scalar_field_paths:
+  - shop_order_list[].shop_order_tag_ui[].extra
+  - shop_order_list[].shop_order_tag_ui[].help_doc
+  - shop_order_list[].shop_order_tag_ui[].key
+  - shop_order_list[].shop_order_tag_ui[].text
+  status: contract_generated_review_required
+- source_path: shop_order_list[].sku_order_list
+  source_json_path: sku_order_list
+  source_json_column: sku_order_list
+  chinese_name: 订单商品明细
+  physical_table: dwd_trade_order_item_df
+  grain: 一个order中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 198
+  scalar_field_paths:
+  - shop_order_list[].sku_order_list[].actual_receive_amount_info.actual_receive_amount
+  - shop_order_list[].sku_order_list[].ad_env_type
+  - shop_order_list[].sku_order_list[].after_sale_info.after_sale_status
+  - shop_order_list[].sku_order_list[].after_sale_info.after_sale_type
+  - shop_order_list[].sku_order_list[].after_sale_info.refund_status
+  - shop_order_list[].sku_order_list[].app_id
+  - shop_order_list[].sku_order_list[].appointment_ship_time
+  - shop_order_list[].sku_order_list[].auction_info.auction_begin_time
+  - shop_order_list[].sku_order_list[].auction_info.auction_end_time
+  - shop_order_list[].sku_order_list[].auction_info.auction_order_type
+  - shop_order_list[].sku_order_list[].auction_info.related_order_ids
+  - shop_order_list[].sku_order_list[].auction_info.starting_price
+  - shop_order_list[].sku_order_list[].author_cost_amount
+  - shop_order_list[].sku_order_list[].author_id
+  - shop_order_list[].sku_order_list[].author_name
+  - shop_order_list[].sku_order_list[].b_type
+  - shop_order_list[].sku_order_list[].b_type_desc
+  - shop_order_list[].sku_order_list[].biz
+  - shop_order_list[].sku_order_list[].biz_desc
+  - shop_order_list[].sku_order_list[].blind_box_info.blind_box_img
+  - shop_order_list[].sku_order_list[].blind_box_info.blind_box_sub_title
+  - shop_order_list[].sku_order_list[].blind_box_info.blind_box_title
+  - shop_order_list[].sku_order_list[].blind_box_info.is_opened
+  - shop_order_list[].sku_order_list[].blind_box_info.open_time
+  - shop_order_list[].sku_order_list[].bmp_seller_type
+  - shop_order_list[].sku_order_list[].bmp_source
+  - shop_order_list[].sku_order_list[].bmp_vertical_market
+  - shop_order_list[].sku_order_list[].c_biz
+  - shop_order_list[].sku_order_list[].c_biz_desc
+  - shop_order_list[].sku_order_list[].cancel_reason
+  - shop_order_list[].sku_order_list[].card_voucher.valid_days
+  - shop_order_list[].sku_order_list[].card_voucher.valid_end
+  - shop_order_list[].sku_order_list[].card_voucher.valid_start
+  - shop_order_list[].sku_order_list[].channel_payment_no
+  - shop_order_list[].sku_order_list[].cid
+  - shop_order_list[].sku_order_list[].code
+  - shop_order_list[].sku_order_list[].confirm_receipt_time
+  - shop_order_list[].sku_order_list[].content_id
+  - shop_order_list[].sku_order_list[].contract_info.contract_id
+  - shop_order_list[].sku_order_list[].contract_info.encrypt_mobile_no
+  - shop_order_list[].sku_order_list[].create_time
+  - shop_order_list[].sku_order_list[].encrypt_post_receiver
+  - shop_order_list[].sku_order_list[].encrypt_post_tel
+  - shop_order_list[].sku_order_list[].exp_ship_time
+  - shop_order_list[].sku_order_list[].extra_info
+  - shop_order_list[].sku_order_list[].finish_time
+  - shop_order_list[].sku_order_list[].first_cid
+  - shop_order_list[].sku_order_list[].fourth_cid
+  - shop_order_list[].sku_order_list[].free_interest.period
+  - shop_order_list[].sku_order_list[].free_interest.refund_total_free_interest_platform_clearing_amount
+  - shop_order_list[].sku_order_list[].free_interest.refund_total_free_interest_shop_clearing_amount
+  - shop_order_list[].sku_order_list[].free_interest.total_free_interest_platform_clearing_amount
+  - shop_order_list[].sku_order_list[].free_interest.total_free_interest_shop_clearing_amount
+  - shop_order_list[].sku_order_list[].free_interest.trade_amount
+  - shop_order_list[].sku_order_list[].given_exp_ship_time
+  - shop_order_list[].sku_order_list[].given_exp_ship_time_desc
+  - shop_order_list[].sku_order_list[].given_product_activity_info.given_product_activity_type
+  - shop_order_list[].sku_order_list[].given_product_activity_info.given_product_activity_value
+  - shop_order_list[].sku_order_list[].given_product_type
+  - shop_order_list[].sku_order_list[].goods_price
+  - shop_order_list[].sku_order_list[].goods_type
+  - shop_order_list[].sku_order_list[].gov_subsidy_detail.product_tag
+  - shop_order_list[].sku_order_list[].gov_subsidy_detail.supplier_shop_id
+  - shop_order_list[].sku_order_list[].gov_subsidy_detail.supplier_shop_name
+  - shop_order_list[].sku_order_list[].has_tax
+  - shop_order_list[].sku_order_list[].inventory_type
+  - shop_order_list[].sku_order_list[].inventory_type_desc
+  - shop_order_list[].sku_order_list[].is_comment
+  - shop_order_list[].sku_order_list[].item_num
+  - shop_order_list[].sku_order_list[].logistics_receipt_time
+  - shop_order_list[].sku_order_list[].low_price_info.low_price_product.img
+  - shop_order_list[].sku_order_list[].low_price_info.low_price_product.product_id
+  - shop_order_list[].sku_order_list[].low_price_info.low_price_product.product_name
+  - shop_order_list[].sku_order_list[].low_price_info.low_price_product.sku_id
+  - shop_order_list[].sku_order_list[].main_status
+  - shop_order_list[].sku_order_list[].main_status_desc
+  - shop_order_list[].sku_order_list[].mask_post_addr.city.id
+  - shop_order_list[].sku_order_list[].mask_post_addr.city.name
+  - shop_order_list[].sku_order_list[].mask_post_addr.detail
+  - shop_order_list[].sku_order_list[].mask_post_addr.province.id
+  - shop_order_list[].sku_order_list[].mask_post_addr.province.name
+  - shop_order_list[].sku_order_list[].mask_post_addr.street.id
+  - shop_order_list[].sku_order_list[].mask_post_addr.street.name
+  - shop_order_list[].sku_order_list[].mask_post_addr.town.id
+  - shop_order_list[].sku_order_list[].mask_post_addr.town.name
+  - shop_order_list[].sku_order_list[].mask_post_receiver
+  - shop_order_list[].sku_order_list[].mask_post_tel
+  - shop_order_list[].sku_order_list[].master_sku_order_id
+  - shop_order_list[].sku_order_list[].master_sku_order_id_list
+  - shop_order_list[].sku_order_list[].modify_amount
+  - shop_order_list[].sku_order_list[].modify_post_amount
+  - shop_order_list[].sku_order_list[].need_serial_number
+  - shop_order_list[].sku_order_list[].only_platform_cost_amount
+  - shop_order_list[].sku_order_list[].order_amount
+  - shop_order_list[].sku_order_list[].order_expire_time
+  - shop_order_list[].sku_order_list[].order_id
+  - shop_order_list[].sku_order_list[].order_level
+  - shop_order_list[].sku_order_list[].order_status
+  - shop_order_list[].sku_order_list[].order_status_desc
+  - shop_order_list[].sku_order_list[].order_type
+  - shop_order_list[].sku_order_list[].order_type_desc
+  - shop_order_list[].sku_order_list[].origin_amount
+  - shop_order_list[].sku_order_list[].origin_id
+  - shop_order_list[].sku_order_list[].out_product_id
+  - shop_order_list[].sku_order_list[].out_sku_id
+  - shop_order_list[].sku_order_list[].out_warehouse_ids
+  - shop_order_list[].sku_order_list[].packing_charge_amount
+  - shop_order_list[].sku_order_list[].page_id
+  - shop_order_list[].sku_order_list[].parent_order_id
+  - shop_order_list[].sku_order_list[].pay_amount
+  - shop_order_list[].sku_order_list[].pay_time
+  - shop_order_list[].sku_order_list[].pay_type
+  - shop_order_list[].sku_order_list[].platform_cost_amount
+  - shop_order_list[].sku_order_list[].post_addr.city.id
+  - shop_order_list[].sku_order_list[].post_addr.city.name
+  - shop_order_list[].sku_order_list[].post_addr.encrypt_detail
+  - shop_order_list[].sku_order_list[].post_addr.province.id
+  - shop_order_list[].sku_order_list[].post_addr.province.name
+  - shop_order_list[].sku_order_list[].post_addr.street.id
+  - shop_order_list[].sku_order_list[].post_addr.street.name
+  - shop_order_list[].sku_order_list[].post_addr.town.id
+  - shop_order_list[].sku_order_list[].post_addr.town.name
+  - shop_order_list[].sku_order_list[].post_amount
+  - shop_order_list[].sku_order_list[].post_insurance_amount
+  - shop_order_list[].sku_order_list[].pre_sale_type
+  - shop_order_list[].sku_order_list[].product_channel_info.product_channel_id
+  - shop_order_list[].sku_order_list[].product_channel_info.product_channel_type
+  - shop_order_list[].sku_order_list[].product_id
+  - shop_order_list[].sku_order_list[].product_id_str
+  - shop_order_list[].sku_order_list[].product_name
+  - shop_order_list[].sku_order_list[].product_pic
+  - shop_order_list[].sku_order_list[].promise_info
+  - shop_order_list[].sku_order_list[].promotion_amount
+  - shop_order_list[].sku_order_list[].promotion_pay_amount
+  - shop_order_list[].sku_order_list[].promotion_platform_amount
+  - shop_order_list[].sku_order_list[].promotion_redpack_amount
+  - shop_order_list[].sku_order_list[].promotion_redpack_platform_amount
+  - shop_order_list[].sku_order_list[].promotion_redpack_talent_amount
+  - shop_order_list[].sku_order_list[].promotion_shop_amount
+  - shop_order_list[].sku_order_list[].promotion_talent_amount
+  - shop_order_list[].sku_order_list[].quality_check_info.check_fail_msg
+  - shop_order_list[].sku_order_list[].quality_check_info.check_result_code
+  - shop_order_list[].sku_order_list[].quality_check_info.resend_check_time
+  - shop_order_list[].sku_order_list[].quality_inspection_status
+  - shop_order_list[].sku_order_list[].receive_type
+  - shop_order_list[].sku_order_list[].reduce_stock_type
+  - shop_order_list[].sku_order_list[].reduce_stock_type_desc
+  - shop_order_list[].sku_order_list[].relation_sku_order_ids
+  - shop_order_list[].sku_order_list[].room_id
+  - shop_order_list[].sku_order_list[].room_id_str
+  - shop_order_list[].sku_order_list[].second_cid
+  - shop_order_list[].sku_order_list[].send_pay
+  - shop_order_list[].sku_order_list[].send_pay_desc
+  - shop_order_list[].sku_order_list[].serial_no_info.all_lp_shop_code
+  - shop_order_list[].sku_order_list[].serial_no_info.all_lp_task_code
+  - shop_order_list[].sku_order_list[].serial_no_info.available_lp
+  - shop_order_list[].sku_order_list[].serial_no_info.need_photo
+  - shop_order_list[].sku_order_list[].serial_no_info.shipping_need_check_codes
+  - shop_order_list[].sku_order_list[].serial_no_info.sku_bind_69_codes
+  - shop_order_list[].sku_order_list[].shell_order_info.supplier_shop_id
+  - shop_order_list[].sku_order_list[].shell_order_info.supplier_shop_name
+  - shop_order_list[].sku_order_list[].ship_time
+  - shop_order_list[].sku_order_list[].shop_cost_amount
+  - shop_order_list[].sku_order_list[].sku_id
+  - shop_order_list[].sku_order_list[].sku_info.commit_code
+  - shop_order_list[].sku_order_list[].sku_period_purchase_info.deliver_time
+  - shop_order_list[].sku_order_list[].sku_period_purchase_info.deliver_type
+  - shop_order_list[].sku_order_list[].sku_period_purchase_info.period_num
+  - shop_order_list[].sku_order_list[].source_platform
+  - shop_order_list[].sku_order_list[].sp_product_id
+  - shop_order_list[].sku_order_list[].store_info.extra
+  - shop_order_list[].sku_order_list[].store_info.store_address.city.id
+  - shop_order_list[].sku_order_list[].store_info.store_address.city.name
+  - shop_order_list[].sku_order_list[].store_info.store_address.detail
+  - shop_order_list[].sku_order_list[].store_info.store_address.province.id
+  - shop_order_list[].sku_order_list[].store_info.store_address.province.name
+  - shop_order_list[].sku_order_list[].store_info.store_address.street.id
+  - shop_order_list[].sku_order_list[].store_info.store_address.street.name
+  - shop_order_list[].sku_order_list[].store_info.store_address.town.id
+  - shop_order_list[].sku_order_list[].store_info.store_address.town.name
+  - shop_order_list[].sku_order_list[].store_info.store_id
+  - shop_order_list[].sku_order_list[].store_info.store_name
+  - shop_order_list[].sku_order_list[].store_info.store_tag_map
+  - shop_order_list[].sku_order_list[].store_info.store_tel
+  - shop_order_list[].sku_order_list[].sub_b_type
+  - shop_order_list[].sku_order_list[].sub_b_type_desc
+  - shop_order_list[].sku_order_list[].sum_amount
+  - shop_order_list[].sku_order_list[].supplier_id
+  - shop_order_list[].sku_order_list[].tax_amount
+  - shop_order_list[].sku_order_list[].theme_type
+  - shop_order_list[].sku_order_list[].theme_type_desc
+  - shop_order_list[].sku_order_list[].third_cid
+  - shop_order_list[].sku_order_list[].trade_type
+  - shop_order_list[].sku_order_list[].trade_type_desc
+  - shop_order_list[].sku_order_list[].update_time
+  - shop_order_list[].sku_order_list[].video_id
+  - shop_order_list[].sku_order_list[].voucher_deduction_amount
+  - shop_order_list[].sku_order_list[].warehouse_ids
+  status: contract_generated_review_required
+- source_path: shop_order_list[].sku_order_list[].account_list.account_info
+  source_json_path: sku_order_list[].account_list.account_info
+  source_json_column: sku_order_list
+  chinese_name: 账号信息
+  physical_table: dwd_json_sku_order_list_account_list_account_info_df
+  grain: 一个order_item中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  - item_index
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 3
+  scalar_field_paths:
+  - shop_order_list[].sku_order_list[].account_list.account_info[].account_name
+  - shop_order_list[].sku_order_list[].account_list.account_info[].account_type
+  - shop_order_list[].sku_order_list[].account_list.account_info[].encrypt_account_id
+  status: contract_generated_review_required
+- source_path: shop_order_list[].sku_order_list[].actual_receive_amount_info.actual_receive_amount_details
+  source_json_path: sku_order_list[].actual_receive_amount_info.actual_receive_amount_details
+  source_json_column: sku_order_list
+  chinese_name: 商家收入金额明细项
+  physical_table: dwd_json_sku_order_list_actual_receive_amount_info_actual_receive_amount_details_df
+  grain: 一个order_item中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  - item_index
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 2
+  scalar_field_paths:
+  - shop_order_list[].sku_order_list[].actual_receive_amount_info.actual_receive_amount_details[].amount
+  - shop_order_list[].sku_order_list[].actual_receive_amount_info.actual_receive_amount_details[].type
+  status: contract_generated_review_required
+- source_path: shop_order_list[].sku_order_list[].bundle_sku_info
+  source_json_path: sku_order_list[].bundle_sku_info
+  source_json_column: sku_order_list
+  chinese_name: 组套商品子商品列表
+  physical_table: dwd_json_sku_order_list_bundle_sku_info_df
+  grain: 一个order_item中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  - item_index
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 6
+  scalar_field_paths:
+  - shop_order_list[].sku_order_list[].bundle_sku_info[].code
+  - shop_order_list[].sku_order_list[].bundle_sku_info[].item_num
+  - shop_order_list[].sku_order_list[].bundle_sku_info[].picture_url
+  - shop_order_list[].sku_order_list[].bundle_sku_info[].product_id
+  - shop_order_list[].sku_order_list[].bundle_sku_info[].product_name
+  - shop_order_list[].sku_order_list[].bundle_sku_info[].sku_id
+  status: contract_generated_review_required
+- source_path: shop_order_list[].sku_order_list[].custom_properties
+  source_json_path: sku_order_list[].custom_properties
+  source_json_column: sku_order_list
+  chinese_name: 商品属性，适用于外卖或即时零售场景下商品存在属性的情况
+  physical_table: dwd_json_sku_order_list_custom_properties_df
+  grain: 一个order_item中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  - item_index
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 1
+  scalar_field_paths:
+  - shop_order_list[].sku_order_list[].custom_properties[].name
+  status: contract_generated_review_required
+- source_path: shop_order_list[].sku_order_list[].free_interest.free_interest_detail
+  source_json_path: sku_order_list[].free_interest.free_interest_detail
+  source_json_column: sku_order_list
+  chinese_name: 商品单，抖音月付明细信息
+  physical_table: dwd_json_sku_order_list_free_interest_free_interest_detail_df
+  grain: 一个order_item中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  - item_index
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 3
+  scalar_field_paths:
+  - shop_order_list[].sku_order_list[].free_interest.free_interest_detail[].platform_clearing_amount
+  - shop_order_list[].sku_order_list[].free_interest.free_interest_detail[].shop_clearing_amount
+  - shop_order_list[].sku_order_list[].free_interest.free_interest_detail[].trade_type
+  status: contract_generated_review_required
+- source_path: shop_order_list[].sku_order_list[].inventory_list
+  source_json_path: sku_order_list[].inventory_list
+  source_json_column: sku_order_list
+  chinese_name: 仓库信息
+  physical_table: dwd_json_sku_order_list_inventory_list_df
+  grain: 一个order_item中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  - item_index
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 9
+  scalar_field_paths:
+  - shop_order_list[].sku_order_list[].inventory_list[].count
+  - shop_order_list[].sku_order_list[].inventory_list[].group
+  - shop_order_list[].sku_order_list[].inventory_list[].inventory_type
+  - shop_order_list[].sku_order_list[].inventory_list[].inventory_type_desc
+  - shop_order_list[].sku_order_list[].inventory_list[].out_warehouse_id
+  - shop_order_list[].sku_order_list[].inventory_list[].warehouse_id
+  - shop_order_list[].sku_order_list[].inventory_list[].warehouse_name
+  - shop_order_list[].sku_order_list[].inventory_list[].warehouse_sub_type
+  - shop_order_list[].sku_order_list[].inventory_list[].warehouse_type
+  status: contract_generated_review_required
+- source_path: shop_order_list[].sku_order_list[].low_price_info.low_price_product.sku_specs
+  source_json_path: sku_order_list[].low_price_info.low_price_product.sku_specs
+  source_json_column: sku_order_list
+  chinese_name: 聚合商品规格
+  physical_table: dwd_json_sku_order_list_low_price_info_low_price_product_sku_specs_df
+  grain: 一个order_item中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  - item_index
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 2
+  scalar_field_paths:
+  - shop_order_list[].sku_order_list[].low_price_info.low_price_product.sku_specs[].name
+  - shop_order_list[].sku_order_list[].low_price_info.low_price_product.sku_specs[].value
+  status: contract_generated_review_required
+- source_path: shop_order_list[].sku_order_list[].promotion_detail.kol_discount_detail.coupon_info
+  source_json_path: sku_order_list[].promotion_detail.kol_discount_detail.coupon_info
+  source_json_column: sku_order_list
+  chinese_name: 优惠券信息
+  physical_table: dwd_json_sku_order_list_promotion_detail_kol_discount_detail_coupon_info_df
+  grain: 一个order_item中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  - item_index
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 1
+  scalar_field_paths:
+  - shop_order_list[].sku_order_list[].promotion_detail.kol_discount_detail.coupon_info[].extra_map
+  status: contract_generated_review_required
+- source_path: shop_order_list[].sku_order_list[].promotion_detail.kol_discount_detail.full_discount_info
+  source_json_path: sku_order_list[].promotion_detail.kol_discount_detail.full_discount_info
+  source_json_column: sku_order_list
+  chinese_name: 优惠活动信息
+  physical_table: dwd_json_sku_order_list_promotion_detail_kol_discount_detail_full_discount_info_df
+  grain: 一个order_item中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  - item_index
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 1
+  scalar_field_paths:
+  - shop_order_list[].sku_order_list[].promotion_detail.kol_discount_detail.full_discount_info[].extra_map
+  status: contract_generated_review_required
+- source_path: shop_order_list[].sku_order_list[].promotion_detail.kol_discount_detail.redpack_info
+  source_json_path: sku_order_list[].promotion_detail.kol_discount_detail.redpack_info
+  source_json_column: sku_order_list
+  chinese_name: 红包信息
+  physical_table: dwd_json_sku_order_list_promotion_detail_kol_discount_detail_redpack_info_df
+  grain: 一个order_item中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  - item_index
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 1
+  scalar_field_paths:
+  - shop_order_list[].sku_order_list[].promotion_detail.kol_discount_detail.redpack_info[].extra_map
+  status: contract_generated_review_required
+- source_path: shop_order_list[].sku_order_list[].promotion_detail.platform_discount_detail.coupon_info
+  source_json_path: sku_order_list[].promotion_detail.platform_discount_detail.coupon_info
+  source_json_column: sku_order_list
+  chinese_name: 优惠券信息
+  physical_table: dwd_json_sku_order_list_promotion_detail_platform_discount_detail_coupon_info_df
+  grain: 一个order_item中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  - item_index
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 1
+  scalar_field_paths:
+  - shop_order_list[].sku_order_list[].promotion_detail.platform_discount_detail.coupon_info[].extra_map
+  status: contract_generated_review_required
+- source_path: shop_order_list[].sku_order_list[].promotion_detail.platform_discount_detail.full_discount_info
+  source_json_path: sku_order_list[].promotion_detail.platform_discount_detail.full_discount_info
+  source_json_column: sku_order_list
+  chinese_name: 优惠活动信息
+  physical_table: dwd_json_sku_order_list_promotion_detail_platform_discount_detail_full_discount_info_df
+  grain: 一个order_item中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  - item_index
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 1
+  scalar_field_paths:
+  - shop_order_list[].sku_order_list[].promotion_detail.platform_discount_detail.full_discount_info[].extra_map
+  status: contract_generated_review_required
+- source_path: shop_order_list[].sku_order_list[].promotion_detail.platform_discount_detail.redpack_info
+  source_json_path: sku_order_list[].promotion_detail.platform_discount_detail.redpack_info
+  source_json_column: sku_order_list
+  chinese_name: 红包明细
+  physical_table: dwd_json_sku_order_list_promotion_detail_platform_discount_detail_redpack_info_df
+  grain: 一个order_item中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  - item_index
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 1
+  scalar_field_paths:
+  - shop_order_list[].sku_order_list[].promotion_detail.platform_discount_detail.redpack_info[].extra_map
+  status: contract_generated_review_required
+- source_path: shop_order_list[].sku_order_list[].promotion_detail.shop_discount_detail.coupon_info
+  source_json_path: sku_order_list[].promotion_detail.shop_discount_detail.coupon_info
+  source_json_column: sku_order_list
+  chinese_name: 优惠券信息
+  physical_table: dwd_json_sku_order_list_promotion_detail_shop_discount_detail_coupon_info_df
+  grain: 一个order_item中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  - item_index
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 1
+  scalar_field_paths:
+  - shop_order_list[].sku_order_list[].promotion_detail.shop_discount_detail.coupon_info[].extra_map
+  status: contract_generated_review_required
+- source_path: shop_order_list[].sku_order_list[].promotion_detail.shop_discount_detail.full_discount_info
+  source_json_path: sku_order_list[].promotion_detail.shop_discount_detail.full_discount_info
+  source_json_column: sku_order_list
+  chinese_name: 优惠活动信息
+  physical_table: dwd_json_sku_order_list_promotion_detail_shop_discount_detail_full_discount_info_df
+  grain: 一个order_item中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  - item_index
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 1
+  scalar_field_paths:
+  - shop_order_list[].sku_order_list[].promotion_detail.shop_discount_detail.full_discount_info[].extra_map
+  status: contract_generated_review_required
+- source_path: shop_order_list[].sku_order_list[].promotion_detail.shop_discount_detail.redpack_info
+  source_json_path: sku_order_list[].promotion_detail.shop_discount_detail.redpack_info
+  source_json_column: sku_order_list
+  chinese_name: 红包明细
+  physical_table: dwd_json_sku_order_list_promotion_detail_shop_discount_detail_redpack_info_df
+  grain: 一个order_item中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  - item_index
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 1
+  scalar_field_paths:
+  - shop_order_list[].sku_order_list[].promotion_detail.shop_discount_detail.redpack_info[].extra_map
+  status: contract_generated_review_required
+- source_path: shop_order_list[].sku_order_list[].promotion_pay_amount_details
+  source_json_path: sku_order_list[].promotion_pay_amount_details
+  source_json_column: sku_order_list
+  chinese_name: 支付优惠详情，与promotion_pay_amount对应
+  physical_table: dwd_json_sku_order_list_promotion_pay_amount_details_df
+  grain: 一个order_item中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  - item_index
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 5
+  scalar_field_paths:
+  - shop_order_list[].sku_order_list[].promotion_pay_amount_details[].pay_promotion_type
+  - shop_order_list[].sku_order_list[].promotion_pay_amount_details[].share_cost.extra_map
+  - shop_order_list[].sku_order_list[].promotion_pay_amount_details[].share_cost.platform_cost
+  - shop_order_list[].sku_order_list[].promotion_pay_amount_details[].share_cost.shop_cost
+  - shop_order_list[].sku_order_list[].promotion_pay_amount_details[].share_cost.shop_interest_cost
+  status: contract_generated_review_required
+- source_path: shop_order_list[].sku_order_list[].serial_no_info.serial_no_list
+  source_json_path: sku_order_list[].serial_no_info.serial_no_list
+  source_json_column: sku_order_list
+  chinese_name: 绑定/发货操作回传/快递回传的序列号信息。
+  physical_table: dwd_json_sku_order_list_serial_no_info_serial_no_list_df
+  grain: 一个order_item中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  - item_index
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 1
+  scalar_field_paths:
+  - shop_order_list[].sku_order_list[].serial_no_info.serial_no_list[].stage
+  status: contract_generated_review_required
+- source_path: shop_order_list[].sku_order_list[].serial_no_info.serial_no_list[].serial_no_list
+  source_json_path: sku_order_list[].serial_no_info.serial_no_list[].serial_no_list
+  source_json_column: sku_order_list
+  chinese_name: 每个阶段关联的SN/69/IMEI码信息。
+  physical_table: dwd_json_sku_order_list_serial_no_info_serial_no_list_serial_no_list_df
+  grain: 一个order_item中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  - item_index
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 2
+  scalar_field_paths:
+  - shop_order_list[].sku_order_list[].serial_no_info.serial_no_list[].serial_no_list[].key
+  - shop_order_list[].sku_order_list[].serial_no_info.serial_no_list[].serial_no_list[].value
+  status: contract_generated_review_required
+- source_path: shop_order_list[].sku_order_list[].sku_cargo_future_stock.supply_sku_snapshots
+  source_json_path: sku_order_list[].sku_cargo_future_stock.supply_sku_snapshots
+  source_json_column: sku_order_list
+  chinese_name: 库存扣减信息
+  physical_table: dwd_json_sku_order_list_sku_cargo_future_stock_supply_sku_snapshots_df
+  grain: 一个order_item中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  - item_index
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 1
+  scalar_field_paths:
+  - shop_order_list[].sku_order_list[].sku_cargo_future_stock.supply_sku_snapshots[].inventory_type
+  status: contract_generated_review_required
+- source_path: shop_order_list[].sku_order_list[].sku_cargo_future_stock.supply_sku_snapshots[].batch_detail
+  source_json_path: sku_order_list[].sku_cargo_future_stock.supply_sku_snapshots[].batch_detail
+  source_json_column: sku_order_list
+  chinese_name: 库存扣减信息列表
+  physical_table: dwd_json_sku_order_list_sku_cargo_future_stock_supply_sku_snapshots_batch_detail_df
+  grain: 一个order_item中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  - item_index
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 5
+  scalar_field_paths:
+  - shop_order_list[].sku_order_list[].sku_cargo_future_stock.supply_sku_snapshots[].batch_detail[].arrive_time
+  - shop_order_list[].sku_order_list[].sku_cargo_future_stock.supply_sku_snapshots[].batch_detail[].arrive_time_type
+  - shop_order_list[].sku_order_list[].sku_cargo_future_stock.supply_sku_snapshots[].batch_detail[].batch_id
+  - shop_order_list[].sku_order_list[].sku_cargo_future_stock.supply_sku_snapshots[].batch_detail[].inventory_type
+  - shop_order_list[].sku_order_list[].sku_cargo_future_stock.supply_sku_snapshots[].batch_detail[].stock_num
+  status: contract_generated_review_required
+- source_path: shop_order_list[].sku_order_list[].sku_customization_info
+  source_json_path: sku_order_list[].sku_customization_info
+  source_json_column: sku_order_list
+  chinese_name: 定制商品信息
+  physical_table: dwd_json_sku_order_list_sku_customization_info_df
+  grain: 一个order_item中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  - item_index
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 1
+  scalar_field_paths:
+  - shop_order_list[].sku_order_list[].sku_customization_info[].detail.extra
+  status: contract_generated_review_required
+- source_path: shop_order_list[].sku_order_list[].sku_customization_info[].detail.pic
+  source_json_path: sku_order_list[].sku_customization_info[].detail.pic
+  source_json_column: sku_order_list
+  chinese_name: 定制图片信息
+  physical_table: dwd_json_sku_order_list_sku_customization_info_detail_pic_df
+  grain: 一个order_item中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  - item_index
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 2
+  scalar_field_paths:
+  - shop_order_list[].sku_order_list[].sku_customization_info[].detail.pic[].id
+  - shop_order_list[].sku_order_list[].sku_customization_info[].detail.pic[].url
+  status: contract_generated_review_required
+- source_path: shop_order_list[].sku_order_list[].sku_customization_info[].detail.text
+  source_json_path: sku_order_list[].sku_customization_info[].detail.text
+  source_json_column: sku_order_list
+  chinese_name: 定制文案信息
+  physical_table: dwd_json_sku_order_list_sku_customization_info_detail_text_df
+  grain: 一个order_item中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  - item_index
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 3
+  scalar_field_paths:
+  - shop_order_list[].sku_order_list[].sku_customization_info[].detail.text[].content
+  - shop_order_list[].sku_order_list[].sku_customization_info[].detail.text[].id
+  - shop_order_list[].sku_order_list[].sku_customization_info[].detail.text[].key
+  status: contract_generated_review_required
+- source_path: shop_order_list[].sku_order_list[].sku_order_tag_ui
+  source_json_path: sku_order_list[].sku_order_tag_ui
+  source_json_column: sku_order_list
+  chinese_name: 商品单标签
+  physical_table: dwd_json_sku_order_list_sku_order_tag_ui_df
+  grain: 一个order_item中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  - item_index
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 7
+  scalar_field_paths:
+  - shop_order_list[].sku_order_list[].sku_order_tag_ui[].extra
+  - shop_order_list[].sku_order_list[].sku_order_tag_ui[].help_doc
+  - shop_order_list[].sku_order_list[].sku_order_tag_ui[].hover_text
+  - shop_order_list[].sku_order_list[].sku_order_tag_ui[].key
+  - shop_order_list[].sku_order_list[].sku_order_tag_ui[].sort
+  - shop_order_list[].sku_order_list[].sku_order_tag_ui[].tag_type
+  - shop_order_list[].sku_order_list[].sku_order_tag_ui[].text
+  status: contract_generated_review_required
+- source_path: shop_order_list[].sku_order_list[].sku_yun_warehouse_info
+  source_json_path: sku_order_list[].sku_yun_warehouse_info
+  source_json_column: sku_order_list
+  chinese_name: sku云仓择仓信息（云仓业务使用，非商品区域仓功能使用）
+  physical_table: dwd_json_sku_order_list_sku_yun_warehouse_info_df
+  grain: 一个order_item中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  - item_index
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 7
+  scalar_field_paths:
+  - shop_order_list[].sku_order_list[].sku_yun_warehouse_info[].current_business_stage
+  - shop_order_list[].sku_order_list[].sku_yun_warehouse_info[].pre_allocated_yun_warehouse_info.yun_warehouse_code
+  - shop_order_list[].sku_order_list[].sku_yun_warehouse_info[].pre_allocated_yun_warehouse_info.yun_warehouse_name
+  - shop_order_list[].sku_order_list[].sku_yun_warehouse_info[].real_yun_warehouse_info.yun_warehouse_code
+  - shop_order_list[].sku_order_list[].sku_yun_warehouse_info[].real_yun_warehouse_info.yun_warehouse_name
+  - shop_order_list[].sku_order_list[].sku_yun_warehouse_info[].sku_count
+  - shop_order_list[].sku_order_list[].sku_yun_warehouse_info[].sku_id
+  status: contract_generated_review_required
+- source_path: shop_order_list[].sku_order_list[].spec
+  source_json_path: sku_order_list[].spec
+  source_json_column: sku_order_list
+  chinese_name: 规格信息
+  physical_table: dwd_json_sku_order_list_spec_df
+  grain: 一个order_item中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  - item_index
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 2
+  scalar_field_paths:
+  - shop_order_list[].sku_order_list[].spec[].name
+  - shop_order_list[].sku_order_list[].spec[].value
+  status: contract_generated_review_required
+- source_path: shop_order_list[].user_tag_ui
+  source_json_path: user_tag_ui
+  source_json_column: user_tag_ui
+  chinese_name: 用户特征标签
+  physical_table: dwd_json_user_tag_ui_df
+  grain: 一个order中的一个JSON数组元素
+  parent_key:
+  - shop_order_id
+  array_index_field: json_item_index
+  raw_json_retained: false
+  scalar_field_count: 2
+  scalar_field_paths:
+  - shop_order_list[].user_tag_ui[].key
+  - shop_order_list[].user_tag_ui[].text
+  status: contract_generated_review_required
+summary:
+  inventory_array_count: 52
+  transport_array_count: 1
+  business_relation_count: 51
+  order_grain_relations: 24
+  order_item_grain_relations: 27
+  all_relations_raw_json_retained: false

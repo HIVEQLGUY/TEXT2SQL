@@ -1,0 +1,995 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Youmei ClickHouse 数仓架构展示 2026-07-23</title>
+</head>
+<body>
+<section id="youmei-warehouse-architecture">
+  <style>
+    #youmei-warehouse-architecture {
+      --bg: #f7f8f6;
+      --ink: #17201c;
+      --muted: #66736d;
+      --line: #d9ded8;
+      --panel: #ffffff;
+      --panel-2: #eef2ef;
+      --accent: #176b5b;
+      --accent-soft: #dbece7;
+      --warn: #a56710;
+      --warn-soft: #f7ebd8;
+      --bad: #a64242;
+      --bad-soft: #f5dddd;
+      --ok: #2e735a;
+      --ok-soft: #dceee6;
+      --off: #6f7672;
+      --off-soft: #e6e8e6;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", Arial, sans-serif;
+      padding: 28px;
+      line-height: 1.55;
+    }
+
+    #youmei-warehouse-architecture * {
+      box-sizing: border-box;
+    }
+
+    #youmei-warehouse-architecture .wrap {
+      max-width: 1480px;
+      margin: 0 auto;
+    }
+
+    #youmei-warehouse-architecture header {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(320px, .6fr);
+      gap: 18px;
+      align-items: stretch;
+      margin-bottom: 20px;
+    }
+
+    #youmei-warehouse-architecture .hero,
+    #youmei-warehouse-architecture .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    #youmei-warehouse-architecture .hero {
+      padding: 26px;
+    }
+
+    #youmei-warehouse-architecture .eyebrow {
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    #youmei-warehouse-architecture h1 {
+      margin: 0 0 12px;
+      font-size: clamp(28px, 4vw, 48px);
+      line-height: 1.12;
+      letter-spacing: 0;
+    }
+
+    #youmei-warehouse-architecture h2 {
+      margin: 0 0 14px;
+      font-size: 22px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    #youmei-warehouse-architecture h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+      line-height: 1.3;
+      letter-spacing: 0;
+    }
+
+    #youmei-warehouse-architecture p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    #youmei-warehouse-architecture code {
+      color: var(--ink);
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      padding: 1px 5px;
+      font-family: "Cascadia Code", Consolas, monospace;
+      font-size: .92em;
+    }
+
+    #youmei-warehouse-architecture .quick {
+      padding: 18px;
+      display: grid;
+      gap: 12px;
+    }
+
+    #youmei-warehouse-architecture .quick-row {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 12px;
+      align-items: start;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 10px;
+    }
+
+    #youmei-warehouse-architecture .quick-row:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    #youmei-warehouse-architecture .label {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    #youmei-warehouse-architecture .value {
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    #youmei-warehouse-architecture .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 3px 9px;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+      border: 1px solid transparent;
+    }
+
+    #youmei-warehouse-architecture .status::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    #youmei-warehouse-architecture .done {
+      color: var(--ok);
+      background: var(--ok-soft);
+      border-color: #b9ddce;
+    }
+
+    #youmei-warehouse-architecture .partial {
+      color: var(--warn);
+      background: var(--warn-soft);
+      border-color: #edcf9c;
+    }
+
+    #youmei-warehouse-architecture .blocked {
+      color: var(--bad);
+      background: var(--bad-soft);
+      border-color: #e2b7b7;
+    }
+
+    #youmei-warehouse-architecture .planned {
+      color: var(--accent);
+      background: var(--accent-soft);
+      border-color: #b8d8d1;
+    }
+
+    #youmei-warehouse-architecture .offline {
+      color: var(--off);
+      background: var(--off-soft);
+      border-color: #d1d5d1;
+    }
+
+    #youmei-warehouse-architecture .grid {
+      display: grid;
+      gap: 16px;
+      margin: 16px 0;
+    }
+
+    #youmei-warehouse-architecture .grid.two {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #youmei-warehouse-architecture .grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    #youmei-warehouse-architecture .panel {
+      padding: 18px;
+      min-width: 0;
+    }
+
+    #youmei-warehouse-architecture .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    #youmei-warehouse-architecture .lane {
+      display: grid;
+      grid-template-columns: 170px minmax(0, 1fr);
+      gap: 12px;
+      border-top: 1px solid var(--line);
+      padding: 14px 0;
+    }
+
+    #youmei-warehouse-architecture .lane:first-of-type {
+      border-top: 0;
+    }
+
+    #youmei-warehouse-architecture .lane-title {
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    #youmei-warehouse-architecture .flow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    #youmei-warehouse-architecture .node {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 8px;
+      padding: 10px 11px;
+      min-width: 132px;
+      max-width: 220px;
+    }
+
+    #youmei-warehouse-architecture .node strong {
+      display: block;
+      font-size: 14px;
+      line-height: 1.25;
+      margin-bottom: 4px;
+    }
+
+    #youmei-warehouse-architecture .node small {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    #youmei-warehouse-architecture .arrow {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    #youmei-warehouse-architecture .matrix {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    #youmei-warehouse-architecture .matrix th,
+    #youmei-warehouse-architecture .matrix td {
+      border-top: 1px solid var(--line);
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    #youmei-warehouse-architecture .matrix th {
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 13px;
+      background: var(--panel-2);
+    }
+
+    #youmei-warehouse-architecture .table-wrap {
+      overflow-x: auto;
+    }
+
+    #youmei-warehouse-architecture .stack {
+      display: grid;
+      gap: 10px;
+    }
+
+    #youmei-warehouse-architecture .card-line {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 10px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    #youmei-warehouse-architecture .card-line:first-child {
+      border-top: 0;
+    }
+
+    #youmei-warehouse-architecture .mini {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 2px;
+    }
+
+    #youmei-warehouse-architecture .timeline {
+      display: grid;
+      gap: 10px;
+      position: relative;
+    }
+
+    #youmei-warehouse-architecture .step {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 10px;
+      align-items: start;
+    }
+
+    #youmei-warehouse-architecture .num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      background: var(--accent);
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    #youmei-warehouse-architecture .callout {
+      border-left: 4px solid var(--accent);
+      background: var(--accent-soft);
+      padding: 12px 14px;
+      border-radius: 0 8px 8px 0;
+      color: var(--ink);
+    }
+
+    #youmei-warehouse-architecture .split {
+      display: grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 16px;
+    }
+
+    #youmei-warehouse-architecture .phase-map {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(150px, 1fr));
+      gap: 10px;
+    }
+
+    #youmei-warehouse-architecture .phase {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      min-height: 142px;
+      display: grid;
+      gap: 8px;
+      align-content: start;
+    }
+
+    #youmei-warehouse-architecture .phase strong {
+      font-size: 15px;
+    }
+
+    #youmei-warehouse-architecture .phase ul {
+      margin: 0;
+      padding-left: 17px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    #youmei-warehouse-architecture .footer-note {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 980px) {
+      #youmei-warehouse-architecture header,
+      #youmei-warehouse-architecture .grid.two,
+      #youmei-warehouse-architecture .grid.three,
+      #youmei-warehouse-architecture .split {
+        grid-template-columns: 1fr;
+      }
+
+      #youmei-warehouse-architecture .phase-map {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 620px) {
+      #youmei-warehouse-architecture {
+        padding: 14px;
+      }
+
+      #youmei-warehouse-architecture .quick-row,
+      #youmei-warehouse-architecture .lane,
+      #youmei-warehouse-architecture .card-line {
+        grid-template-columns: 1fr;
+      }
+
+      #youmei-warehouse-architecture .phase-map {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+
+  <div class="wrap">
+    <header>
+      <div class="hero">
+        <div class="eyebrow">Youmei ClickHouse 数仓架构展示，状态日期 2026-07-23</div>
+        <h1>从预策接入到 ClickHouse 建模验证，再到 Git 可重建发布治理</h1>
+        <p>本页展示当前数仓架构、抖店订单主题进度、各平台职责、数据流、业务流、元数据回流和版本发布回滚路径。状态按“已完成、部分完成、未运行、失败、已下线、阻塞待确认、待落地”区分。</p>
+        <div class="legend">
+          <span class="status done">已完成</span>
+          <span class="status partial">部分完成</span>
+          <span class="status blocked">阻塞待确认</span>
+          <span class="status planned">待落地</span>
+          <span class="status offline">已下线或保留未启用</span>
+        </div>
+      </div>
+
+      <aside class="quick panel">
+        <div class="quick-row">
+          <div class="label">当前主链路</div>
+          <div class="value">预策数据接入层 → ClickHouse → 数仓建模验证</div>
+        </div>
+        <div class="quick-row">
+          <div class="label">当前主题</div>
+          <div class="value">抖店经营分析，先推进订单商品明细 DWD</div>
+        </div>
+        <div class="quick-row">
+          <div class="label">当前引擎</div>
+          <div class="value">ClickHouse 测试库(<code>youmei_sandbox</code>)</div>
+        </div>
+        <div class="quick-row">
+          <div class="label">正式 DWD</div>
+          <div><span class="status blocked">未创建，字段类型契约阻塞</span></div>
+        </div>
+        <div class="quick-row">
+          <div class="label">版本管理</div>
+          <div><span class="status planned">Git 可重建方案已讨论，尚未落地</span></div>
+        </div>
+      </aside>
+    </header>
+
+    <section class="panel">
+      <h2>一、总架构和职责边界</h2>
+      <div class="lane">
+        <div>
+          <div class="lane-title">数据接入业务流</div>
+          <div class="mini">源系统到 ODS</div>
+        </div>
+        <div class="flow">
+          <div class="node">
+            <strong>抖店 API 源系统</strong>
+            <small>接口文档作为字段权威来源</small>
+          </div>
+          <span class="arrow">→</span>
+          <div class="node">
+            <strong>预策数据接入层</strong>
+            <small>未来统一接入入口，当前作为默认方向</small>
+          </div>
+          <span class="arrow">→</span>
+          <div class="node">
+            <strong>ClickHouse 原始数据层(ods)</strong>
+            <small><code>ods_api_dd_sale_order_list_info_f</code></small>
+          </div>
+          <span class="status done">源表已确认</span>
+        </div>
+      </div>
+
+      <div class="lane">
+        <div>
+          <div class="lane-title">数仓建模数据流</div>
+          <div class="mini">ODS 到 DWD/DWS/ADS</div>
+        </div>
+        <div class="flow">
+          <div class="node">
+            <strong>清洗契约</strong>
+            <small>中文名、物理名、类型、金额、枚举、JSON 展开</small>
+          </div>
+          <span class="arrow">→</span>
+          <div class="node">
+            <strong>ClickHouse 影子表</strong>
+            <small><code>dwd_trade_order_item_shadow_1_2_0</code></small>
+          </div>
+          <span class="arrow">→</span>
+          <div class="node">
+            <strong>明细标准层(dwd)</strong>
+            <small>订单主单、订单商品明细、数组子关系</small>
+          </div>
+          <span class="arrow">→</span>
+          <div class="node">
+            <strong>汇总服务层(dws)</strong>
+            <small>商品、达人、直播间、店铺等主题汇总</small>
+          </div>
+          <span class="arrow">→</span>
+          <div class="node">
+            <strong>应用数据层(ads)</strong>
+            <small>经营分析看板和专题应用数据集</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="lane">
+        <div>
+          <div class="lane-title">治理回流</div>
+          <div class="mini">元数据、质量和发布状态</div>
+        </div>
+        <div class="flow">
+          <div class="node">
+            <strong>质量门禁</strong>
+            <small>唯一性、完整性、合法性、对账、异常统计</small>
+          </div>
+          <span class="arrow">→</span>
+          <div class="node">
+            <strong>OpenMetadata</strong>
+            <small>表、字段、注释、标签、枚举、血缘、契约版本</small>
+          </div>
+          <span class="arrow">→</span>
+          <div class="node">
+            <strong>发布登记</strong>
+            <small>Git 版本、运行批次、生效指针、回滚记录</small>
+          </div>
+          <span class="arrow">↺</span>
+          <div class="node">
+            <strong>建模 Skill</strong>
+            <small>将沉淀规则反向约束下一次建模</small>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="grid two">
+      <section class="panel">
+        <h2>二、抖店订单主题当前进度</h2>
+        <div class="stack">
+          <div class="card-line">
+            <div>
+              <strong>销售订单列表信息表(抖店API)(<code>ods_api_dd_sale_order_list_info_f</code>)</strong>
+              <div class="mini">订单主单层，52,431 行，店铺订单号 52,431 个，店铺 5 个，日分区 2026-07-21。</div>
+            </div>
+            <span class="status done">已确认</span>
+          </div>
+          <div class="card-line">
+            <div>
+              <strong>订单商品明细展开</strong>
+              <div class="mini">订单详情信息(<code>sku_order_list</code>) 展开后 90,279 行，粒度为店铺订单号 + 商品明细数组序号。</div>
+            </div>
+            <span class="status done">已画像</span>
+          </div>
+          <div class="card-line">
+            <div>
+              <strong>数据清洗契约版本 1.2.0</strong>
+              <div class="mini">商品支付金额(<code>pay_amount</code>) 分转元，商品原价(<code>goods_price</code>) 按元，金额保留两位小数。</div>
+            </div>
+            <span class="status partial">已固化，待继续审批</span>
+          </div>
+          <div class="card-line">
+            <div>
+              <strong>抖店订单商品明细影子表(<code>dwd_trade_order_item_shadow_1_2_0</code>)</strong>
+              <div class="mini">90,279 行，技术主键唯一，商品ID、SKU、数量、金额解析异常为 0，原始 JSON 列数为 0。</div>
+            </div>
+            <span class="status done">影子验证通过</span>
+          </div>
+          <div class="card-line">
+            <div>
+              <strong>抖店订单商品明细正式表(<code>dwd_trade_order_item_df</code>)</strong>
+              <div class="mini">502 个标量字段仍需完成最终物理类型、金额单位、时间语义和枚举策略。</div>
+            </div>
+            <span class="status blocked">未创建</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>三、当前字段和契约状态</h2>
+        <div class="table-wrap">
+          <table class="matrix">
+            <thead>
+              <tr>
+                <th>对象</th>
+                <th>数量或结论</th>
+                <th>状态</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>接口字段路径</td>
+                <td>622 个路径已固化到 JSON 展开清单</td>
+                <td><span class="status done">已完成</span></td>
+              </tr>
+              <tr>
+                <td>标量字段</td>
+                <td>502 个标量字段全部纳入字段契约</td>
+                <td><span class="status partial">待类型终审</span></td>
+              </tr>
+              <tr>
+                <td>业务数组关系</td>
+                <td>51 个数组关系纳入关系契约</td>
+                <td><span class="status partial">待正式建表</span></td>
+              </tr>
+              <tr>
+                <td>候选类型判断</td>
+                <td>243 个可按接口逻辑类型处理，218 个需语义确认，41 个阻断</td>
+                <td><span class="status blocked">存在阻断</span></td>
+              </tr>
+              <tr>
+                <td>枚举字典</td>
+                <td>OpenMetadata 中枚举版本为 pending，未知编码保留并标记</td>
+                <td><span class="status partial">未正式审批</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <section class="panel">
+      <h2>四、ClickHouse 分层和环境状态</h2>
+      <div class="phase-map">
+        <div class="phase">
+          <strong>原始数据层(ods)</strong>
+          <span class="status done">已运行</span>
+          <ul>
+            <li>保存源形态和接口落地结果</li>
+            <li>销售订单列表信息表已确认</li>
+            <li>DU 表和临时建模表已删除</li>
+          </ul>
+        </div>
+        <div class="phase">
+          <strong>明细标准层(dwd)</strong>
+          <span class="status blocked">正式未建</span>
+          <ul>
+            <li>影子表已完成</li>
+            <li>正式表需字段类型契约审批</li>
+            <li>不保留原始 JSON</li>
+          </ul>
+        </div>
+        <div class="phase">
+          <strong>汇总服务层(dws)</strong>
+          <span class="status planned">待设计</span>
+          <ul>
+            <li>商品、达人、直播间、店铺主题</li>
+            <li>费用需先完成归因或分摊</li>
+            <li>不能把高层费用复制到低层粒度</li>
+          </ul>
+        </div>
+        <div class="phase">
+          <strong>应用数据层(ads)</strong>
+          <span class="status planned">待设计</span>
+          <ul>
+            <li>经营分析看板数据集</li>
+            <li>可基于最细可加数据集</li>
+            <li>面向 Superset 或其他 BI</li>
+          </ul>
+        </div>
+        <div class="phase">
+          <strong>构建临时层(staging)</strong>
+          <span class="status planned">待规范</span>
+          <ul>
+            <li>用于重建、灰度、质量验证</li>
+            <li>发布完成后短期保留</li>
+            <li>避免长期堆积影子表</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <div class="grid two">
+      <section class="panel">
+        <h2>五、Git 可重建型版本管理方案</h2>
+        <div class="callout">
+          默认不永久保留多份正式物理表。Git 保存完整可重建发布包，ClickHouse 保留当前生效结果和必要短期版本，OpenMetadata 记录治理状态。
+        </div>
+        <div class="timeline" style="margin-top:14px;">
+          <div class="step">
+            <span class="num">1</span>
+            <div>
+              <h3>规则入库</h3>
+              <p>模型 SQL、DDL、迁移、测试、清洗契约、元数据契约、血缘和发布清单进入 Git。</p>
+            </div>
+          </div>
+          <div class="step">
+            <span class="num">2</span>
+            <div>
+              <h3>影子构建</h3>
+              <p>按 Git 中的发布包在 ClickHouse 构建影子表或 staging 表，执行质量门禁。</p>
+            </div>
+          </div>
+          <div class="step">
+            <span class="num">3</span>
+            <div>
+              <h3>正式切换</h3>
+              <p>质量通过后切换当前视图或生效指针，记录发布版本、运行批次和源分区边界。</p>
+            </div>
+          </div>
+          <div class="step">
+            <span class="num">4</span>
+            <div>
+              <h3>治理同步</h3>
+              <p>OpenMetadata 回写表、字段、枚举、标签、血缘、质量状态和当前生效版本。</p>
+            </div>
+          </div>
+          <div class="step">
+            <span class="num">5</span>
+            <div>
+              <h3>回滚重建</h3>
+              <p>需要回滚时从 Git 取旧发布包，重建旧版本，验证后重新切换当前视图。</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>六、Git 目录和 ClickHouse 元数据控制表建议</h2>
+        <div class="table-wrap">
+          <table class="matrix">
+            <thead>
+              <tr>
+                <th>区域</th>
+                <th>建议对象</th>
+                <th>当前状态</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Git</td>
+                <td><code>models/</code>、<code>ddl/</code>、<code>migrations/</code>、<code>tests/</code>、<code>contracts/</code>、<code>metadata/</code>、<code>lineage/</code>、<code>releases/</code></td>
+                <td><span class="status planned">待落地</span></td>
+              </tr>
+              <tr>
+                <td>ClickHouse 元数据控制库(meta)</td>
+                <td>模型发布登记表、运行登记表、当前生效指针、源快照边界、质量结果</td>
+                <td><span class="status planned">待建表</span></td>
+              </tr>
+              <tr>
+                <td>ClickHouse 当前视图</td>
+                <td>例如抖店订单商品明细当前视图(<code>dwd_trade_order_item_current_vw</code>)</td>
+                <td><span class="status planned">待正式 DWD 后创建</span></td>
+              </tr>
+              <tr>
+                <td>OpenMetadata</td>
+                <td>表字段注释、标签、枚举、自定义属性、血缘、版本状态</td>
+                <td><span class="status partial">ODS 和影子表已登记</span></td>
+              </tr>
+              <tr>
+                <td>dbt</td>
+                <td>后续可选，用于模型依赖、测试、文档和增量编排</td>
+                <td><span class="status planned">暂不作为前置依赖</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <section class="panel">
+      <h2>七、平台资源状态矩阵</h2>
+      <div class="table-wrap">
+        <table class="matrix">
+          <thead>
+            <tr>
+              <th>平台或组件</th>
+              <th>当前用途</th>
+              <th>最近确认</th>
+              <th>状态</th>
+              <th>备注</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>ClickHouse 测试库(<code>youmei_sandbox</code>)</td>
+              <td>当前数仓可行性测试与建模验证</td>
+              <td>2026-07-23 09:34</td>
+              <td><span class="status done">运行中</span></td>
+              <td>版本 <code>26.6.1.1193</code>，HTTP 和原生 SQL 可用。</td>
+            </tr>
+            <tr>
+              <td>OpenMetadata(<code>127.0.0.1:8585/8586</code>)</td>
+              <td>ClickHouse 表、字段和清洗契约元数据登记</td>
+              <td>2026-07-23 09:17</td>
+              <td><span class="status partial">部分完成</span></td>
+              <td>ODS 和影子表已写入并回读，正式 DWD 未登记。</td>
+            </tr>
+            <tr>
+              <td>Superset(<code>127.0.0.1:8088</code>)</td>
+              <td>BI 服务保留</td>
+              <td>2026-07-21 14:52</td>
+              <td><span class="status offline">不可用，待处理</span></td>
+              <td>连接被拒绝，但按规则保留，不因 Doris 删除而删除。</td>
+            </tr>
+            <tr>
+              <td>DolphinScheduler(<code>127.0.0.1:12345</code>)</td>
+              <td>调度服务保留</td>
+              <td>2026-07-21 14:52</td>
+              <td><span class="status offline">不可用，待处理</span></td>
+              <td>后续可承载调度，但不再承载旧自研接口采集。</td>
+            </tr>
+            <tr>
+              <td>预策/魔方源库(<code>cubeappdata</code>)</td>
+              <td>预策侧源表只读候选来源</td>
+              <td>2026-07-21 14:52</td>
+              <td><span class="status done">可访问</span></td>
+              <td>默认库表数量 1004，后续新接入优先确认预策能力。</td>
+            </tr>
+            <tr>
+              <td>Doris、DataAgent API、DataX-Web、SeaTunnel</td>
+              <td>历史组件</td>
+              <td>2026-07-19 15:45</td>
+              <td><span class="status offline">已下线</span></td>
+              <td>后续不得恢复为默认建模或接入链路。</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="grid two">
+      <section class="panel">
+        <h2>八、业务分析流和数仓主题关系</h2>
+        <div class="lane">
+          <div>
+            <div class="lane-title">销售分析</div>
+            <div class="mini">当前本期核心</div>
+          </div>
+          <div class="flow">
+            <div class="node">
+              <strong>订单商品明细</strong>
+              <small>销售金额、数量、订单数</small>
+            </div>
+            <span class="arrow">→</span>
+            <div class="node">
+              <strong>商品经营日汇总</strong>
+              <small>商品维度复用口径</small>
+            </div>
+            <span class="arrow">→</span>
+            <div class="node">
+              <strong>经营分析看板</strong>
+              <small>筛选后 sum 汇总</small>
+            </div>
+          </div>
+        </div>
+        <div class="lane">
+          <div>
+            <div class="lane-title">费用分析</div>
+            <div class="mini">需对齐粒度</div>
+          </div>
+          <div class="flow">
+            <div class="node">
+              <strong>直播间费用</strong>
+              <small>不能直接复制到订单商品行</small>
+            </div>
+            <span class="arrow">→</span>
+            <div class="node">
+              <strong>费用归因或分摊</strong>
+              <small>按直播间、达人、商品、日期规则</small>
+            </div>
+            <span class="arrow">→</span>
+            <div class="node">
+              <strong>最细可加数据集</strong>
+              <small>日期 + 店铺 + 商品 + 直播间 + 达人</small>
+            </div>
+          </div>
+        </div>
+        <div class="lane">
+          <div>
+            <div class="lane-title">达人和直播间</div>
+            <div class="mini">用户已确认需保留</div>
+          </div>
+          <div class="flow">
+            <div class="node">
+              <strong>达人ID、达人名称</strong>
+              <small>订单里可见，未来看达人销售费用</small>
+            </div>
+            <span class="arrow">+</span>
+            <div class="node">
+              <strong>直播间ID、直播间名称</strong>
+              <small>订单里可见，未来看直播间产出</small>
+            </div>
+            <span class="arrow">→</span>
+            <div class="node">
+              <strong>主题 DWS 或 ADS</strong>
+              <small>看性能、权限和看板需求再拆</small>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>九、下一步落地路径</h2>
+        <div class="timeline">
+          <div class="step">
+            <span class="num">A</span>
+            <div>
+              <h3>固化发布版本管理规则</h3>
+              <p>更新数据清洗 Skill 和数仓建模 Skill，加入 Git 可重建发布包、ClickHouse 当前指针、OpenMetadata 回写规则。</p>
+            </div>
+          </div>
+          <div class="step">
+            <span class="num">B</span>
+            <div>
+              <h3>创建 Git 目录规范和发布清单模板</h3>
+              <p>新增 <code>contracts/</code>、<code>metadata/</code>、<code>lineage/</code>、<code>releases/</code> 等目录模板。</p>
+            </div>
+          </div>
+          <div class="step">
+            <span class="num">C</span>
+            <div>
+              <h3>设计 ClickHouse 元数据控制库(meta)</h3>
+              <p>定义模型发布登记表、运行登记表、当前指针表、质量结果表和源快照边界表。</p>
+            </div>
+          </div>
+          <div class="step">
+            <span class="num">D</span>
+            <div>
+              <h3>完成 502 个字段最终类型契约</h3>
+              <p>处理 218 个语义确认字段和 41 个阻断字段，再生成正式 DWD SQL。</p>
+            </div>
+          </div>
+          <div class="step">
+            <span class="num">E</span>
+            <div>
+              <h3>正式 DWD 发布演练</h3>
+              <p>按 Git 发布包构建、质量门禁、OpenMetadata 同步、当前视图切换和回滚演练完成一轮闭环。</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="panel">
+      <h2>十、信息和数据的回转关系</h2>
+      <div class="split">
+        <div>
+          <div class="lane">
+            <div>
+              <div class="lane-title">从源到模型</div>
+              <div class="mini">数据正向流动</div>
+            </div>
+            <div class="flow">
+              <div class="node"><strong>接口文档</strong><small>字段含义、单位、枚举</small></div>
+              <span class="arrow">→</span>
+              <div class="node"><strong>ODS 画像</strong><small>样例、空值、解析率、唯一性</small></div>
+              <span class="arrow">→</span>
+              <div class="node"><strong>DWD 契约</strong><small>中文业务名、标准物理名、目标类型</small></div>
+              <span class="arrow">→</span>
+              <div class="node"><strong>DWS/ADS</strong><small>指标归属和 BI 消费</small></div>
+            </div>
+          </div>
+          <div class="lane">
+            <div>
+              <div class="lane-title">从治理到规则</div>
+              <div class="mini">信息反向约束</div>
+            </div>
+            <div class="flow">
+              <div class="node"><strong>质量结果</strong><small>异常、对账、阻断</small></div>
+              <span class="arrow">→</span>
+              <div class="node"><strong>OpenMetadata</strong><small>字段、标签、血缘、状态</small></div>
+              <span class="arrow">→</span>
+              <div class="node"><strong>Skill 规则</strong><small>沉淀同义字段、单位、枚举边界</small></div>
+              <span class="arrow">→</span>
+              <div class="node"><strong>下一轮建模</strong><small>避免重复确认和口径漂移</small></div>
+            </div>
+          </div>
+        </div>
+        <aside class="panel" style="background:var(--panel-2);">
+          <h3>核心原则</h3>
+          <p>聊天结论不能作为唯一规则来源。长期规则进入 Skill，模型规则进入 Git 发布包，表和字段治理进入 OpenMetadata，执行状态进入 ClickHouse 元数据控制库。</p>
+          <div class="legend">
+            <span class="status done">规则可复用</span>
+            <span class="status planned">发布可重建</span>
+            <span class="status partial">治理可回读</span>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <p class="footer-note">
+      生成依据：当前状态文档、资源登记表、抖店订单清洗实践包和本轮版本管理讨论。页面不包含敏感凭据，不声明未执行的生产变更已经完成。
+    </p>
+  </div>
+</section>
+</body>
+</html>
