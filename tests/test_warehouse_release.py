@@ -133,7 +133,7 @@ class WarehouseReleaseValidationTests(unittest.TestCase):
             self.assertEqual(context.normalized["git"]["remote"], "origin")
             self.assertEqual(context.normalized["git"]["branch"], "main")
 
-    def test_shadow_full_allows_local_git_record_without_remote_push(self) -> None:
+    def test_shadow_full_requires_remote_push(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             release = create_package(Path(directory))
             text = release.read_text(encoding="utf-8")
@@ -143,7 +143,7 @@ class WarehouseReleaseValidationTests(unittest.TestCase):
             release.write_text(text, encoding="utf-8")
             context = build_context(release)
             validate_context(context, "full")
-            self.assertEqual(context.errors, [])
+            self.assertTrue(any("git.auto_push" in item for item in context.errors))
 
     def test_verify_allows_first_publish_without_existing_target(self) -> None:
         import scripts.warehouse_release as release_runner
@@ -244,15 +244,23 @@ class WarehouseReleaseValidationTests(unittest.TestCase):
                 context = build_context(release)
                 validate_context(context, "full")
                 self.assertEqual(context.errors, [])
-                with release_lock(context):
-                    status = run_full(
-                        context,
-                        query_runner,
-                        executor,
-                        metadata_sync,
-                        GIT_EXECUTABLE,
-                        False,
-                    )
+                push_observations: list[list[str]] = []
+                real_git_push = release_runner.git_push
+
+                def observe_push(*args, **kwargs):
+                    push_observations.append(log_path.read_text(encoding="utf-8").splitlines())
+                    return real_git_push(*args, **kwargs)
+
+                with mock.patch.object(release_runner, "git_push", side_effect=observe_push):
+                    with release_lock(context):
+                        status = run_full(
+                            context,
+                            query_runner,
+                            executor,
+                            metadata_sync,
+                            GIT_EXECUTABLE,
+                            False,
+                        )
                 self.assertEqual(status, 0)
             finally:
                 release_runner.PROJECT_ROOT = original_root
@@ -261,6 +269,10 @@ class WarehouseReleaseValidationTests(unittest.TestCase):
             self.assertEqual(
                 log_path.read_text(encoding="utf-8").splitlines(),
                 ["health", "preflight", "build", "quality", "swap", "postcheck", "openmetadata", "cleanup"],
+            )
+            self.assertEqual(
+                push_observations,
+                [["health", "preflight", "build", "quality", "swap", "postcheck", "openmetadata", "cleanup"]],
             )
             report = json.loads((release.parent / "release-report-test_release_1_0_0.json").read_text(encoding="utf-8"))
             self.assertEqual(report["status"], "succeeded")
@@ -273,7 +285,7 @@ class WarehouseReleaseValidationTests(unittest.TestCase):
                 run_git(repo, "rev-parse", "HEAD"),
             )
 
-    def test_pre_push_failure_is_finalizeable(self) -> None:
+    def test_final_push_failure_is_finalizeable(self) -> None:
         import scripts.warehouse_release as release_runner
 
         with tempfile.TemporaryDirectory() as directory:
@@ -299,7 +311,12 @@ class WarehouseReleaseValidationTests(unittest.TestCase):
                 validate_context(context, "full")
                 self.assertEqual(context.errors, [])
                 failed_push = {"ok": False, "error": "simulated public remote block"}
-                with mock.patch.object(release_runner, "git_push", return_value=failed_push):
+                with (
+                    mock.patch.object(release_runner, "execute_clickhouse_health", return_value={"ok": True}),
+                    mock.patch.object(release_runner, "execute_clickhouse_phase", return_value={"ok": True}),
+                    mock.patch.object(release_runner, "run_openmetadata", return_value={"ok": True}),
+                    mock.patch.object(release_runner, "git_push", return_value=failed_push),
+                ):
                     with release_lock(context):
                         status = run_full(
                             context,
@@ -320,9 +337,10 @@ class WarehouseReleaseValidationTests(unittest.TestCase):
 
                 with mock.patch.object(release_runner, "git_push", return_value={"ok": True}):
                     self.assertEqual(run_finalize(context, GIT_EXECUTABLE), 0)
+                tag_commit = run_git(repo, "rev-parse", "refs/tags/warehouse/test-release-1.0.0^{}")
                 self.assertEqual(
-                    run_git(repo, "rev-parse", "refs/tags/warehouse/test-release-1.0.0^{}"),
-                    run_git(repo, "rev-parse", "HEAD"),
+                    run_git(repo, "merge-base", "--is-ancestor", tag_commit, run_git(repo, "rev-parse", "HEAD")),
+                    "",
                 )
             finally:
                 release_runner.PROJECT_ROOT = original_root

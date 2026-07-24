@@ -319,7 +319,7 @@ def normalize_manifest(raw: dict[str, Any], release_file: Path, package_dir: Pat
         "git": {
             "required": bool(git.get("required", release_type in {"formal", "corrective", "rollback"})),
             "auto_commit": bool(git.get("auto_commit", True)),
-            "auto_push": bool(git.get("auto_push", release_type in {"formal", "corrective", "rollback"})),
+            "auto_push": bool(git.get("auto_push", True)),
             "remote": str(git.get("remote", "origin")).strip(),
             "branch": str(git.get("branch", "main")).strip(),
             "tag": str(git.get("tag", f"warehouse/{release_id}")).strip(),
@@ -444,7 +444,7 @@ def validate_context(ctx: ReleaseContext, requested_mode: str) -> None:
             ctx.errors.append("发布必须登记 openmetadata.contracts")
         if not n.get("git", {}).get("auto_commit", False):
             ctx.errors.append("发布必须开启 git.auto_commit")
-        if n.get("release_type") != "shadow" and not n.get("git", {}).get("auto_push", False):
+        if requested_mode in {"full", "rollback", "finalize"} and not n.get("git", {}).get("auto_push", False):
             ctx.errors.append("正式发布必须开启 git.auto_push")
         if not n.get("git", {}).get("remote"):
             ctx.errors.append("正式发布必须声明 git.remote")
@@ -807,7 +807,12 @@ def git_push(ctx: ReleaseContext, git_info: dict[str, Any], *, follow_tags: bool
     repo_root = Path(git_info.get("repo_root", PROJECT_ROOT))
     git_config = ctx.normalized.get("git", {})
     if not bool(git_config.get("auto_push", False)):
-        return {"ok": True, "skipped": True, "reason": "git.auto_push=false"}
+        return {
+            "ok": False,
+            "skipped": True,
+            "reason": "git.auto_push=false",
+            "error": "发布完成后必须自动同步远程 Git 仓库，禁止跳过远程同步",
+        }
 
     remote = str(git_config.get("remote", "")).strip()
     branch = str(git_config.get("branch", "")).strip()
@@ -858,6 +863,22 @@ def git_tag(ctx: ReleaseContext, git_info: dict[str, Any]) -> dict[str, Any]:
         existing_value = str(existing.get("stdout", "")).strip()
         if existing_value == head_value:
             return {"ok": True, "tag": tag, "already_exists": True, "commit": head_value}
+        ancestor = run_git_command(
+            "git:tag-ancestor",
+            git,
+            ["merge-base", "--is-ancestor", existing_value, head_value],
+            repo_root,
+            timeout=30,
+        )
+        if ancestor.get("ok"):
+            return {
+                "ok": True,
+                "tag": tag,
+                "already_exists": True,
+                "commit": existing_value,
+                "current_head": head_value,
+                "reason": "同一发布的补记提交位于既有标签之后，保留原标签",
+            }
         return {"ok": False, "tag": tag, "error": "同名 Git 标签已指向其他提交，禁止覆盖"}
     created = run_git_command("git:tag", git, ["tag", "-a", tag, "-m", f"warehouse release {ctx.release_id}"], repo_root, timeout=30)
     return {"ok": created.get("ok", False), "tag": tag, "create": created, "commit": head_value}
@@ -1123,13 +1144,6 @@ def git_prepare(ctx: ReleaseContext, git_executable: str | None, report_path: Pa
         f"warehouse release {ctx.release_id} prepare",
     )
     ctx.add_step("git_prepare_commit", "passed" if prepared.get("ok") else "failed", result=prepared)
-    if prepared.get("ok"):
-        pushed = git_push(ctx, info)
-        prepared["push"] = pushed
-        ctx.add_step("git_prepare_push", "passed" if pushed.get("ok") else "failed", result=pushed)
-        if not pushed.get("ok"):
-            prepared["ok"] = False
-            prepared["error"] = "Git 预提交已完成，但远程推送失败"
     return info, prepared
 
 
@@ -1152,34 +1166,6 @@ def run_full(ctx: ReleaseContext, query_runner: Path, executor: Path, sync_scrip
     write_release_report(ctx, "full", "prepared")
     git_info, prepared = git_prepare(ctx, git_executable, report_path)
     if not prepared or not prepared.get("ok"):
-        push_result = prepared.get("push") if isinstance(prepared, dict) else None
-        if (
-            isinstance(prepared, dict)
-            and prepared.get("commit")
-            and isinstance(push_result, dict)
-            and not push_result.get("ok")
-        ):
-            failure_reason = "Git 预提交已完成，但远程推送失败，需要运行 finalize"
-            write_release_report(ctx, "full", "version_record_pending", {"failure_reason": failure_reason})
-            local_record = git_stage_commit(
-                ctx,
-                git_info,
-                [report_path],
-                f"warehouse release {ctx.release_id} version_record_pending",
-            )
-            ctx.add_step(
-                "git_prepare_failure_record",
-                "passed" if local_record.get("ok") else "failed",
-                result=local_record,
-            )
-            print(json.dumps({
-                "ok": False,
-                "status": "version_record_pending",
-                "release_id": ctx.release_id,
-                "report": str(report_path),
-                "failure_reason": failure_reason,
-            }, ensure_ascii=False, indent=2))
-            return 1
         write_release_report(ctx, "full", "blocked", {"failure_reason": "Git 预提交失败"})
         return 2
 

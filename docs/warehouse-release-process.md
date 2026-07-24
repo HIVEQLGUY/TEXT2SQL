@@ -9,7 +9,6 @@
   -> 版本包校验与指纹
   -> Git 工作区和工具预检
   -> Git 预提交（记录待发布版本）
-  -> Git 预推送（远程版本先行登记，失败则不进入数据写入）
   -> ClickHouse 健康检查
   -> preflight（只读）
   -> build（只写候选表）
@@ -33,7 +32,7 @@ C:\Users\24796\Documents\TEXT2SQL\warehouse-release.cmd --release <发布YAML> -
 C:\Users\24796\Documents\TEXT2SQL\warehouse-release.cmd --release <发布YAML> --mode finalize
 ```
 
-`plan` 只校验文件、版本指纹、阶段顺序和门禁，并执行 Git 工作树/暂存区只读预检，不写 ClickHouse、OpenMetadata 或 Git。发布器会自动补齐随附 Git 运行时的 HTTPS、receive-pack 等辅助程序路径，不要求调用方手工设置环境变量。`verify` 执行健康检查和只读前置 SQL；已有目标表时继续执行 `postcheck` 与 OpenMetadata 回读，首次发布且目标表尚不存在时明确跳过这两项并标记 `pre_publish_verified`，由 `full` 完成切换后再执行完整门禁。`full` 才是正式发布动作。`finalize` 用于平台已经完成但 Git 最终提交或标签遇到临时故障后的显式补记，不会重新执行数据写入。
+`plan` 只校验文件、版本指纹、阶段顺序和门禁，并执行 Git 工作树/暂存区只读预检，不写 ClickHouse、OpenMetadata 或 Git。发布器会自动补齐随附 Git 运行时的 HTTPS、receive-pack 等辅助程序路径，不要求调用方手工设置环境变量。`verify` 执行健康检查和只读前置 SQL；已有目标表时继续执行 `postcheck` 与 OpenMetadata 回读，首次发布且目标表尚不存在时明确跳过这两项并标记 `pre_publish_verified`，由 `full` 完成切换后再执行完整门禁。`full` 才是正式发布动作，成功收尾后自动提交并推送 Git 分支和标签。`finalize` 用于平台已经完成但 Git 最终提交、标签或远程同步遇到临时故障后的显式补记，不会重新执行数据写入。
 
 ## 发布包最小要求
 
@@ -45,9 +44,9 @@ C:\Users\24796\Documents\TEXT2SQL\warehouse-release.cmd --release <发布YAML> -
 - `publish.strategy: candidate_swap` 与七个阶段 SQL：`preflight`、`build`、`quality`、`swap`、`postcheck`、`rollback`、`cleanup`。
 - `approval.status: approved`；正式发布必须有 `approval.formal_publish_authorized: true`，影子发布必须有 `approval.shadow_publish_authorized: true`。
 - `openmetadata.contracts`，由固定同步入口执行 `plan -> apply -> verify`。
-- `git.required: true`、`git.auto_commit: true`、`git.remote`、`git.branch` 和发布标签；正式发布还必须开启 `git.auto_push: true`，影子发布允许暂不推送公开远程。
+- `git.required: true`、`git.auto_commit: true`、`git.auto_push: true`、`git.remote`、`git.branch` 和发布标签；`full`、`rollback`、`finalize` 均不得关闭远程同步，`plan`/`verify` 只读阶段不触发推送。
 
-`build` 只能创建并写入候选表；`swap` 负责原子切换；`cleanup` 不得删除当前正式表；`rollback` 必须能把切换前对象恢复为正式对象。只读阶段如果出现 DDL/DML 关键字会直接阻断。`release_type: shadow` 可在测试库执行同样的候选切换和 OpenMetadata 登记，但必须声明 `approval.shadow_publish_authorized: true`，目标只能是影子表，Git 至少本地提交；可暂不向公开远程推送。
+`build` 只能创建并写入候选表；`swap` 负责原子切换；`cleanup` 不得删除当前正式表；`rollback` 必须能把切换前对象恢复为正式对象。只读阶段如果出现 DDL/DML 关键字会直接阻断。`release_type: shadow` 可在测试库执行同样的候选切换和 OpenMetadata 登记，但必须声明 `approval.shadow_publish_authorized: true`，目标只能是影子表；完成 `full` 后同样自动同步 Git 远程。
 
 ## 冗余和重跑处理
 
@@ -60,7 +59,7 @@ C:\Users\24796\Documents\TEXT2SQL\warehouse-release.cmd --release <发布YAML> -
 - `swap` 后的质量、元数据或清理失败时，优先执行固定 `rollback`；回滚失败必须明确标记 `rollback_failed`，不得报告为成功。
 - 清理失败但正式表和元数据已经正确时，标记 `cleanup_pending`，不得为了清理临时对象再破坏正式表。
 - Git 最终留痕失败时标记 `version_record_pending`，使用 `finalize` 补记；不能把平台成功当成完整发布成功。
-- Git 预推送失败时阻断 ClickHouse 写入，并把已完成的本地预提交记录为 `version_record_pending`；Git 最终推送失败同样标记 `version_record_pending`，`finalize` 必须同时补记本地报告、标签和远程推送。
+- Git 最终推送失败标记 `version_record_pending`；ClickHouse 和 OpenMetadata 结果不回滚，仅保留本地版本记录并阻断“完整发布成功”状态，`finalize` 必须补记报告、标签和远程推送。发布前不再把远程推送作为数据写入前置条件。
 - 版本历史不通过 ClickHouse 多套正式表保存；成功发布后只保留当前正式表和必要的运行态/审计报告。
 - 发布锁文件只在进程持有期间存在，释放后自动清理；若 Windows 仍有并发句柄，报告保留清理异常但不影响已完成发布状态。
 

@@ -167,6 +167,14 @@ ClickHouse 测试库(youmei_sandbox)
 
 如果只有物理名，说明“中文名未知，暂用物理名”。
 
+## 10.2 前端中文化规则
+
+本项目自研前端默认使用中文界面。页面标题、导航、按钮、表单占位、提示、状态、错误、表格列头、空值和布尔值展示都必须合理中文化。
+
+技术品牌、SQL 关键字、物理库名、物理表名、物理字段名、环境变量、命令和代码片段不强行翻译；展示业务数据时优先显示中文业务名或字段注释，并在需要追溯时用括号保留物理名。
+
+现成第三方封闭前端（例如 CH-UI Docker 镜像）如果没有语言配置，不作为“已中文化”的交付口径；应明确说明边界，并优先提供项目自研中文前端作为默认工作入口。
+
 ## 10.1 业务字段保留规则
 
 本项目业务数据清洗和建模不设置安全、保密、脱敏或敏感字段筛选规则。收件人、电话、地址、买家留言、加密业务标识等字段按普通业务字段处理；是否进入 DWD/DIM/DWS/ADS 只由业务语义、粒度、类型契约、质量结果和下游用途决定。
@@ -295,8 +303,10 @@ warehouse-release.cmd --release <发布YAML> --mode full
 warehouse-release.cmd --release <发布YAML> --mode finalize
 ```
 
-发布总控已经固化以下门禁：发布指纹、同一 release_id 版本漂移、同一 SQL 多阶段复用、候选表与生产表重名、只读阶段出现 DDL/DML、构建阶段直写生产表、OpenMetadata 契约重复指向同一表、Git 暂存区污染、重复发布幂等、并发发布锁、ClickHouse 阶段失败、切换后回滚、临时对象清理失败和 Git 最终留痕失败。
+发布总控已经固化以下门禁：发布指纹、同一 release_id 版本漂移、同一 SQL 多阶段复用、候选表与生产表重名、只读阶段出现 DDL/DML、构建阶段直写生产表、OpenMetadata 契约重复指向同一表、Git 暂存区污染、重复发布幂等、并发发布锁、ClickHouse 阶段失败、切换后回滚、临时对象清理失败、Git 最终留痕失败和远程同步失败。
 
-正式 `full` 发布必须使用 `candidate_swap`：先 Git 预提交发布包，再只写候选表，质量通过后切换唯一正式表，执行 OpenMetadata `plan -> apply -> verify`，最后清理候选/旧表临时对象并提交报告和标签。失败时候选表默认保留；切换后失败执行回滚 SQL；Git 最终提交失败标记 `version_record_pending`，使用 `finalize` 补记。历史版本不在 ClickHouse 保留多张正式备份表，统一依据 Git 发布包重建。
+正式 `full` 发布必须使用 `candidate_swap`：先 Git 预提交发布包，再只写候选表，质量通过后切换唯一正式表，执行 OpenMetadata `plan -> apply -> verify`，最后清理候选/旧表临时对象并提交报告和标签；上述平台步骤成功后，发布总控必须自动推送 Git 远程分支和标签。`release_type: shadow` 的 `full` 发布同样必须自动同步；只有 `plan`/`verify` 只读阶段不触发推送。远程推送失败标记 `version_record_pending`，使用 `finalize` 补记，不得汇报为完整发布成功。历史版本不在 ClickHouse 保留多张正式备份表，统一依据 Git 发布包重建。
+
+自动同步使用发布包声明的 `git.remote`、`git.branch` 和标签，通过项目发布总控执行；不得依赖聊天后的手工推送。发布前只提交本次发布允许路径，不能把工作区其他未提交文件一并推送；发布后的远程同步必须是显性报告步骤并可由 `finalize` 重试。
 
 旧结构 `execution.*` 发布文件只能通过 `plan/verify` 兼容读取，不得直接 `full`。具体发布包结构和冗余处理见 `docs/warehouse-release-process.md` 与 `config/warehouse-release-template.yaml`。
