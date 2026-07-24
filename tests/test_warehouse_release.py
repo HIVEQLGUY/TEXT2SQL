@@ -283,6 +283,72 @@ class WarehouseReleaseValidationTests(unittest.TestCase):
             finally:
                 release_runner.PROJECT_ROOT = original_root
 
+    def test_postcheck_failure_rolls_back_and_records_failure(self) -> None:
+        import scripts.warehouse_release as release_runner
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            repo = root / "repo"
+            remote = root / "remote.git"
+            repo.mkdir()
+            remote.mkdir()
+            run_git(remote, "init", "--bare")
+            run_git(repo, "init", "-b", "main")
+            run_git(repo, "config", "user.name", "test-user")
+            run_git(repo, "config", "user.email", "test@example.invalid")
+            (repo / "README.md").write_text("test\n", encoding="utf-8")
+            run_git(repo, "add", "README.md")
+            run_git(repo, "commit", "-m", "test baseline")
+            run_git(repo, "remote", "add", "origin", str(remote))
+
+            release = create_package(repo)
+            log_path = root / "execution.log"
+            query_runner = root / "query.py"
+            executor = root / "executor.py"
+            query_runner.write_text("print('health')\n", encoding="utf-8")
+            executor.write_text(
+                "import sys\n"
+                "from pathlib import Path\n"
+                f"log = Path({str(log_path)!r})\n"
+                "args = sys.argv\n"
+                "phase = Path(args[args.index('--sql-file') + 1]).stem\n"
+                "with log.open('a', encoding='utf-8') as handle:\n"
+                "    handle.write(phase + '\\n')\n"
+                "raise SystemExit(1 if phase == 'postcheck' else 0)\n",
+                encoding="utf-8",
+            )
+
+            original_root = release_runner.PROJECT_ROOT
+            release_runner.PROJECT_ROOT = repo
+            try:
+                context = build_context(release)
+                validate_context(context, "full")
+                self.assertEqual(context.errors, [])
+                with release_lock(context):
+                    status = run_full(
+                        context,
+                        query_runner,
+                        executor,
+                        root / "unused-metadata.py",
+                        GIT_EXECUTABLE,
+                        False,
+                    )
+                self.assertEqual(status, 1)
+            finally:
+                release_runner.PROJECT_ROOT = original_root
+
+            self.assertEqual(
+                log_path.read_text(encoding="utf-8").splitlines(),
+                ["preflight", "build", "quality", "swap", "postcheck", "rollback"],
+            )
+            report = json.loads((release.parent / "release-report-test_release_1_0_0.json").read_text(encoding="utf-8"))
+            self.assertEqual(report["status"], "failed_rolled_back")
+            self.assertFalse(run_git(repo, "tag", "--list", "warehouse/test-release-1.0.0"))
+            self.assertEqual(
+                run_git(remote, "rev-parse", "refs/heads/main"),
+                run_git(repo, "rev-parse", "HEAD"),
+            )
+
     def test_git_push_uses_configured_remote_and_branch(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
