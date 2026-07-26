@@ -1,6 +1,6 @@
 {
   "report_version": "warehouse-release-report/v1",
-  "status": "version_record_pending",
+  "status": "finalized",
   "release_id": "doudian_order_logistics_tracking_no_formal_1_4_3",
   "version": "1.4.3",
   "release_type": "formal",
@@ -383,5 +383,38 @@
     },
     "error": "Git 远程推送失败，需修复远程状态后运行 finalize"
   },
-  "finished_at": "2026-07-26T13:36:55+08:00"
+  "finished_at": "2026-07-26T13:59:50+08:00",
+  "finalize": {
+    "initial_status": "version_record_pending",
+    "tag": {
+      "ok": true,
+      "tag": "warehouse/doudian-order-logistics-tracking-no-1.4.3",
+      "already_exists": true,
+      "commit": "998d3a43898ea422bd69a07a9de68764efe81451",
+      "current_head": "ef05a6b91319d3748bab7004e190f6b2ee4fad9e",
+      "reason": "同一发布的补记提交位于既有标签之后，保留原标签"
+    },
+    "initial_push": {
+      "ok": true,
+      "remote": "origin",
+      "branch": "main",
+      "follow_tags": true,
+      "result": {
+        "label": "git:push",
+        "ok": true,
+        "returncode": 0,
+        "stdout": "To https://github.com/HIVEQLGUY/TEXT2SQL.git\n \tHEAD:refs/heads/main\t43e2d30..ef05a6b\n*\trefs/tags/warehouse/doudian-order-logistics-tracking-no-1.4.3:refs/tags/warehouse/doudian-order-logistics-tracking-no-1.4.3\t[new tag]\nDone\n",
+        "stderr": "",
+        "command": [
+          "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\git\\cmd\\git.EXE",
+          "push",
+          "--porcelain",
+          "--follow-tags",
+          "origin",
+          "HEAD:main"
+        ]
+      },
+      "error": null
+    }
+  }
 }
