@@ -1,0 +1,65 @@
+{
+  "report_version": "warehouse-release-report/v1",
+  "status": "prepared",
+  "release_id": "doudian_order_logistics_tracking_no_formal_1_4_3",
+  "version": "1.4.3",
+  "release_type": "formal",
+  "environment": "test",
+  "requested_mode": "full",
+  "started_at": "2026-07-26T13:36:03+08:00",
+  "package_dir": "config/warehouse_cleaning/doudian_order_item_v1",
+  "release_file": "config/warehouse_cleaning/doudian_order_item_v1/formal-release-logistics-tracking-no-1.4.3.yaml",
+  "source": {
+    "database": "youmei_sandbox",
+    "partitions": [
+      "2026-07-23"
+    ],
+    "chinese_name": "DWD_抖店订单物流快递单号粒度影子表",
+    "physical_name": "dwd_trade_order_logistics_tracking_no_shadow_1_3_3"
+  },
+  "targets": [
+    {
+      "chinese_name": "DWD_抖店订单物流快递单号粒度事实全量快照表",
+      "physical_name": "dwd_trade_order_logistics_tracking_no_df",
+      "production_physical_name": "dwd_trade_order_logistics_tracking_no_df",
+      "candidate_physical_name": "dwd_trade_order_logistics_tracking_no_df__candidate__1_4_3",
+      "previous_physical_name": "dwd_trade_order_logistics_tracking_no_df__previous__1_4_3",
+      "database": "youmei_sandbox",
+      "grain": "店铺ID(shop_id) + 店铺订单号(shop_order_id) + 快递单号(tracking_no)",
+      "key": [
+        "shop_id",
+        "shop_order_id",
+        "tracking_no"
+      ]
+    }
+  ],
+  "manifest_fingerprint": "1eebab03584c6943559a7556c59d5f455b7486bd2e782ee4906bd772907ed8d1",
+  "artifact_hashes": {
+    "formal-logistics-tracking-no-build-1.4.3.sql": "e25b2fef3fb60b02e4e3bb4ee2bc8fe15eb14138b55363cc46e968a6e73dbc21",
+    "formal-logistics-tracking-no-cleaning-contract-1.4.2.yaml": "3f4e4ea129bd451c023ab2ba511adb3a128929669a82c75b7ede3438f10af4d0",
+    "formal-logistics-tracking-no-cleanup-1.4.3.sql": "2ca8d68f917d12af820cf1714a2381a5a3c44ca52caf9acf39dbf47b8f74d583",
+    "formal-logistics-tracking-no-postcheck-1.4.3.sql": "9a701873e587264adce5146f35d377fd8363e11211e8b56d9be7c1d74916aba4",
+    "formal-logistics-tracking-no-preflight-1.4.3.sql": "67f092454b5989cbbc335441e7178964657200db41a242dc8263ec1c1cf8c682",
+    "formal-logistics-tracking-no-quality-1.4.3.sql": "47db6f3c8b0cc277ae96cb39928cc8f0e12c6fc0c38757e4528bd4ab7249273d",
+    "formal-logistics-tracking-no-rollback-1.4.3.sql": "cb5d083d630fd43af61e5e8ef6162b5626f24c47fa1900a06e1a6c0daf3bb5c2",
+    "formal-logistics-tracking-no-swap-1.4.3.sql": "37f981501addac6be89481a775f39a9d9b668c8fef70fbc17df5da6274b8dd09",
+    "formal-release-logistics-tracking-no-1.4.3.yaml": "fb612ac148c8e9fd48bb6d68ab56bce780514c9f25aa65f1e67b9f757aabda9e",
+    "metadata-contract-formal-logistics-tracking-no-1.4.2.yaml": "6dea750d3b88b714876b0b84b9c106cf03c1b1fdbaf2cccbc27a0f0856d652bf",
+    "metadata-contract-formal-logistics-tracking-no-1.4.3.yaml": "4a7fb3c8e8e32ca294b9475d768a666d51e12118fa00aac1372f619733bc6668",
+    "metadata-contract-shadow-logistics-tracking-no-1.3.3.yaml": "11a4088ecebae082d352495ff77a444a5cab34a6e8541cdf717d387f0b0ad95b",
+    "shadow-logistics-tracking-no-quality-1.3.3.sql": "d97f1eeafa5fbf7e30a5ce381a7c05083f6ab294b5c85134c641a658d130d5f9",
+    "shadow-release-tracking-no-1.3.3.yaml": "bffc09ad879ed629603b52b0bbfe7d4e6045e771084803cc45d279bded285e72",
+    "快递单号粒度正式清洗契约说明-1.4.2.md": "b1f62ad60b888705546ad8b06f5c9e8e1494d87b3d4700a579ef7fc77c1e53a6"
+  },
+  "warnings": [],
+  "validation_errors": [],
+  "steps": [],
+  "git": {
+    "required": true,
+    "auto_push": true,
+    "remote": "origin",
+    "branch": "main",
+    "tag": "warehouse/doudian-order-logistics-tracking-no-1.4.3"
+  },
+  "finished_at": "2026-07-26T13:36:03+08:00"
+}

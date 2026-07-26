@@ -1,5 +1,5 @@
 ﻿contract_id: openmetadata_dwd_trade_order_logistics_tracking_no_df
-contract_version: 1.4.2
+contract_version: 1.4.3
 status: approved
 table:
   name: dwd_trade_order_logistics_tracking_no_df
@@ -190,5 +190,6 @@ columns:
   tags: []
   is_primary_key: false
   enum_definition: {}
+
 
 
