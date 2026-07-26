@@ -1,12 +1,12 @@
 {
   "report_version": "warehouse-release-report/v1",
-  "status": "succeeded",
+  "status": "version_record_pending",
   "release_id": "doudian_order_logistics_tracking_no_formal_1_4_3",
   "version": "1.4.3",
   "release_type": "formal",
   "environment": "test",
   "requested_mode": "full",
-  "started_at": "2026-07-26T13:36:13+08:00",
+  "started_at": "2026-07-26T13:36:55+08:00",
   "package_dir": "config/warehouse_cleaning/doudian_order_item_v1",
   "release_file": "config/warehouse_cleaning/doudian_order_item_v1/formal-release-logistics-tracking-no-1.4.3.yaml",
   "source": {
@@ -277,6 +277,80 @@
           "--print-results"
         ]
       }
+    },
+    {
+      "name": "git_finalize_commit",
+      "status": "passed",
+      "at": "2026-07-26T13:36:13+08:00",
+      "result": {
+        "ok": true,
+        "commit": {
+          "label": "git:commit",
+          "ok": true,
+          "returncode": 0,
+          "stdout": "[main d127a46] warehouse release doudian_order_logistics_tracking_no_formal_1_4_3 succeeded\n 2 files changed, 1136 insertions(+), 4 deletions(-)\n create mode 100644 config/warehouse_cleaning/doudian_order_item_v1/openmetadata-sync-report-formal-release-logistics-tracking-no-1.4.3.json\n",
+          "stderr": "",
+          "command": [
+            "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\git\\cmd\\git.EXE",
+            "commit",
+            "-m",
+            "warehouse release doudian_order_logistics_tracking_no_formal_1_4_3 succeeded"
+          ]
+        },
+        "head": "d127a4694c92e7f787e0e9703bcd57d86ca56991"
+      }
+    },
+    {
+      "name": "git_tag",
+      "status": "passed",
+      "at": "2026-07-26T13:36:14+08:00",
+      "result": {
+        "ok": true,
+        "tag": "warehouse/doudian-order-logistics-tracking-no-1.4.3",
+        "create": {
+          "label": "git:tag",
+          "ok": true,
+          "returncode": 0,
+          "stdout": "",
+          "stderr": "",
+          "command": [
+            "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\git\\cmd\\git.EXE",
+            "tag",
+            "-a",
+            "warehouse/doudian-order-logistics-tracking-no-1.4.3",
+            "-m",
+            "warehouse release doudian_order_logistics_tracking_no_formal_1_4_3"
+          ]
+        },
+        "commit": "d127a4694c92e7f787e0e9703bcd57d86ca56991"
+      }
+    },
+    {
+      "name": "git_finalize_push",
+      "status": "failed",
+      "at": "2026-07-26T13:36:55+08:00",
+      "result": {
+        "ok": false,
+        "remote": "origin",
+        "branch": "main",
+        "follow_tags": true,
+        "result": {
+          "label": "git:push",
+          "ok": false,
+          "returncode": 1,
+          "stdout": "Done\n",
+          "stderr": "error: RPC failed; curl 56 Recv failure: Connection was reset\nsend-pack: unexpected disconnect while reading sideband packet\nfatal: the remote end hung up unexpectedly\n",
+          "command": [
+            "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\git\\cmd\\git.EXE",
+            "push",
+            "--porcelain",
+            "--follow-tags",
+            "origin",
+            "HEAD:main"
+          ]
+        },
+        "error": "Git 远程推送失败，需修复远程状态后运行 finalize"
+      }
     }
   ],
   "git": {
@@ -286,5 +360,28 @@
     "branch": "main",
     "tag": "warehouse/doudian-order-logistics-tracking-no-1.4.3"
   },
-  "finished_at": "2026-07-26T13:36:13+08:00"
+  "failure_reason": "平台结果和本地 Git 留痕已产生，但远程 Git 推送失败，需要运行 finalize",
+  "push_result": {
+    "ok": false,
+    "remote": "origin",
+    "branch": "main",
+    "follow_tags": true,
+    "result": {
+      "label": "git:push",
+      "ok": false,
+      "returncode": 1,
+      "stdout": "Done\n",
+      "stderr": "error: RPC failed; curl 56 Recv failure: Connection was reset\nsend-pack: unexpected disconnect while reading sideband packet\nfatal: the remote end hung up unexpectedly\n",
+      "command": [
+        "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\git\\cmd\\git.EXE",
+        "push",
+        "--porcelain",
+        "--follow-tags",
+        "origin",
+        "HEAD:main"
+      ]
+    },
+    "error": "Git 远程推送失败，需修复远程状态后运行 finalize"
+  },
+  "finished_at": "2026-07-26T13:36:55+08:00"
 }
