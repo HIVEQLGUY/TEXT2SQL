@@ -1,0 +1,40 @@
+{
+  "report_version": "warehouse-release-report/v1",
+  "status": "prepared",
+  "release_id": "doudian_order_logistics_tracking_no_empty_rollback_cleanup_1_0_0",
+  "version": "1.0.0",
+  "release_type": "cleanup",
+  "environment": "test",
+  "requested_mode": "full",
+  "started_at": "2026-07-26T13:31:59+08:00",
+  "package_dir": "config/warehouse_cleaning/doudian_order_item_v1",
+  "release_file": "config/warehouse_cleaning/doudian_order_item_v1/cleanup-release-formal-empty-1.0.0.yaml",
+  "source": {
+    "database": "youmei_sandbox",
+    "partitions": [
+      "2026-07-23"
+    ],
+    "chinese_name": "ClickHouse回滚遗留空正式物流表",
+    "physical_name": "dwd_trade_order_logistics_tracking_no_df"
+  },
+  "targets": [],
+  "manifest_fingerprint": "79563d07fac83ca62a4402a0ec89da5d97d104e23b7de791d16ad51152a6139c",
+  "artifact_hashes": {
+    "cleanup-formal-empty-execution-1.0.0.sql": "0e833f23d8aa3b4274caf6e73a3346b99943f99dc8b17c011df211f0de62a961",
+    "cleanup-formal-empty-postcheck-1.0.0.sql": "f12b2b13434aff4dd33b7c44b6e958235471c545c3c286768e5c65c55d036e03",
+    "cleanup-formal-empty-preflight-1.0.0.sql": "ea9e8e3f2bd42eb1f18d1d38742dae1bfde8decf2a07f17ff193e341fac2cb9f",
+    "cleanup-formal-empty-quality-1.0.0.sql": "46b72f1de4dae7242f6efcf258ac8a9fe911f6682b5fdc2f82eac29b1d971267",
+    "cleanup-release-formal-empty-1.0.0.yaml": "74341796ca3c5dda9534e26fb0e9e51a7c68744bf21f75c5e90d1a3ce31886cf"
+  },
+  "warnings": [],
+  "validation_errors": [],
+  "steps": [],
+  "git": {
+    "required": true,
+    "auto_push": true,
+    "remote": "origin",
+    "branch": "main",
+    "tag": "warehouse/doudian-order-logistics-tracking-no-empty-rollback-cleanup-1.0.0"
+  },
+  "finished_at": "2026-07-26T13:31:59+08:00"
+}

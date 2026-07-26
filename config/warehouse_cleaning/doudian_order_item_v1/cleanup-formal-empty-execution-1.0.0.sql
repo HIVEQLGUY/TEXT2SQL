@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS youmei_sandbox.dwd_trade_order_logistics_tracking_no_df;

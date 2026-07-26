@@ -1,0 +1,49 @@
+release_api_version: warehouse-release/v1
+release_id: doudian_order_logistics_tracking_no_empty_rollback_cleanup_1_0_0
+version: 1.0.0
+release_type: cleanup
+environment: test
+status: approved
+
+source:
+  chinese_name: ClickHouse回滚遗留空正式物流表
+  physical_name: dwd_trade_order_logistics_tracking_no_df
+  database: youmei_sandbox
+  partitions:
+    - '2026-07-23'
+
+publish:
+  strategy: cleanup_only
+  phases:
+    preflight: cleanup-formal-empty-preflight-1.0.0.sql
+    quality: cleanup-formal-empty-quality-1.0.0.sql
+    cleanup: cleanup-formal-empty-execution-1.0.0.sql
+    postcheck: cleanup-formal-empty-postcheck-1.0.0.sql
+
+cleanup:
+  reason: 正式发布在OpenMetadata门禁失败后回滚，首次发布无旧正式对象时留下0行结构表；仅允许清理该空回滚遗留对象。
+  objects:
+    - database: youmei_sandbox
+      physical_name: dwd_trade_order_logistics_tracking_no_df
+      chinese_name: DWD_抖店订单物流快递单号粒度事实全量快照表(空回滚遗留对象)
+      reason: 仅清理已验证为0行的首次发布回滚遗留对象
+
+openmetadata:
+  mode: full
+  retire:
+    - fully_qualified_name: youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_df
+      reason: 回滚遗留空正式表未完成元数据创建，清理前后确认正式资产不存在
+
+approval:
+  status: approved
+  cleanup_authorized: true
+  authorized_by: 正式发布失败回滚后的受控恢复流程
+  authorized_at: '2026-07-26T00:00:00+08:00'
+
+git:
+  required: true
+  auto_commit: true
+  auto_push: true
+  remote: origin
+  branch: main
+  tag: warehouse/doudian-order-logistics-tracking-no-empty-rollback-cleanup-1.0.0
