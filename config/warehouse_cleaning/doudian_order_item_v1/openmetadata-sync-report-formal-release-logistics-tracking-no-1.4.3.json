@@ -1,0 +1,907 @@
+{
+  "ok": true,
+  "run_time": "2026-07-26T13:36:13+08:00",
+  "package_dir": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1",
+  "release_file": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\formal-release-logistics-tracking-no-1.4.3.yaml",
+  "mode": "full",
+  "contract_count": 1,
+  "contracts": [
+    "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\metadata-contract-formal-logistics-tracking-no-1.4.3.yaml"
+  ],
+  "retire_count": 1,
+  "retire_objects": [
+    {
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3",
+      "reason": "已按同一快递单号粒度契约晋级正式DWD，影子表完成使命并清理"
+    }
+  ],
+  "env_file": "C:\\Users\\24796\\Documents\\TEXT2SQL\\local\\credentials\\openmetadata.env",
+  "env_loaded_keys": [
+    "OPENMETADATA_BASE_URL",
+    "OPENMETADATA_PASSWORD",
+    "OPENMETADATA_USERNAME"
+  ],
+  "results": [
+    {
+      "contract": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\metadata-contract-formal-logistics-tracking-no-1.4.3.yaml",
+      "mode": "plan",
+      "returncode": 0,
+      "ok": true,
+      "stdout": {
+        "ok": true,
+        "mode": "plan",
+        "services": [
+          {
+            "name": "youmei_clickhouse",
+            "serviceType": "Clickhouse",
+            "displayName": null,
+            "databaseSchema": "youmei_sandbox",
+            "hostPort": "172.16.240.1:18124"
+          },
+          {
+            "name": "youmei_doris",
+            "serviceType": "Doris",
+            "displayName": "佑美 Doris 数仓",
+            "databaseSchema": "agent_warehouse",
+            "hostPort": "100.115.222.97:9030"
+          }
+        ],
+        "diff": {
+          "table_fqn": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_df",
+          "exists": false,
+          "desired_columns": 18,
+          "desired_custom_properties": 17
+        }
+      },
+      "stderr": ""
+    },
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3",
+        "mode": "plan",
+        "ok": true,
+        "action": "planned_retire",
+        "entity_id": "4e9d009c-1039-473b-a844-72b3925b0a01",
+        "reason": "已按同一快递单号粒度契约晋级正式DWD，影子表完成使命并清理"
+      },
+      "mode": "plan",
+      "returncode": 0,
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3",
+      "ok": true,
+      "action": "planned_retire",
+      "entity_id": "4e9d009c-1039-473b-a844-72b3925b0a01",
+      "reason": "已按同一快递单号粒度契约晋级正式DWD，影子表完成使命并清理"
+    },
+    {
+      "contract": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\metadata-contract-formal-logistics-tracking-no-1.4.3.yaml",
+      "mode": "apply",
+      "returncode": 0,
+      "ok": true,
+      "stdout": {
+        "ok": true,
+        "mode": "apply",
+        "method": "POST",
+        "fqn": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_df",
+        "verified": true,
+        "id": "d12c213a-161b-46a6-aed3-ea364b4b236b"
+      },
+      "stderr": ""
+    },
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3",
+        "mode": "apply",
+        "ok": true,
+        "action": "deleted",
+        "entity_id": "4e9d009c-1039-473b-a844-72b3925b0a01",
+        "response": {
+          "id": "4e9d009c-1039-473b-a844-72b3925b0a01",
+          "name": "dwd_trade_order_logistics_tracking_no_shadow_1_3_3",
+          "displayName": "DWD_抖店订单物流快递单号粒度影子表",
+          "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3",
+          "description": "按店铺ID、店铺订单号、快递单号粒度汇总物流信息，用于运费匹配前的影子验证；包裹ID不作为业务粒度。",
+          "version": 0.1,
+          "updatedAt": 1784879415165,
+          "updatedBy": "admin",
+          "tableType": "Regular",
+          "columns": [
+            {
+              "name": "snapshot_date",
+              "displayName": "数据快照日期",
+              "dataType": "DATE",
+              "dataTypeDisplay": "date",
+              "description": "数据快照日期",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3.snapshot_date",
+              "tags": [],
+              "ordinalPosition": 1,
+              "children": [],
+              "extension": {
+                "source_field": "snapshot_date",
+                "enum_definition": "{}",
+                "business_name_zh": "数据快照日期"
+              }
+            },
+            {
+              "name": "shop_id",
+              "displayName": "店铺ID",
+              "dataType": "STRING",
+              "dataTypeDisplay": "string",
+              "description": "店铺ID",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3.shop_id",
+              "tags": [],
+              "ordinalPosition": 2,
+              "children": [],
+              "extension": {
+                "source_field": "shop_id",
+                "enum_definition": "{}",
+                "business_name_zh": "店铺ID"
+              }
+            },
+            {
+              "name": "shop_name",
+              "displayName": "店铺名称",
+              "dataType": "STRING",
+              "dataTypeDisplay": "nullable(string)",
+              "description": "店铺名称",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3.shop_name",
+              "tags": [],
+              "ordinalPosition": 3,
+              "children": [],
+              "extension": {
+                "source_field": "shop_name",
+                "enum_definition": "{}",
+                "business_name_zh": "店铺名称"
+              }
+            },
+            {
+              "name": "shop_order_id",
+              "displayName": "店铺订单号",
+              "dataType": "STRING",
+              "dataTypeDisplay": "string",
+              "description": "店铺订单号",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3.shop_order_id",
+              "tags": [],
+              "ordinalPosition": 4,
+              "children": [],
+              "extension": {
+                "source_field": "shop_order_id",
+                "enum_definition": "{}",
+                "business_name_zh": "店铺订单号"
+              }
+            },
+            {
+              "name": "tracking_no",
+              "displayName": "快递单号；用于后续运费匹配",
+              "dataType": "STRING",
+              "dataTypeDisplay": "string",
+              "description": "快递单号；用于后续运费匹配",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3.tracking_no",
+              "tags": [],
+              "ordinalPosition": 5,
+              "children": [],
+              "extension": {
+                "source_field": "tracking_no",
+                "enum_definition": "{}",
+                "business_name_zh": "快递单号；用于后续运费匹配"
+              }
+            },
+            {
+              "name": "logistics_company_names",
+              "displayName": "物流公司名称列表，按快递单号粒度去重拼接",
+              "dataType": "STRING",
+              "dataTypeDisplay": "nullable(string)",
+              "description": "物流公司名称列表，按快递单号粒度去重拼接",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3.logistics_company_names",
+              "tags": [],
+              "ordinalPosition": 6,
+              "children": [],
+              "extension": {
+                "source_field": "logistics_company_names",
+                "enum_definition": "{}",
+                "business_name_zh": "物流公司名称列表，按快递单号粒度去重拼接"
+              }
+            },
+            {
+              "name": "first_shipped_at",
+              "displayName": "最早发货时间",
+              "dataType": "DATETIME",
+              "dataTypeDisplay": "nullable(datetime('asia/shanghai'))",
+              "description": "最早发货时间",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3.first_shipped_at",
+              "tags": [],
+              "ordinalPosition": 7,
+              "children": [],
+              "extension": {
+                "source_field": "first_shipped_at",
+                "enum_definition": "{}",
+                "business_name_zh": "最早发货时间"
+              }
+            },
+            {
+              "name": "latest_shipped_at",
+              "displayName": "最晚发货时间",
+              "dataType": "DATETIME",
+              "dataTypeDisplay": "nullable(datetime('asia/shanghai'))",
+              "description": "最晚发货时间",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3.latest_shipped_at",
+              "tags": [],
+              "ordinalPosition": 8,
+              "children": [],
+              "extension": {
+                "source_field": "latest_shipped_at",
+                "enum_definition": "{}",
+                "business_name_zh": "最晚发货时间"
+              }
+            },
+            {
+              "name": "package_count",
+              "displayName": "快递单号下源包裹记录数；包裹ID不作为业务粒度，仅用于汇总计数",
+              "dataType": "INT",
+              "dataTypeDisplay": "uint16",
+              "description": "快递单号下源包裹记录数；包裹ID不作为业务粒度，仅用于汇总计数",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3.package_count",
+              "tags": [],
+              "ordinalPosition": 9,
+              "children": [],
+              "extension": {
+                "source_field": "package_count",
+                "enum_definition": "{}",
+                "business_name_zh": "快递单号下源包裹记录数；包裹ID不作为业务粒度，仅用于汇总计数"
+              }
+            },
+            {
+              "name": "package_product_row_count",
+              "displayName": "快递单号下物流商品关系行数",
+              "dataType": "INT",
+              "dataTypeDisplay": "uint32",
+              "description": "快递单号下物流商品关系行数",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3.package_product_row_count",
+              "tags": [],
+              "ordinalPosition": 10,
+              "children": [],
+              "extension": {
+                "source_field": "package_product_row_count",
+                "enum_definition": "{}",
+                "business_name_zh": "快递单号下物流商品关系行数"
+              }
+            },
+            {
+              "name": "sku_order_count",
+              "displayName": "快递单号下商品子单数",
+              "dataType": "INT",
+              "dataTypeDisplay": "uint32",
+              "description": "快递单号下商品子单数",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3.sku_order_count",
+              "tags": [],
+              "ordinalPosition": 11,
+              "children": [],
+              "extension": {
+                "source_field": "sku_order_count",
+                "enum_definition": "{}",
+                "business_name_zh": "快递单号下商品子单数"
+              }
+            },
+            {
+              "name": "sku_order_ids",
+              "displayName": "商品子单号列表，按快递单号粒度去重拼接",
+              "dataType": "STRING",
+              "dataTypeDisplay": "nullable(string)",
+              "description": "商品子单号列表，按快递单号粒度去重拼接",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3.sku_order_ids",
+              "tags": [],
+              "ordinalPosition": 12,
+              "children": [],
+              "extension": {
+                "source_field": "sku_order_ids",
+                "enum_definition": "{}",
+                "business_name_zh": "商品子单号列表，按快递单号粒度去重拼接"
+              }
+            },
+            {
+              "name": "shipped_product_count",
+              "displayName": "发货商品数量合计",
+              "dataType": "BIGINT",
+              "dataTypeDisplay": "nullable(int64)",
+              "description": "发货商品数量合计",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3.shipped_product_count",
+              "tags": [],
+              "ordinalPosition": 13,
+              "children": [],
+              "extension": {
+                "source_field": "shipped_product_count",
+                "enum_definition": "{}",
+                "business_name_zh": "发货商品数量合计"
+              }
+            },
+            {
+              "name": "guarantee_amount",
+              "displayName": "物流保价金额合计，源单位分，清洗后单位元",
+              "dataType": "DECIMAL",
+              "dataTypeDisplay": "nullable(decimal(38, 2))",
+              "description": "物流保价金额合计，源单位分，清洗后单位元",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3.guarantee_amount",
+              "tags": [],
+              "ordinalPosition": 14,
+              "children": [],
+              "extension": {
+                "source_field": "guarantee_amount",
+                "enum_definition": "{}",
+                "business_name_zh": "物流保价金额合计，源单位分，清洗后单位元"
+              }
+            },
+            {
+              "name": "platform_delivery_discount_amount",
+              "displayName": "即时零售平台运力配送优惠金额合计，源单位分，清洗后单位元",
+              "dataType": "DECIMAL",
+              "dataTypeDisplay": "nullable(decimal(38, 2))",
+              "description": "即时零售平台运力配送优惠金额合计，源单位分，清洗后单位元",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3.platform_delivery_discount_amount",
+              "tags": [],
+              "ordinalPosition": 15,
+              "children": [],
+              "extension": {
+                "source_field": "platform_delivery_discount_amount",
+                "enum_definition": "{}",
+                "business_name_zh": "即时零售平台运力配送优惠金额合计，源单位分，清洗后单位元"
+              }
+            },
+            {
+              "name": "platform_delivery_paid_amount",
+              "displayName": "即时零售平台运力配送实付金额合计，源单位分，清洗后单位元",
+              "dataType": "DECIMAL",
+              "dataTypeDisplay": "nullable(decimal(38, 2))",
+              "description": "即时零售平台运力配送实付金额合计，源单位分，清洗后单位元",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3.platform_delivery_paid_amount",
+              "tags": [],
+              "ordinalPosition": 16,
+              "children": [],
+              "extension": {
+                "source_field": "platform_delivery_paid_amount",
+                "enum_definition": "{}",
+                "business_name_zh": "即时零售平台运力配送实付金额合计，源单位分，清洗后单位元"
+              }
+            },
+            {
+              "name": "platform_delivery_payable_amount",
+              "displayName": "即时零售平台运力配送应付金额合计，源单位分，清洗后单位元",
+              "dataType": "DECIMAL",
+              "dataTypeDisplay": "nullable(decimal(38, 2))",
+              "description": "即时零售平台运力配送应付金额合计，源单位分，清洗后单位元",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3.platform_delivery_payable_amount",
+              "tags": [],
+              "ordinalPosition": 17,
+              "children": [],
+              "extension": {
+                "source_field": "platform_delivery_payable_amount",
+                "enum_definition": "{}",
+                "business_name_zh": "即时零售平台运力配送应付金额合计，源单位分，清洗后单位元"
+              }
+            },
+            {
+              "name": "avg_product_price_amount",
+              "displayName": "物流商品单价平均值，源单位分，清洗后单位元；平均型指标按快递单号粒度取平均",
+              "dataType": "DECIMAL",
+              "dataTypeDisplay": "nullable(decimal(38, 2))",
+              "description": "物流商品单价平均值，源单位分，清洗后单位元；平均型指标按快递单号粒度取平均",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3.avg_product_price_amount",
+              "tags": [],
+              "ordinalPosition": 18,
+              "children": [],
+              "extension": {
+                "source_field": "avg_product_price_amount",
+                "enum_definition": "{}",
+                "business_name_zh": "物流商品单价平均值，源单位分，清洗后单位元；平均型指标按快递单号粒度取平均"
+              }
+            }
+          ],
+          "owners": [],
+          "databaseSchema": {
+            "id": "ed4d9991-052f-49c7-a522-b069989e6987",
+            "type": "databaseSchema",
+            "name": "youmei_sandbox",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox",
+            "displayName": "youmei_sandbox",
+            "deleted": false,
+            "href": "http://127.0.0.1:8585/api/v1/databaseSchemas/ed4d9991-052f-49c7-a522-b069989e6987"
+          },
+          "database": {
+            "id": "84700061-04e4-4859-8830-67c001d8a726",
+            "type": "database",
+            "name": "default",
+            "fullyQualifiedName": "youmei_clickhouse.default",
+            "displayName": "default",
+            "deleted": false,
+            "href": "http://127.0.0.1:8585/api/v1/databases/84700061-04e4-4859-8830-67c001d8a726"
+          },
+          "service": {
+            "id": "caca166b-5d77-4ca3-81bb-b4d74e872741",
+            "type": "databaseService",
+            "name": "youmei_clickhouse",
+            "fullyQualifiedName": "youmei_clickhouse",
+            "displayName": "youmei_clickhouse",
+            "deleted": false,
+            "href": "http://127.0.0.1:8585/api/v1/services/databaseServices/caca166b-5d77-4ca3-81bb-b4d74e872741"
+          },
+          "serviceType": "Clickhouse",
+          "tags": [
+            {
+              "tagFQN": "Tier.Tier2",
+              "name": "Tier2",
+              "description": "**Important business datasets for your company (not as critical as Tier 1)**\n\n- Used in important business metrics, product metrics, and dashboards to drive internal decisions\n\n- Used in important compliance reporting to major regulators, govt entities, and third party\n\n- Used for less critical online user-facing experiences (user activity, user behavior)\n\n- Source used to derive other critical Tier-2 datasets",
+              "source": "Classification",
+              "labelType": "Manual",
+              "state": "Confirmed",
+              "appliedAt": 1784879415667
+            }
+          ],
+          "followers": [],
+          "deleted": false,
+          "extension": {
+            "amount_conversion_status": "tracking_no_shadow_amounts_summed_average_metrics_averaged",
+            "amount_rule_version": "1.3.3",
+            "amount_unit_strategy": "field_level_unit_evidence",
+            "business_field_retention_policy": "tracking_no_business_grain_package_id_excluded",
+            "business_table_name_zh": "DWD_抖店订单物流快递单号粒度影子表",
+            "cleaning_contract_id": "doudian_order_tracking_no_shadow_contract",
+            "cleaning_contract_version": "1.3.3",
+            "data_quality_status": "shadow_passed_pending_user_review",
+            "grain": "店铺ID(shop_id) + 店铺订单号(shop_order_id) + 快递单号(tracking_no)",
+            "json_expansion_policy": "shadow_tracking_no_grain_package_id_not_materialized",
+            "null_value_policy": "empty_or_null_to_NULL_non_empty_invalid_to_exception_count_zero_preserved",
+            "refresh_mode": "window_full_snapshot",
+            "source_api": "order.searchList",
+            "source_api_doc": "https://op.jinritemai.com/docs/api-docs/15/1342",
+            "source_system": "doudian_api",
+            "technical_key_fields": "shop_id,shop_order_id,tracking_no",
+            "warehouse_layer": "DWD_SHADOW"
+          },
+          "domains": [],
+          "dataProducts": [],
+          "votes": {
+            "upVotes": 0,
+            "downVotes": 0,
+            "upVoters": [],
+            "downVoters": []
+          },
+          "processedLineage": false,
+          "entityStatus": "Unprocessed"
+        }
+      },
+      "mode": "apply",
+      "returncode": 0,
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3",
+      "ok": true,
+      "action": "deleted",
+      "entity_id": "4e9d009c-1039-473b-a844-72b3925b0a01",
+      "response": {
+        "id": "4e9d009c-1039-473b-a844-72b3925b0a01",
+        "name": "dwd_trade_order_logistics_tracking_no_shadow_1_3_3",
+        "displayName": "DWD_抖店订单物流快递单号粒度影子表",
+        "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3",
+        "description": "按店铺ID、店铺订单号、快递单号粒度汇总物流信息，用于运费匹配前的影子验证；包裹ID不作为业务粒度。",
+        "version": 0.1,
+        "updatedAt": 1784879415165,
+        "updatedBy": "admin",
+        "tableType": "Regular",
+        "columns": [
+          {
+            "name": "snapshot_date",
+            "displayName": "数据快照日期",
+            "dataType": "DATE",
+            "dataTypeDisplay": "date",
+            "description": "数据快照日期",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3.snapshot_date",
+            "tags": [],
+            "ordinalPosition": 1,
+            "children": [],
+            "extension": {
+              "source_field": "snapshot_date",
+              "enum_definition": "{}",
+              "business_name_zh": "数据快照日期"
+            }
+          },
+          {
+            "name": "shop_id",
+            "displayName": "店铺ID",
+            "dataType": "STRING",
+            "dataTypeDisplay": "string",
+            "description": "店铺ID",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3.shop_id",
+            "tags": [],
+            "ordinalPosition": 2,
+            "children": [],
+            "extension": {
+              "source_field": "shop_id",
+              "enum_definition": "{}",
+              "business_name_zh": "店铺ID"
+            }
+          },
+          {
+            "name": "shop_name",
+            "displayName": "店铺名称",
+            "dataType": "STRING",
+            "dataTypeDisplay": "nullable(string)",
+            "description": "店铺名称",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3.shop_name",
+            "tags": [],
+            "ordinalPosition": 3,
+            "children": [],
+            "extension": {
+              "source_field": "shop_name",
+              "enum_definition": "{}",
+              "business_name_zh": "店铺名称"
+            }
+          },
+          {
+            "name": "shop_order_id",
+            "displayName": "店铺订单号",
+            "dataType": "STRING",
+            "dataTypeDisplay": "string",
+            "description": "店铺订单号",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3.shop_order_id",
+            "tags": [],
+            "ordinalPosition": 4,
+            "children": [],
+            "extension": {
+              "source_field": "shop_order_id",
+              "enum_definition": "{}",
+              "business_name_zh": "店铺订单号"
+            }
+          },
+          {
+            "name": "tracking_no",
+            "displayName": "快递单号；用于后续运费匹配",
+            "dataType": "STRING",
+            "dataTypeDisplay": "string",
+            "description": "快递单号；用于后续运费匹配",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3.tracking_no",
+            "tags": [],
+            "ordinalPosition": 5,
+            "children": [],
+            "extension": {
+              "source_field": "tracking_no",
+              "enum_definition": "{}",
+              "business_name_zh": "快递单号；用于后续运费匹配"
+            }
+          },
+          {
+            "name": "logistics_company_names",
+            "displayName": "物流公司名称列表，按快递单号粒度去重拼接",
+            "dataType": "STRING",
+            "dataTypeDisplay": "nullable(string)",
+            "description": "物流公司名称列表，按快递单号粒度去重拼接",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3.logistics_company_names",
+            "tags": [],
+            "ordinalPosition": 6,
+            "children": [],
+            "extension": {
+              "source_field": "logistics_company_names",
+              "enum_definition": "{}",
+              "business_name_zh": "物流公司名称列表，按快递单号粒度去重拼接"
+            }
+          },
+          {
+            "name": "first_shipped_at",
+            "displayName": "最早发货时间",
+            "dataType": "DATETIME",
+            "dataTypeDisplay": "nullable(datetime('asia/shanghai'))",
+            "description": "最早发货时间",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3.first_shipped_at",
+            "tags": [],
+            "ordinalPosition": 7,
+            "children": [],
+            "extension": {
+              "source_field": "first_shipped_at",
+              "enum_definition": "{}",
+              "business_name_zh": "最早发货时间"
+            }
+          },
+          {
+            "name": "latest_shipped_at",
+            "displayName": "最晚发货时间",
+            "dataType": "DATETIME",
+            "dataTypeDisplay": "nullable(datetime('asia/shanghai'))",
+            "description": "最晚发货时间",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3.latest_shipped_at",
+            "tags": [],
+            "ordinalPosition": 8,
+            "children": [],
+            "extension": {
+              "source_field": "latest_shipped_at",
+              "enum_definition": "{}",
+              "business_name_zh": "最晚发货时间"
+            }
+          },
+          {
+            "name": "package_count",
+            "displayName": "快递单号下源包裹记录数；包裹ID不作为业务粒度，仅用于汇总计数",
+            "dataType": "INT",
+            "dataTypeDisplay": "uint16",
+            "description": "快递单号下源包裹记录数；包裹ID不作为业务粒度，仅用于汇总计数",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3.package_count",
+            "tags": [],
+            "ordinalPosition": 9,
+            "children": [],
+            "extension": {
+              "source_field": "package_count",
+              "enum_definition": "{}",
+              "business_name_zh": "快递单号下源包裹记录数；包裹ID不作为业务粒度，仅用于汇总计数"
+            }
+          },
+          {
+            "name": "package_product_row_count",
+            "displayName": "快递单号下物流商品关系行数",
+            "dataType": "INT",
+            "dataTypeDisplay": "uint32",
+            "description": "快递单号下物流商品关系行数",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3.package_product_row_count",
+            "tags": [],
+            "ordinalPosition": 10,
+            "children": [],
+            "extension": {
+              "source_field": "package_product_row_count",
+              "enum_definition": "{}",
+              "business_name_zh": "快递单号下物流商品关系行数"
+            }
+          },
+          {
+            "name": "sku_order_count",
+            "displayName": "快递单号下商品子单数",
+            "dataType": "INT",
+            "dataTypeDisplay": "uint32",
+            "description": "快递单号下商品子单数",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3.sku_order_count",
+            "tags": [],
+            "ordinalPosition": 11,
+            "children": [],
+            "extension": {
+              "source_field": "sku_order_count",
+              "enum_definition": "{}",
+              "business_name_zh": "快递单号下商品子单数"
+            }
+          },
+          {
+            "name": "sku_order_ids",
+            "displayName": "商品子单号列表，按快递单号粒度去重拼接",
+            "dataType": "STRING",
+            "dataTypeDisplay": "nullable(string)",
+            "description": "商品子单号列表，按快递单号粒度去重拼接",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3.sku_order_ids",
+            "tags": [],
+            "ordinalPosition": 12,
+            "children": [],
+            "extension": {
+              "source_field": "sku_order_ids",
+              "enum_definition": "{}",
+              "business_name_zh": "商品子单号列表，按快递单号粒度去重拼接"
+            }
+          },
+          {
+            "name": "shipped_product_count",
+            "displayName": "发货商品数量合计",
+            "dataType": "BIGINT",
+            "dataTypeDisplay": "nullable(int64)",
+            "description": "发货商品数量合计",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3.shipped_product_count",
+            "tags": [],
+            "ordinalPosition": 13,
+            "children": [],
+            "extension": {
+              "source_field": "shipped_product_count",
+              "enum_definition": "{}",
+              "business_name_zh": "发货商品数量合计"
+            }
+          },
+          {
+            "name": "guarantee_amount",
+            "displayName": "物流保价金额合计，源单位分，清洗后单位元",
+            "dataType": "DECIMAL",
+            "dataTypeDisplay": "nullable(decimal(38, 2))",
+            "description": "物流保价金额合计，源单位分，清洗后单位元",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3.guarantee_amount",
+            "tags": [],
+            "ordinalPosition": 14,
+            "children": [],
+            "extension": {
+              "source_field": "guarantee_amount",
+              "enum_definition": "{}",
+              "business_name_zh": "物流保价金额合计，源单位分，清洗后单位元"
+            }
+          },
+          {
+            "name": "platform_delivery_discount_amount",
+            "displayName": "即时零售平台运力配送优惠金额合计，源单位分，清洗后单位元",
+            "dataType": "DECIMAL",
+            "dataTypeDisplay": "nullable(decimal(38, 2))",
+            "description": "即时零售平台运力配送优惠金额合计，源单位分，清洗后单位元",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3.platform_delivery_discount_amount",
+            "tags": [],
+            "ordinalPosition": 15,
+            "children": [],
+            "extension": {
+              "source_field": "platform_delivery_discount_amount",
+              "enum_definition": "{}",
+              "business_name_zh": "即时零售平台运力配送优惠金额合计，源单位分，清洗后单位元"
+            }
+          },
+          {
+            "name": "platform_delivery_paid_amount",
+            "displayName": "即时零售平台运力配送实付金额合计，源单位分，清洗后单位元",
+            "dataType": "DECIMAL",
+            "dataTypeDisplay": "nullable(decimal(38, 2))",
+            "description": "即时零售平台运力配送实付金额合计，源单位分，清洗后单位元",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3.platform_delivery_paid_amount",
+            "tags": [],
+            "ordinalPosition": 16,
+            "children": [],
+            "extension": {
+              "source_field": "platform_delivery_paid_amount",
+              "enum_definition": "{}",
+              "business_name_zh": "即时零售平台运力配送实付金额合计，源单位分，清洗后单位元"
+            }
+          },
+          {
+            "name": "platform_delivery_payable_amount",
+            "displayName": "即时零售平台运力配送应付金额合计，源单位分，清洗后单位元",
+            "dataType": "DECIMAL",
+            "dataTypeDisplay": "nullable(decimal(38, 2))",
+            "description": "即时零售平台运力配送应付金额合计，源单位分，清洗后单位元",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3.platform_delivery_payable_amount",
+            "tags": [],
+            "ordinalPosition": 17,
+            "children": [],
+            "extension": {
+              "source_field": "platform_delivery_payable_amount",
+              "enum_definition": "{}",
+              "business_name_zh": "即时零售平台运力配送应付金额合计，源单位分，清洗后单位元"
+            }
+          },
+          {
+            "name": "avg_product_price_amount",
+            "displayName": "物流商品单价平均值，源单位分，清洗后单位元；平均型指标按快递单号粒度取平均",
+            "dataType": "DECIMAL",
+            "dataTypeDisplay": "nullable(decimal(38, 2))",
+            "description": "物流商品单价平均值，源单位分，清洗后单位元；平均型指标按快递单号粒度取平均",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3.avg_product_price_amount",
+            "tags": [],
+            "ordinalPosition": 18,
+            "children": [],
+            "extension": {
+              "source_field": "avg_product_price_amount",
+              "enum_definition": "{}",
+              "business_name_zh": "物流商品单价平均值，源单位分，清洗后单位元；平均型指标按快递单号粒度取平均"
+            }
+          }
+        ],
+        "owners": [],
+        "databaseSchema": {
+          "id": "ed4d9991-052f-49c7-a522-b069989e6987",
+          "type": "databaseSchema",
+          "name": "youmei_sandbox",
+          "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox",
+          "displayName": "youmei_sandbox",
+          "deleted": false,
+          "href": "http://127.0.0.1:8585/api/v1/databaseSchemas/ed4d9991-052f-49c7-a522-b069989e6987"
+        },
+        "database": {
+          "id": "84700061-04e4-4859-8830-67c001d8a726",
+          "type": "database",
+          "name": "default",
+          "fullyQualifiedName": "youmei_clickhouse.default",
+          "displayName": "default",
+          "deleted": false,
+          "href": "http://127.0.0.1:8585/api/v1/databases/84700061-04e4-4859-8830-67c001d8a726"
+        },
+        "service": {
+          "id": "caca166b-5d77-4ca3-81bb-b4d74e872741",
+          "type": "databaseService",
+          "name": "youmei_clickhouse",
+          "fullyQualifiedName": "youmei_clickhouse",
+          "displayName": "youmei_clickhouse",
+          "deleted": false,
+          "href": "http://127.0.0.1:8585/api/v1/services/databaseServices/caca166b-5d77-4ca3-81bb-b4d74e872741"
+        },
+        "serviceType": "Clickhouse",
+        "tags": [
+          {
+            "tagFQN": "Tier.Tier2",
+            "name": "Tier2",
+            "description": "**Important business datasets for your company (not as critical as Tier 1)**\n\n- Used in important business metrics, product metrics, and dashboards to drive internal decisions\n\n- Used in important compliance reporting to major regulators, govt entities, and third party\n\n- Used for less critical online user-facing experiences (user activity, user behavior)\n\n- Source used to derive other critical Tier-2 datasets",
+            "source": "Classification",
+            "labelType": "Manual",
+            "state": "Confirmed",
+            "appliedAt": 1784879415667
+          }
+        ],
+        "followers": [],
+        "deleted": false,
+        "extension": {
+          "amount_conversion_status": "tracking_no_shadow_amounts_summed_average_metrics_averaged",
+          "amount_rule_version": "1.3.3",
+          "amount_unit_strategy": "field_level_unit_evidence",
+          "business_field_retention_policy": "tracking_no_business_grain_package_id_excluded",
+          "business_table_name_zh": "DWD_抖店订单物流快递单号粒度影子表",
+          "cleaning_contract_id": "doudian_order_tracking_no_shadow_contract",
+          "cleaning_contract_version": "1.3.3",
+          "data_quality_status": "shadow_passed_pending_user_review",
+          "grain": "店铺ID(shop_id) + 店铺订单号(shop_order_id) + 快递单号(tracking_no)",
+          "json_expansion_policy": "shadow_tracking_no_grain_package_id_not_materialized",
+          "null_value_policy": "empty_or_null_to_NULL_non_empty_invalid_to_exception_count_zero_preserved",
+          "refresh_mode": "window_full_snapshot",
+          "source_api": "order.searchList",
+          "source_api_doc": "https://op.jinritemai.com/docs/api-docs/15/1342",
+          "source_system": "doudian_api",
+          "technical_key_fields": "shop_id,shop_order_id,tracking_no",
+          "warehouse_layer": "DWD_SHADOW"
+        },
+        "domains": [],
+        "dataProducts": [],
+        "votes": {
+          "upVotes": 0,
+          "downVotes": 0,
+          "upVoters": [],
+          "downVoters": []
+        },
+        "processedLineage": false,
+        "entityStatus": "Unprocessed"
+      }
+    },
+    {
+      "contract": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\metadata-contract-formal-logistics-tracking-no-1.4.3.yaml",
+      "mode": "verify",
+      "returncode": 0,
+      "ok": true,
+      "stdout": {
+        "ok": true,
+        "mode": "verify",
+        "verification": {
+          "table_fqn": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_df",
+          "table_exists": true,
+          "expected_column_count": 18,
+          "actual_column_count": 18,
+          "missing_columns": [],
+          "unexpected_columns": [],
+          "column_mismatches": [],
+          "custom_property_mismatches": [],
+          "actual_extension_keys": [
+            "amount_conversion_status",
+            "amount_rule_version",
+            "amount_unit_strategy",
+            "business_field_retention_policy",
+            "business_table_name_zh",
+            "cleaning_contract_id",
+            "cleaning_contract_version",
+            "data_quality_status",
+            "grain",
+            "json_expansion_policy",
+            "null_value_policy",
+            "refresh_mode",
+            "source_api",
+            "source_api_doc",
+            "source_system",
+            "technical_key_fields",
+            "warehouse_layer"
+          ],
+          "actual_first_column_tags": [],
+          "ok": true
+        }
+      },
+      "stderr": ""
+    },
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3",
+        "mode": "verify",
+        "ok": true,
+        "action": "already_absent",
+        "reason": "已按同一快递单号粒度契约晋级正式DWD，影子表完成使命并清理"
+      },
+      "mode": "verify",
+      "returncode": 0,
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_3",
+      "ok": true,
+      "action": "already_absent",
+      "reason": "已按同一快递单号粒度契约晋级正式DWD，影子表完成使命并清理"
+    }
+  ]
+}
