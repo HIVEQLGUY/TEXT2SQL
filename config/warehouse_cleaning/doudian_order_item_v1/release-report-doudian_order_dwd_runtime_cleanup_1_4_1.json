@@ -1,12 +1,12 @@
 {
   "report_version": "warehouse-release-report/v1",
-  "status": "succeeded",
+  "status": "version_record_pending",
   "release_id": "doudian_order_dwd_runtime_cleanup_1_4_1",
   "version": "1.4.1",
   "release_type": "cleanup",
   "environment": "test",
   "requested_mode": "full",
-  "started_at": "2026-07-26T11:45:53+08:00",
+  "started_at": "2026-07-26T11:46:14+08:00",
   "package_dir": "config/warehouse_cleaning/doudian_order_item_v1",
   "release_file": "config/warehouse_cleaning/doudian_order_item_v1/cleanup-dwd-runtime-1.4.1.yaml",
   "source": {
@@ -235,6 +235,80 @@
         ],
         "report_path": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\openmetadata-sync-report-cleanup-dwd-runtime-1.4.1.json"
       }
+    },
+    {
+      "name": "git_finalize_commit",
+      "status": "passed",
+      "at": "2026-07-26T11:45:53+08:00",
+      "result": {
+        "ok": true,
+        "commit": {
+          "label": "git:commit",
+          "ok": true,
+          "returncode": 0,
+          "stdout": "[main a5e4da6] warehouse release doudian_order_dwd_runtime_cleanup_1_4_1 succeeded\n 2 files changed, 3507 insertions(+), 156 deletions(-)\n",
+          "stderr": "",
+          "command": [
+            "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\git\\cmd\\git.EXE",
+            "commit",
+            "-m",
+            "warehouse release doudian_order_dwd_runtime_cleanup_1_4_1 succeeded"
+          ]
+        },
+        "head": "a5e4da6029f11f86b1c1827bf735a4b730e1bbdb"
+      }
+    },
+    {
+      "name": "git_tag",
+      "status": "passed",
+      "at": "2026-07-26T11:45:53+08:00",
+      "result": {
+        "ok": true,
+        "tag": "warehouse/doudian-order-dwd-runtime-cleanup-1.4.1",
+        "create": {
+          "label": "git:tag",
+          "ok": true,
+          "returncode": 0,
+          "stdout": "",
+          "stderr": "",
+          "command": [
+            "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\git\\cmd\\git.EXE",
+            "tag",
+            "-a",
+            "warehouse/doudian-order-dwd-runtime-cleanup-1.4.1",
+            "-m",
+            "warehouse release doudian_order_dwd_runtime_cleanup_1_4_1"
+          ]
+        },
+        "commit": "a5e4da6029f11f86b1c1827bf735a4b730e1bbdb"
+      }
+    },
+    {
+      "name": "git_finalize_push",
+      "status": "failed",
+      "at": "2026-07-26T11:46:14+08:00",
+      "result": {
+        "ok": false,
+        "remote": "origin",
+        "branch": "main",
+        "follow_tags": true,
+        "result": {
+          "label": "git:push",
+          "ok": false,
+          "returncode": 128,
+          "stdout": "",
+          "stderr": "fatal: unable to access 'https://github.com/HIVEQLGUY/TEXT2SQL.git/': Recv failure: Connection was reset\n",
+          "command": [
+            "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\git\\cmd\\git.EXE",
+            "push",
+            "--porcelain",
+            "--follow-tags",
+            "origin",
+            "HEAD:main"
+          ]
+        },
+        "error": "Git 远程推送失败，需修复远程状态后运行 finalize"
+      }
     }
   ],
   "git": {
@@ -244,5 +318,28 @@
     "branch": "main",
     "tag": "warehouse/doudian-order-dwd-runtime-cleanup-1.4.1"
   },
-  "finished_at": "2026-07-26T11:45:53+08:00"
+  "failure_reason": "清理和本地 Git 留痕已完成，但远程 Git 推送失败，需要运行 finalize",
+  "push_result": {
+    "ok": false,
+    "remote": "origin",
+    "branch": "main",
+    "follow_tags": true,
+    "result": {
+      "label": "git:push",
+      "ok": false,
+      "returncode": 128,
+      "stdout": "",
+      "stderr": "fatal: unable to access 'https://github.com/HIVEQLGUY/TEXT2SQL.git/': Recv failure: Connection was reset\n",
+      "command": [
+        "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\git\\cmd\\git.EXE",
+        "push",
+        "--porcelain",
+        "--follow-tags",
+        "origin",
+        "HEAD:main"
+      ]
+    },
+    "error": "Git 远程推送失败，需修复远程状态后运行 finalize"
+  },
+  "finished_at": "2026-07-26T11:46:14+08:00"
 }
