@@ -200,6 +200,7 @@ ClickHouse 测试库(youmei_sandbox)
 
 - ClickHouse SQL、表设计、建模验证 -> `clickhouse-sql-dev`
 - 正式数仓发布、候选表切换、回滚、发布报告和 Git 留痕 -> 项目 `warehouse-release.cmd`
+- 已批准影子表晋级正式 DWD -> 项目 `warehouse-promote.cmd`；不得再依赖聊天逐步寻找正式包或手工重跑阶段
 - ODS 到 DWD 清洗、字段语义统一、JSON 展开、金额/枚举/质量契约 -> `data-warehouse-cleaning`
 - 数仓建模、粒度、指标、维度 -> `data-warehouse-modeling`；其中 ODS 到 DWD 必须先经过 `data-warehouse-cleaning`
 - 平台/端口/WSL/Docker/Superset/DolphinScheduler/OpenMetadata 状态 -> `dataagent-platform-ops` 或更贴近的新脚本
@@ -308,9 +309,17 @@ warehouse-release.cmd --release <发布YAML> --mode full
 warehouse-release.cmd --release <发布YAML> --mode finalize
 ```
 
+已批准影子表的正式晋级使用固定一键入口：
+
+```powershell
+C:\Users\24796\Documents\TEXT2SQL\warehouse-promote.cmd <影子发布YAML>
+```
+
+该入口只接受影子发布报告已为 `succeeded`/`finalized` 且指纹一致的结果，自动解析 `promotion.formal_release` 或唯一匹配的正式发布包，校验来源表、分区、粒度和主键后调用正式 `full` 发布。正式发布包仍必须通过 ClickHouse、OpenMetadata 和 Git 全部门禁；一键入口只是固化路由，不降低业务确认或生产质量门槛。Git 推送默认在发布进程内自动重试，并在必要时自动进入 `finalize`，不得要求 AI 或聊天继续接力。
+
 发布总控已经固化以下门禁：发布指纹、同一 release_id 版本漂移、同一 SQL 多阶段复用、候选表与生产表重名、只读阶段出现 DDL/DML、构建阶段直写生产表、清理 SQL 未覆盖声明对象、OpenMetadata 契约重复指向同一表、Git 暂存区污染、重复发布幂等、并发发布锁、ClickHouse 阶段失败、切换后回滚、临时对象清理失败、Git 最终留痕失败和远程同步失败。
 
-正式 `full` 发布必须使用 `candidate_swap`：先 Git 预提交发布包，再只写候选表，质量通过后切换唯一正式表，执行 OpenMetadata `plan -> apply -> verify`，最后清理候选/旧表临时对象并提交报告和标签；上述平台步骤成功后，发布总控必须自动推送 Git 远程分支和标签。`release_type: shadow` 的 `full` 发布同样必须自动同步；只有 `plan`/`verify` 只读阶段不触发推送。远程推送失败标记 `version_record_pending`，使用 `finalize` 补记，不得汇报为完整发布成功。历史版本不在 ClickHouse 保留多张正式备份表，统一依据 Git 发布包重建。
+正式 `full` 发布必须使用 `candidate_swap`：先 Git 预提交发布包，再只写候选表，质量通过后切换唯一正式表，执行 OpenMetadata `plan -> apply -> verify`，最后清理候选/旧表临时对象并提交报告和标签；上述平台步骤成功后，发布总控必须自动推送 Git 远程分支和标签。`release_type: shadow` 的 `full` 发布同样必须自动同步；只有 `plan`/`verify` 只读阶段不触发推送。远程推送默认自动重试并在同一进程内自动补记 `finalize`；重试仍失败才标记 `version_record_pending`，不得汇报为完整发布成功。历史版本不在 ClickHouse 保留多张正式备份表，统一依据 Git 发布包重建。
 
 清理 `full` 发布只允许执行 `preflight -> quality -> OpenMetadata plan -> cleanup -> postcheck -> OpenMetadata apply/verify 退休回读 -> Git 留痕`，不创建物理备份。OpenMetadata 只读计划未通过时不得删除 ClickHouse 对象；当前正式表必须在 `postcheck` 中确认仍存在，清理对象必须确认不存在；OpenMetadata 退休失败或 Git 远程同步失败时，发布报告必须明确标记未完成并支持重跑/补记。
 

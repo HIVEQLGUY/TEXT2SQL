@@ -68,6 +68,12 @@ approval:
   authorized_at: '2026-07-23T00:00:00+08:00'
   user_confirmation: 影子结果已审阅，批准候选表切换正式表
 
+# 影子发布包在业务审阅完成后填写 formal_release；正式发布包可填写 shadow_release 供审计回溯。
+promotion:
+  formal_release: ''
+  shadow_release: ''
+  required_shadow_report_statuses: [succeeded, finalized]
+
 git:
   required: true
   auto_commit: true
@@ -75,6 +81,8 @@ git:
   remote: origin
   branch: main
   tag: warehouse/doudian-order-1.4.0
+  push_retries: 3
+  push_retry_backoff_seconds: 3
   include_paths:
     - cleaning-contract.yaml
     - modeling-contract.yaml

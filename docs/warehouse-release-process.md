@@ -55,6 +55,18 @@ C:\Users\24796\Documents\TEXT2SQL\warehouse-release.cmd --release <发布YAML> -
 C:\Users\24796\Documents\TEXT2SQL\warehouse-release.cmd --release <发布YAML> --mode finalize
 ```
 
+## 影子晋级一键入口
+
+影子表完成业务审阅并且影子发布报告为 `succeeded` 或 `finalized` 后，不再需要 AI 重新寻找正式 SQL、核对字段或逐步执行命令。影子发布 YAML 在 `promotion.formal_release` 中登记预先固化的正式发布 YAML，然后直接运行：
+
+```powershell
+C:\Users\24796\Documents\TEXT2SQL\warehouse-promote.cmd <影子发布YAML>
+```
+
+该入口自动完成：影子报告和发布指纹校验、正式发布包定位、来源表/分区/粒度/主键一致性校验、正式 `full` 发布、ClickHouse 候选切换与质量门禁、OpenMetadata `plan -> apply -> verify`、影子清理、Git 提交/标签/远程同步。正式发布包已存在但影子包尚未补充 `promotion.formal_release` 时，只有目录内存在唯一匹配的正式发布包才允许自动发现；发现多个候选或无法匹配时直接阻断，避免静默选错版本。
+
+正式平台步骤完成后，Git 推送由发布器在同一进程内按配置自动重试；仍失败时自动进入 `finalize` 补记路径，网络恢复时再次重试，不需要用户继续和 AI 往返。失败仍会留下 `version_record_pending` 报告，不能伪造完成状态。
+
 `plan` 只校验文件、版本指纹、阶段顺序和门禁，并执行 Git 工作树/暂存区只读预检，不写 ClickHouse、OpenMetadata 或 Git。发布器会自动补齐随附 Git 运行时的 HTTPS、receive-pack 等辅助程序路径，不要求调用方手工设置环境变量。`verify` 执行健康检查和只读前置 SQL；正式发布检查目标表和元数据，清理发布检查待清理对象并执行 OpenMetadata 退休计划。`full` 才是正式发布动作，成功收尾后自动提交并推送 Git 分支和标签。`finalize` 用于平台已经完成但 Git 最终提交、标签或远程同步遇到临时故障后的显式补记，不会重新执行数据写入。
 
 ## 发布包最小要求
@@ -87,6 +99,7 @@ C:\Users\24796\Documents\TEXT2SQL\warehouse-release.cmd --release <发布YAML> -
 - Git 最终留痕失败时标记 `version_record_pending`，使用 `finalize` 补记；不能把平台成功当成完整发布成功。
 - Git 最终推送失败标记 `version_record_pending`；ClickHouse 和 OpenMetadata 结果不回滚，仅保留本地版本记录并阻断“完整发布成功”状态，`finalize` 必须补记报告、标签和远程推送。发布前不再把远程推送作为数据写入前置条件。
 - Git 推送固定使用非交互模式和 60 秒超时；网络、凭据或超时失败都必须快速落为 `version_record_pending`，不得留下等待输入的后台推送进程，恢复后仍通过同一发布的 `finalize` 重试。
+- Git 推送默认自动重试 3 次，退避间隔由 `git.push_retry_backoff_seconds` 控制；同一 `full` 进程在远程失败后自动尝试 `finalize`，只有重试仍失败才等待后续人工/调度补偿。
 - 版本历史不通过 ClickHouse 多套正式表保存；成功发布后只保留当前正式表和必要的运行态/审计报告。
 - 影子表、验证表和历史备份表不因“发布成功”自动全部保留；已确认晋级、退回或过期的对象必须另行生成清理发布。候选表和 `__previous__` 临时名仍由正式发布成功后的 `cleanup` 自动清理。
 - 清理发布优先保护数据对象：OpenMetadata 只读计划是删除前置门禁；清理 SQL 只允许操作 `cleanup.objects`，`DROP/TRUNCATE` 未声明对象或漏删声明对象都会阻断。

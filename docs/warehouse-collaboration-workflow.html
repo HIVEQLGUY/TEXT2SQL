@@ -228,14 +228,14 @@
         </div>
         <div class="header-note">
           <strong>本页面的边界</strong>
-          流程说明和协作交接入口，不直接执行 ClickHouse 写入；正式发布仍必须通过项目发布入口完成。
+          流程说明和协作交接入口；业务确认完成后，正式晋级由固定发布入口一次完成，不需要 AI 继续接力执行。
         </div>
       </header>
 
       <section class="status-strip" aria-label="当前协作状态">
         <div class="status-cell">
           <div class="status-label">当前协作阶段</div>
-          <div class="status-value active">05 / 业务审阅<small>影子结果已完成，正式晋级待确认</small></div>
+          <div class="status-value active">06 / 正式发布<small>物流快递单号粒度 DWD 已完成晋级</small></div>
         </div>
         <div class="status-cell">
           <div class="status-label">数据引擎</div>
@@ -336,17 +336,18 @@
         <table class="snapshot-table">
           <tbody>
             <tr><th>源表</th><td>ODS_销售订单列表信息表(抖店API) <span class="mono">ods_api_dd_sale_order_list_info_f</span></td></tr>
-            <tr><th>当前影子表</th><td>DWD_抖店订单物流快递单号粒度影子表 <span class="mono">dwd_trade_order_logistics_tracking_no_shadow_1_3_3</span></td></tr>
+            <tr><th>当前影子表</th><td>已晋级并清理：DWD_抖店订单物流快递单号粒度影子表 <span class="mono">dwd_trade_order_logistics_tracking_no_shadow_1_3_3</span></td></tr>
+            <tr><th>当前正式表</th><td>DWD_抖店订单物流快递单号粒度事实全量快照表 <span class="mono">dwd_trade_order_logistics_tracking_no_df</span>，41,140 行、18 字段</td></tr>
             <tr><th>业务粒度</th><td>店铺ID(<span class="mono">shop_id</span>) + 店铺订单号(<span class="mono">shop_order_id</span>) + 快递单号(<span class="mono">tracking_no</span>)</td></tr>
-            <tr><th>当前结果</th><td><span class="status-text">影子表质量验证通过</span>；正式 DWD 晋级仍需业务确认</td></tr>
-            <tr><th>遇到问题怎么办</th><td>新建纠正发布版本；批准则按正式候选流程晋级并清理影子，退回或过期则走 cleanup 发布，不直接手工改表。</td></tr>
+            <tr><th>当前结果</th><td><span class="status-text">正式 DWD 已发布</span>；ClickHouse、OpenMetadata、Git 远程同步均已完成</td></tr>
+            <tr><th>遇到问题怎么办</th><td>新建纠正、清理或回滚发布版本；不要手工改表或保留物理备份表。</td></tr>
           </tbody>
         </table>
       </section>
 
       <footer class="footer">
-        <div><strong>正式执行入口：</strong><span class="mono">warehouse-release.cmd --release &lt;发布YAML&gt; --mode full</span></div>
-        <div>页面版本：协作工作流 v2 · 仅记录流程，不替代发布授权</div>
+        <div><strong>影子晋级入口：</strong><span class="mono">warehouse-promote.cmd &lt;影子发布YAML&gt;</span></div>
+        <div>页面版本：协作工作流 v3 · 仅记录流程，不替代发布授权</div>
       </footer>
     </main>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -387,20 +388,20 @@
         destination: "写入 ClickHouse 测试库；同步影子元数据；不切换正式表。"
       },
       {
-        number: "05", title: "业务审阅", state: "当前阶段", kind: "active", filter: "attention",
-        lead: "你审阅影子结果，决定这套粒度和字段是否可以进入正式 DWD。",
+        number: "05", title: "业务审阅", state: "已完成", kind: "done", filter: "done",
+        lead: "你审阅影子结果并确认这套粒度和字段可以进入正式 DWD。",
         owner: ["你：确认结果能否支持运费、商品、订单和后续经营分析。", "我：根据反馈修订契约或准备正式发布包。"],
         confirm: ["影子粒度", "店铺ID + 店铺订单号 + 快递单号是否作为物流分析粒度", "正式授权", "是否允许候选表切换为正式 DWD"],
         outputs: ["审阅结论", "批准或退回原因", "正式发布授权"],
-        destination: "只记录审阅结论；没有正式授权就不能执行 full。"
+        destination: "审阅结论写入审批和发布契约，作为一键晋级的唯一业务门禁。"
       },
       {
-        number: "06", title: "正式发布", state: "待进入", kind: "locked", filter: "attention",
-        lead: "影子结果获批后，按同一契约重新构建正式候选表，切换唯一正式表，并清理已晋级影子表。",
-        owner: ["我：运行正式发布总控并登记影子清理对象。", "发布器：执行候选构建、质量、切换、元数据同步、影子清理和 Git 留痕。"],
-        confirm: ["正式授权", "正式发布必须有 formal_publish_authorized: true", "影子处理", "晋级后删除影子，不改名绕过正式门禁", "版本配置", "正式发布必须开启 git.auto_push: true"],
+        number: "06", title: "正式发布", state: "已完成", kind: "done", filter: "done",
+        lead: "运行一键晋级入口，按同一契约重建正式候选表，切换唯一正式表，并清理已晋级影子表。",
+        owner: ["你：只确认业务结果和正式授权。", "发布器：自动执行候选构建、质量、切换、元数据同步、影子清理、Git 重试和版本留痕。"],
+        confirm: ["自动路由", "影子报告必须为 succeeded/finalized 且指纹一致", "正式授权", "正式发布包必须有 formal_publish_authorized: true", "发布结果", "ClickHouse、OpenMetadata、Git 均返回成功"],
         outputs: ["正式 DWD", "影子清理结果", "OpenMetadata 当前元数据", "Git 提交、标签和发布报告"],
-        destination: "ClickHouse 切换正式表并清理影子；OpenMetadata 执行 plan/apply/verify；Git 推送 origin/main 和版本标签。"
+        destination: "warehouse-promote.cmd 一次完成 ClickHouse 切换、OpenMetadata plan/apply/verify、影子清理和 Git origin/main/标签同步。"
       },
       {
         number: "07", title: "迭代、清理与回滚", state: "持续执行", kind: "ready", filter: "all",
@@ -418,7 +419,7 @@
       { id: "formal", title: "我批准正式发布", description: "允许候选表切换为正式表，并清理已晋级影子表、执行 OpenMetadata 和 Git 留痕。" }
     ];
 
-    let selected = 4;
+    let selected = 5;
     let filter = "all";
     const gateState = JSON.parse(localStorage.getItem("warehouse-workflow-gates") || "{}");
 
@@ -517,12 +518,13 @@
     document.getElementById("copy-summary").addEventListener("click", async () => {
       const summary = [
         "数仓协作工作流本轮摘要",
-        "当前阶段：05 / 业务审阅",
+        "当前阶段：06 / 正式发布",
         "源表：ODS_销售订单列表信息表(抖店API) (ods_api_dd_sale_order_list_info_f)",
         "影子表：DWD_抖店订单物流快递单号粒度影子表 (dwd_trade_order_logistics_tracking_no_shadow_1_3_3)",
         "粒度：店铺ID(shop_id) + 店铺订单号(shop_order_id) + 快递单号(tracking_no)",
-        "状态：影子表质量验证通过；正式DWD晋级待业务确认",
-        "原则：确认契约 -> 影子验证 -> 业务批准 -> 正式发布/清理影子 -> OpenMetadata和Git留痕"
+        "正式表：DWD_抖店订单物流快递单号粒度事实全量快照表 (dwd_trade_order_logistics_tracking_no_df)",
+        "状态：正式DWD已发布；ClickHouse、OpenMetadata和Git远程同步完成",
+        "原则：确认契约 -> 影子验证 -> 业务批准 -> warehouse-promote一键晋级 -> OpenMetadata和Git留痕"
       ].join("\n");
       try {
         await navigator.clipboard.writeText(summary);

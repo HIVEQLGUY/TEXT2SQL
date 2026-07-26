@@ -18,6 +18,7 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -291,6 +292,7 @@ def normalize_manifest(raw: dict[str, Any], release_file: Path, package_dir: Pat
     approval = raw.get("approval") if isinstance(raw.get("approval"), dict) else {}
     git = raw.get("git") if isinstance(raw.get("git"), dict) else {}
     publish = raw.get("publish") if isinstance(raw.get("publish"), dict) else {}
+    promotion = raw.get("promotion") if isinstance(raw.get("promotion"), dict) else {}
     cleanup_raw = raw.get("cleanup") if isinstance(raw.get("cleanup"), dict) else {}
     cleanup_objects: list[dict[str, str]] = []
     for item in as_list(cleanup_raw.get("objects")):
@@ -314,6 +316,15 @@ def normalize_manifest(raw: dict[str, Any], release_file: Path, package_dir: Pat
     if legacy:
         strategy = strategy or "legacy_direct"
 
+    try:
+        push_retries = max(1, min(5, int(git.get("push_retries", 3))))
+    except (TypeError, ValueError):
+        push_retries = 3
+    try:
+        push_backoff_seconds = max(0.0, min(30.0, float(git.get("push_retry_backoff_seconds", 3))))
+    except (TypeError, ValueError):
+        push_backoff_seconds = 3.0
+
     normalized = {
         "release_api_version": str(raw.get("release_api_version", "warehouse-release/v1")),
         "release_id": release_id,
@@ -326,6 +337,7 @@ def normalize_manifest(raw: dict[str, Any], release_file: Path, package_dir: Pat
             "partitions": [str(item).strip() for item in as_list(partitions) if str(item).strip()],
             "chinese_name": str(source.get("chinese_name", "")).strip(),
             "physical_name": str(source.get("physical_name", "")).strip(),
+            "source_role": str(source.get("source_role", "")).strip(),
         },
         "targets": targets,
         "publish": {
@@ -343,6 +355,15 @@ def normalize_manifest(raw: dict[str, Any], release_file: Path, package_dir: Pat
             "env_file": str(openmetadata.get("env_file", "")).strip(),
         },
         "approval": approval,
+        "promotion": {
+            "formal_release": str(promotion.get("formal_release", "")).strip(),
+            "shadow_release": str(promotion.get("shadow_release", "")).strip(),
+            "required_shadow_report_statuses": [
+                str(item).strip().lower()
+                for item in as_list(promotion.get("required_shadow_report_statuses", ["succeeded", "finalized"]))
+                if str(item).strip()
+            ],
+        },
         "git": {
             "required": bool(git.get("required", release_type in {"formal", "corrective", "rollback"})),
             "auto_commit": bool(git.get("auto_commit", True)),
@@ -352,6 +373,8 @@ def normalize_manifest(raw: dict[str, Any], release_file: Path, package_dir: Pat
             "tag": str(git.get("tag", f"warehouse/{release_id}")).strip(),
             "include_paths": [str(item).strip() for item in as_list(git.get("include_paths")) if str(item).strip()],
             "executable": str(git.get("executable", "")).strip(),
+            "push_retries": push_retries,
+            "push_retry_backoff_seconds": push_backoff_seconds,
         },
         "artifacts": artifact_section,
         "cleanup": {
@@ -920,12 +943,31 @@ def git_push(ctx: ReleaseContext, git_info: dict[str, Any], *, follow_tags: bool
     if follow_tags:
         args.append("--follow-tags")
     args.extend([remote, f"HEAD:{branch}"])
-    pushed = run_git_command("git:push", git, args, repo_root, timeout=60)
+    git_config = ctx.normalized.get("git", {})
+    retries = int(git_config.get("push_retries", 3))
+    backoff_seconds = float(git_config.get("push_retry_backoff_seconds", 3))
+    attempts: list[dict[str, Any]] = []
+    pushed: dict[str, Any] = {"ok": False, "error": "Git push 未执行"}
+    for attempt in range(1, retries + 1):
+        pushed = run_git_command("git:push", git, args, repo_root, timeout=60)
+        attempts.append({
+            "attempt": attempt,
+            "ok": bool(pushed.get("ok")),
+            "returncode": pushed.get("returncode"),
+            "stdout": pushed.get("stdout", ""),
+            "stderr": pushed.get("stderr", ""),
+        })
+        if pushed.get("ok"):
+            break
+        if attempt < retries and backoff_seconds > 0:
+            time.sleep(backoff_seconds * attempt)
     return {
         "ok": pushed.get("ok", False),
         "remote": remote,
         "branch": branch,
         "follow_tags": follow_tags,
+        "attempt": len(attempts),
+        "attempts": attempts,
         "result": pushed,
         "error": None if pushed.get("ok") else "Git 远程推送失败，需修复远程状态后运行 finalize",
     }
@@ -1072,6 +1114,153 @@ def existing_report(ctx: ReleaseContext) -> dict[str, Any] | None:
     except (OSError, json.JSONDecodeError):
         return None
     return value if isinstance(value, dict) else None
+
+
+def audit_path(path: Path) -> str:
+    """Use a project-relative path in reports when possible, else an absolute test path."""
+    try:
+        return relative_to(PROJECT_ROOT, path)
+    except ReleaseError:
+        return str(path)
+
+
+def prepare_shadow_promotion(
+    shadow_release: Path,
+    formal_release_override: Path | None = None,
+) -> tuple[ReleaseContext, dict[str, Any]]:
+    """Resolve an approved shadow release to its prebuilt formal release package.
+
+    This is the non-AI handoff between review and production delivery. The
+    formal manifest remains the source of truth for SQL, metadata and Git;
+    this gate only proves that it belongs to the approved shadow result.
+    """
+    shadow_ctx = build_context(shadow_release)
+    validate_context(shadow_ctx, "verify")
+    if shadow_ctx.errors:
+        raise ReleaseError("影子发布包校验失败: " + "；".join(shadow_ctx.errors))
+    if shadow_ctx.normalized.get("release_type") != "shadow":
+        raise ReleaseError("--promote-shadow 只能接收 release_type: shadow 的发布包")
+
+    shadow_approval = shadow_ctx.normalized.get("approval", {})
+    if str(shadow_approval.get("status", "")).lower() not in {"approved", "active"}:
+        raise ReleaseError("影子发布包尚未处于 approved/active 状态")
+    if not bool(shadow_approval.get("shadow_publish_authorized", False)):
+        raise ReleaseError("影子发布包缺少 approval.shadow_publish_authorized=true")
+
+    shadow_report = existing_report(shadow_ctx)
+    if not shadow_report:
+        raise ReleaseError("找不到影子发布报告，不能晋级正式表")
+    required_statuses = set(shadow_ctx.normalized.get("promotion", {}).get("required_shadow_report_statuses") or ["succeeded", "finalized"])
+    if str(shadow_report.get("status", "")).lower() not in required_statuses:
+        raise ReleaseError(
+            "影子发布报告未通过晋级门禁: "
+            f"当前状态={shadow_report.get('status')}, 允许状态={sorted(required_statuses)}"
+        )
+    if shadow_report.get("manifest_fingerprint") != shadow_ctx.manifest_fingerprint:
+        raise ReleaseError("影子发布报告与当前影子发布包指纹不一致，禁止晋级")
+
+    promotion = shadow_ctx.normalized.get("promotion", {})
+    formal_value = str(promotion.get("formal_release", "")).strip()
+    auto_discovered = False
+    if formal_release_override is not None:
+        formal_value = str(formal_release_override).strip()
+    if not formal_value:
+        shadow_source = shadow_ctx.normalized.get("source", {})
+        shadow_targets = shadow_ctx.normalized.get("targets", [])
+        if len(shadow_targets) != 1:
+            raise ReleaseError("影子发布包未登记 promotion.formal_release，且无法对多目标影子表自动发现正式发布包")
+        shadow_target = shadow_targets[0]
+        discovered: list[Path] = []
+        for candidate in sorted(shadow_ctx.package_dir.glob("formal-release-*.yaml")):
+            try:
+                candidate_ctx = build_context(candidate)
+            except ReleaseError:
+                continue
+            candidate_source = candidate_ctx.normalized.get("source", {})
+            candidate_targets = candidate_ctx.normalized.get("targets", [])
+            if candidate_ctx.normalized.get("release_type") != "formal":
+                continue
+            if candidate_source.get("physical_name") != shadow_target.get("physical_name"):
+                continue
+            if candidate_source.get("database") != shadow_source.get("database"):
+                continue
+            if candidate_source.get("partitions") != shadow_source.get("partitions"):
+                continue
+            if not any(
+                target.get("grain") == shadow_target.get("grain")
+                and list(target.get("key", [])) == list(shadow_target.get("key", []))
+                for target in candidate_targets
+            ):
+                continue
+            candidate_report = existing_report(candidate_ctx)
+            if candidate_report and str(candidate_report.get("status", "")).lower() not in {"succeeded", "finalized", "version_record_pending"}:
+                continue
+            discovered.append(candidate)
+        if len(discovered) == 1:
+            formal_value = discovered[0].name
+            auto_discovered = True
+        elif not discovered:
+            raise ReleaseError("影子发布包未登记 promotion.formal_release，且目录中没有唯一匹配的正式发布包")
+        else:
+            raise ReleaseError(
+                "影子发布包未登记 promotion.formal_release，发现多个匹配正式发布包: "
+                + ", ".join(path.name for path in discovered)
+            )
+    formal_release = resolve_package_file(shadow_ctx.package_dir, formal_value, "promotion.formal_release")
+    formal_ctx = build_context(formal_release)
+    validate_context(formal_ctx, "full")
+    if formal_ctx.errors:
+        raise ReleaseError("正式发布包校验失败: " + "；".join(formal_ctx.errors))
+    if formal_ctx.normalized.get("release_type") != "formal":
+        raise ReleaseError("promotion.formal_release 必须指向 release_type: formal 的发布包")
+    formal_approval = formal_ctx.normalized.get("approval", {})
+    if not bool(formal_approval.get("formal_publish_authorized", formal_approval.get("formal_dwd_authorized", False))):
+        raise ReleaseError("正式发布包缺少 approval.formal_publish_authorized=true")
+
+    shadow_source = shadow_ctx.normalized.get("source", {})
+    formal_source = formal_ctx.normalized.get("source", {})
+    shadow_targets = shadow_ctx.normalized.get("targets", [])
+    formal_targets = formal_ctx.normalized.get("targets", [])
+    if len(shadow_targets) != 1:
+        raise ReleaseError("自动晋级当前要求影子发布包只有一个目标表；多目标请建立显式晋级映射")
+    shadow_target = shadow_targets[0]
+    matching_targets = [
+        target for target in formal_targets
+        if target.get("grain") == shadow_target.get("grain")
+        and list(target.get("key", [])) == list(shadow_target.get("key", []))
+    ]
+    checks: dict[str, Any] = {
+        "shadow_report_status": shadow_report.get("status"),
+        "shadow_report": audit_path(shadow_ctx.package_dir / f"release-report-{shadow_ctx.release_id}.json"),
+        "shadow_release": audit_path(shadow_ctx.release_file),
+        "formal_release": audit_path(formal_release),
+        "formal_release_auto_discovered": auto_discovered,
+        "source_table_match": formal_source.get("physical_name") == shadow_target.get("physical_name"),
+        "database_match": formal_source.get("database") == shadow_source.get("database"),
+        "partition_match": formal_source.get("partitions") == shadow_source.get("partitions"),
+        "grain_key_match": bool(matching_targets),
+        "formal_publish_authorized": True,
+    }
+    if not checks["source_table_match"]:
+        raise ReleaseError("正式发布包 source.physical_name 与影子目标表不一致")
+    if not checks["database_match"] or not checks["partition_match"]:
+        raise ReleaseError("正式发布包与影子发布包的数据库或输入分区不一致")
+    if not checks["grain_key_match"]:
+        raise ReleaseError("正式发布目标没有与影子表一致的粒度和主键")
+    if str(formal_source.get("source_role", "")) != "approved_shadow_result_for_formalization":
+        raise ReleaseError("正式发布包必须声明 source_role: approved_shadow_result_for_formalization")
+
+    legacy_link = str(formal_ctx.normalized.get("artifacts", {}).get("shadow_release", "")).strip()
+    explicit_link = str(formal_ctx.normalized.get("promotion", {}).get("shadow_release", "")).strip()
+    if explicit_link and Path(explicit_link).name != shadow_ctx.release_file.name:
+        raise ReleaseError("正式发布包 promotion.shadow_release 与本次影子发布包不一致")
+    if legacy_link and Path(legacy_link).name != shadow_ctx.release_file.name:
+        checks["legacy_shadow_link_warning"] = (
+            "正式发布包沿用了历史 artifacts.shadow_release 文件名；已通过源表、分区、粒度和主键交叉校验"
+        )
+
+    formal_ctx.add_step("shadow_promotion_preflight", "passed", checks=checks)
+    return formal_ctx, checks
 
 
 def update_existing_report(ctx: ReleaseContext, report: dict[str, Any], status: str, extra: dict[str, Any] | None = None) -> dict[str, Any]:
@@ -1267,10 +1456,9 @@ def run_cleanup_full(
     rerun: bool,
 ) -> int:
     old_report = existing_report(ctx)
-    if old_report and old_report.get("manifest_fingerprint") == ctx.manifest_fingerprint and old_report.get("status") == "succeeded" and not rerun:
+    if old_report and old_report.get("manifest_fingerprint") == ctx.manifest_fingerprint and old_report.get("status") in {"succeeded", "finalized"} and not rerun:
         ctx.add_step("idempotency", "no_op", reason="相同清理发布指纹已成功执行")
-        report_path = write_release_report(ctx, "full", "succeeded", {"idempotent_reuse": True, "previous_report": old_report})
-        print(json.dumps({"ok": True, "status": "succeeded", "idempotent_reuse": True, "report": str(report_path)}, ensure_ascii=False, indent=2))
+        print(json.dumps({"ok": True, "status": old_report.get("status"), "idempotent_reuse": True, "report": str(ctx.package_dir / f"release-report-{ctx.release_id}.json")}, ensure_ascii=False, indent=2))
         return 0
     if old_report and old_report.get("manifest_fingerprint") and old_report.get("manifest_fingerprint") != ctx.manifest_fingerprint:
         ctx.errors.append("同一 release_id 已存在不同发布指纹，必须使用新的 release_id")
@@ -1339,6 +1527,11 @@ def run_cleanup_full(
             status = "version_record_pending"
             failure_reason = "清理和本地 Git 留痕已完成，但远程 Git 推送失败，需要运行 finalize"
             write_release_report(ctx, "full", status, {"failure_reason": failure_reason, "push_result": pushed})
+            try:
+                if run_finalize(ctx, git_executable) == 0:
+                    return 0
+            except ReleaseError:
+                pass
     else:
         status = "version_record_pending"
         failure_reason = "清理结果已产生，但 Git 最终留痕失败，需要运行 finalize"
@@ -1358,10 +1551,9 @@ def run_full(ctx: ReleaseContext, query_runner: Path, executor: Path, sync_scrip
     if ctx.normalized.get("release_type") == "cleanup":
         return run_cleanup_full(ctx, query_runner, executor, sync_script, git_executable, rerun)
     old_report = existing_report(ctx)
-    if old_report and old_report.get("manifest_fingerprint") == ctx.manifest_fingerprint and old_report.get("status") == "succeeded" and not rerun:
+    if old_report and old_report.get("manifest_fingerprint") == ctx.manifest_fingerprint and old_report.get("status") in {"succeeded", "finalized"} and not rerun:
         ctx.add_step("idempotency", "no_op", reason="相同发布指纹已成功发布")
-        report_path = write_release_report(ctx, "full", "succeeded", {"idempotent_reuse": True, "previous_report": old_report})
-        print(json.dumps({"ok": True, "status": "succeeded", "idempotent_reuse": True, "report": str(report_path)}, ensure_ascii=False, indent=2))
+        print(json.dumps({"ok": True, "status": old_report.get("status"), "idempotent_reuse": True, "report": str(ctx.package_dir / f"release-report-{ctx.release_id}.json")}, ensure_ascii=False, indent=2))
         return 0
     if old_report and old_report.get("manifest_fingerprint") and old_report.get("manifest_fingerprint") != ctx.manifest_fingerprint:
         ctx.errors.append("同一 release_id 已存在不同发布指纹，必须使用新的 release_id")
@@ -1451,6 +1643,11 @@ def run_full(ctx: ReleaseContext, query_runner: Path, executor: Path, sync_scrip
             status = "version_record_pending"
             failure_reason = "平台结果和本地 Git 留痕已产生，但远程 Git 推送失败，需要运行 finalize"
             write_release_report(ctx, "full", status, {"failure_reason": failure_reason, "push_result": pushed})
+            try:
+                if run_finalize(ctx, git_executable) == 0:
+                    return 0
+            except ReleaseError:
+                pass
     else:
         status = "version_record_pending"
         failure_reason = "平台执行结果已产生，但 Git 最终留痕失败，需要运行 finalize"
@@ -1560,8 +1757,11 @@ def build_context(release_file: Path) -> ReleaseContext:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="显式发布 ClickHouse 数仓版本包")
-    parser.add_argument("--release", type=Path, required=True, help="发布 YAML 路径")
-    parser.add_argument("--mode", choices=("plan", "verify", "full", "finalize"), default="plan")
+    release_group = parser.add_mutually_exclusive_group(required=True)
+    release_group.add_argument("--release", type=Path, help="发布 YAML 路径")
+    release_group.add_argument("--promote-shadow", type=Path, help="已批准影子发布 YAML；自动解析正式发布包并执行 full")
+    parser.add_argument("--formal-release", type=Path, help="覆盖影子发布包中 promotion.formal_release 的正式发布 YAML")
+    parser.add_argument("--mode", choices=("plan", "verify", "full", "finalize"), default=None)
     parser.add_argument("--git-executable", help="Git 可执行文件路径；默认自动发现")
     parser.add_argument("--clickhouse-executor", type=Path, default=DEFAULT_CH_EXECUTOR)
     parser.add_argument("--clickhouse-query", type=Path, default=DEFAULT_CH_QUERY)
@@ -1573,15 +1773,25 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     try:
-        ctx = build_context(args.release)
-        validate_context(ctx, args.mode)
-        if args.mode == "plan":
-            return run_plan(ctx, args.mode, args.git_executable)
-        if args.mode == "verify":
+        requested_mode = args.mode or ("full" if args.promote_shadow else "plan")
+        if args.promote_shadow:
+            if requested_mode not in {"plan", "verify", "full"}:
+                raise ReleaseError("影子晋级只支持 plan、verify 或 full，不支持 finalize")
+            ctx, promotion_checks = prepare_shadow_promotion(args.promote_shadow, args.formal_release)
+            ctx.add_step("shadow_promotion_route", "resolved", checks=promotion_checks)
+        else:
+            if args.formal_release:
+                raise ReleaseError("--formal-release 只能与 --promote-shadow 一起使用")
+            ctx = build_context(args.release)
+            validate_context(ctx, requested_mode)
+
+        if requested_mode == "plan":
+            return run_plan(ctx, requested_mode, args.git_executable)
+        if requested_mode == "verify":
             if not args.clickhouse_executor.resolve().exists():
                 raise ReleaseError(f"ClickHouse 执行器不存在: {args.clickhouse_executor}")
             return run_verify(ctx, args.clickhouse_query.resolve(), args.clickhouse_executor.resolve(), args.openmetadata_sync.resolve())
-        if args.mode == "finalize":
+        if requested_mode == "finalize":
             with release_lock(ctx):
                 return run_finalize(ctx, args.git_executable)
         if not args.clickhouse_executor.resolve().exists():

@@ -1,6 +1,22 @@
 # 当前状态
 
-## 34. DWD 清理正式发布完成与主流程修正 2026-07-26
+## 36. 影子晋级一键发布流程固化 2026-07-26
+
+- 已新增一键入口 `warehouse-promote.cmd <影子发布YAML>`：读取已批准影子发布报告，校验报告状态和指纹、来源表、输入分区、粒度、主键及正式授权后，自动调用正式 `full` 发布。
+- 正式发布仍完整执行 ClickHouse 候选构建、质量门禁、切换、回读、OpenMetadata `plan -> apply -> verify`、影子清理和 Git 提交/标签/远程同步；一键入口只是固定路由，不跳过任何生产门禁。
+- 正式发布包已完成且报告状态为 `finalized` 时，重复运行自动幂等返回，不重复写 ClickHouse、不重复切换正式表，也不改写已完成报告。
+- Git 远程推送默认自动重试 3 次；仍失败时同一进程自动尝试 `finalize`，只有全部重试失败才留下 `version_record_pending`，不需要 AI 多轮接力。
+- 发布器回归测试现为 21 项全部通过，新增覆盖影子晋级指纹校验和 Git 瞬时失败自动重试；当前物流正式发布包已通过真实一键入口幂等演练。
+
+## 35. 物流快递单号粒度 DWD 正式发布与 GitHub 同步完成 2026-07-26
+
+- 已正式发布 DWD_抖店订单物流快递单号粒度事实全量快照表(`dwd_trade_order_logistics_tracking_no_df`)到 ClickHouse 测试库(youmei_sandbox)：41,140 行、18 字段，粒度为店铺ID(`shop_id`) + 店铺订单号(`shop_order_id`) + 快递单号(`tracking_no`)；包裹ID不作为目标粒度。
+- 当前正式 DWD 共三张：DWD_抖店订单主单事实全量快照表(`dwd_trade_order_df`)、DWD_抖店订单商品明细事实全量快照表(`dwd_trade_order_item_df`)和本节物流快递单号粒度事实全量快照表；影子表、候选表、临时表已按正式流程清理。
+- ClickHouse 质量门禁通过：正式表 41,140 行、复合键 41,140 个且唯一、快递单号非空，正式表保留 18 个业务字段；OpenMetadata `plan -> apply -> verify` 和影子资产退休回读通过。
+- 正式发布包为 `config/warehouse_cleaning/doudian_order_item_v1/formal-release-logistics-tracking-no-1.4.3.yaml`，发布报告状态为 `finalized`；本地最终提交为 `3d5252c`，远程 `origin/main` 已同步到 `3d5252c`。
+- GitHub `HIVEQLGUY/TEXT2SQL` 已同步发布标签 `warehouse/doudian-order-logistics-tracking-no-1.4.3`，标签指向正式发布提交 `d127a46`；本次远程推送先经历网络重置，后由同一发布包 `finalize` 成功补记。
+
+## 34. DWD 清理正式发布完成与主流程修正（历史快照） 2026-07-26
 
 - ClickHouse 测试库(youmei_sandbox) 当前可访问，版本 `26.6.1.1193`；本轮清理前共有 13 张 `dwd_` 对象，清理发布后只剩 3 张。
 - 当前正式 DWD 有两张：DWD_抖店订单主单事实全量快照表(`dwd_trade_order_df`)，49,695 行、82 字段、粒度为店铺ID(`shop_id`) + 店铺订单号(`shop_order_id`)；DWD_抖店订单商品明细事实全量快照表(`dwd_trade_order_item_df`)，85,770 行、37 字段、粒度为店铺ID(`shop_id`) + 店铺订单号(`shop_order_id`) + 商品明细序号(`item_index`)。

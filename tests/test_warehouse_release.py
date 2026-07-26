@@ -20,6 +20,7 @@ from scripts.warehouse_release import (  # noqa: E402
     clickhouse_config,
     git_push,
     git_runtime_environment,
+    prepare_shadow_promotion,
     release_lock,
     run_cleanup_full,
     run_verify,
@@ -509,6 +510,83 @@ class WarehouseReleaseValidationTests(unittest.TestCase):
 
             self.assertTrue(result["ok"], result)
             self.assertEqual(run_git(remote, "rev-parse", "refs/heads/main"), run_git(source, "rev-parse", "HEAD"))
+
+    def test_git_push_retries_transient_failure_without_agent_intervention(self) -> None:
+        import scripts.warehouse_release as release_runner
+
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory)
+            context = SimpleNamespace(
+                normalized={
+                    "git": {
+                        "auto_push": True,
+                        "remote": "origin",
+                        "branch": "main",
+                        "push_retries": 3,
+                        "push_retry_backoff_seconds": 0,
+                    }
+                }
+            )
+            push_results = [
+                {"ok": False, "returncode": 1, "stdout": "", "stderr": "temporary reset"},
+                {"ok": False, "returncode": 1, "stdout": "", "stderr": "temporary reset"},
+                {"ok": True, "returncode": 0, "stdout": "pushed", "stderr": ""},
+            ]
+
+            def fake_git_command(label, git, args, cwd, timeout=180):
+                if label == "git:current-branch":
+                    return {"ok": True, "stdout": "main\n"}
+                return push_results.pop(0)
+
+            with mock.patch.object(release_runner, "run_git_command", side_effect=fake_git_command):
+                result = git_push(context, {"git": GIT_EXECUTABLE, "repo_root": str(source)})
+
+            self.assertTrue(result["ok"], result)
+            self.assertEqual(result["attempt"], 3)
+            self.assertEqual([item["ok"] for item in result["attempts"]], [False, False, True])
+
+    def test_shadow_promotion_resolves_formal_package_and_checks_fingerprint(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            formal = create_package(root)
+            formal_text = formal.read_text(encoding="utf-8")
+            formal_text = formal_text.replace(
+                "  partitions: ['2026-07-22']\n",
+                "  partitions: ['2026-07-22']\n  physical_name: dwd_demo\n  source_role: approved_shadow_result_for_formalization\n",
+            )
+            formal.write_text(formal_text, encoding="utf-8")
+            shadow = formal.with_name("shadow.yaml")
+            shadow_text = formal_text.replace(
+                "release_id: test_release_1_0_0", "release_id: test_shadow_1_0_0"
+            ).replace(
+                "release_type: formal", "release_type: shadow"
+            ).replace(
+                "formal_publish_authorized: true", "shadow_publish_authorized: true"
+            ).replace(
+                "warehouse/test-release-1.0.0", "warehouse/test-shadow-1.0.0"
+            )
+            shadow_text += "\npromotion:\n  formal_release: release.yaml\n  required_shadow_report_statuses: [succeeded, finalized]\n"
+            shadow.write_text(shadow_text, encoding="utf-8")
+
+            shadow_context = build_context(shadow)
+            validate_context(shadow_context, "verify")
+            self.assertEqual(shadow_context.errors, [])
+            (shadow.parent / "release-report-test_shadow_1_0_0.json").write_text(
+                json.dumps(
+                    {
+                        "status": "succeeded",
+                        "manifest_fingerprint": shadow_context.manifest_fingerprint,
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            formal_context, checks = prepare_shadow_promotion(shadow)
+
+            self.assertEqual(formal_context.release_id, "test_release_1_0_0")
+            self.assertTrue(checks["source_table_match"])
+            self.assertTrue(checks["grain_key_match"])
+            self.assertFalse(checks["formal_release_auto_discovered"])
 
     def test_git_runtime_environment_disables_interactive_prompts(self) -> None:
         environment = git_runtime_environment(GIT_EXECUTABLE)
