@@ -346,8 +346,8 @@
       </section>
 
       <footer class="footer">
-        <div><strong>影子晋级入口：</strong><span class="mono">warehouse-promote.cmd &lt;影子发布YAML&gt;</span></div>
-        <div>页面版本：协作工作流 v3 · 仅记录流程，不替代发布授权</div>
+        <div><strong>影子晋级入口：</strong><span class="mono">warehouse-promote.cmd</span>（多候选时才传影子发布YAML）</div>
+        <div>页面版本：协作工作流 v4 · 仅记录流程，不替代发布授权</div>
       </footer>
     </main>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -401,7 +401,7 @@
         owner: ["你：只确认业务结果和正式授权。", "发布器：自动执行候选构建、质量、切换、元数据同步、影子清理、Git 重试和版本留痕。"],
         confirm: ["自动路由", "影子报告必须为 succeeded/finalized 且指纹一致", "正式授权", "正式发布包必须有 formal_publish_authorized: true", "发布结果", "ClickHouse、OpenMetadata、Git 均返回成功"],
         outputs: ["正式 DWD", "影子清理结果", "OpenMetadata 当前元数据", "Git 提交、标签和发布报告"],
-        destination: "warehouse-promote.cmd 一次完成 ClickHouse 切换、OpenMetadata plan/apply/verify、影子清理和 Git origin/main/标签同步。"
+        destination: "warehouse-promote.cmd 自动发现唯一已批准发布包，一次完成 ClickHouse 切换、OpenMetadata plan/apply/verify、影子清理和 Git origin/main/标签同步；多候选时才需要显式指定路径。"
       },
       {
         number: "07", title: "迭代、清理与回滚", state: "持续执行", kind: "ready", filter: "all",
@@ -474,7 +474,7 @@
             <div class="detail-block"><h4>阶段产出</h4><ul>${step.outputs.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul></div>
             <div class="detail-block"><h4>写入位置</h4><ul><li>${escapeHtml(step.destination)}</li></ul></div>
           </div>
-          <div class="callout"><strong>下一步：</strong>${escapeHtml(selected === 4 ? "你确认影子结果后，我再生成正式发布包；在此之前不切换正式 DWD。" : selected === 5 ? "正式发布成功后清理已晋级影子；退回或过期对象必须另建 cleanup 发布。" : "按阶段产出进入下一道门禁。")}</div>
+          <div class="callout"><strong>下一步：</strong>${escapeHtml(selected === 4 ? "正式发布包已在影子验证前按同一契约预生成；你确认结果后只释放 warehouse-promote.cmd 执行门禁。" : selected === 5 ? "正式发布成功后清理已晋级影子；退回或过期对象必须另建 cleanup 发布。" : "按阶段产出进入下一道门禁。")}</div>
         </div>
       `;
     }

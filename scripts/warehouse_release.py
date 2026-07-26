@@ -1263,6 +1263,223 @@ def prepare_shadow_promotion(
     return formal_ctx, checks
 
 
+def formal_shadow_release_reference(ctx: ReleaseContext) -> str:
+    """Return the immutable shadow package link for a formal release.
+
+    New packages should use ``promotion.shadow_release``.  The artifacts link
+    remains a read-only compatibility path for already published packages and
+    must not be inferred from file names or modification times.
+    """
+    promotion = ctx.normalized.get("promotion", {})
+    explicit = str(promotion.get("shadow_release", "")).strip()
+    if explicit:
+        return explicit
+    artifacts = ctx.normalized.get("artifacts", {})
+    return str(artifacts.get("shadow_release", "")).strip()
+
+
+def discover_verified_shadow_for_formal(
+    formal_ctx: ReleaseContext,
+    search_root: Path,
+    excluded: set[Path] | None = None,
+) -> list[Path]:
+    """Find a unique successful shadow when a legacy link is stale.
+
+    This compatibility recovery uses business evidence, not file order: the
+    source database/partition, the shadow target physical name, the grain and
+    key must match the formal source/target, and the shadow report fingerprint
+    must still match its YAML.  Ambiguity is returned to the caller instead of
+    being guessed.
+    """
+    excluded = {path.resolve() for path in (excluded or set())}
+    formal_source = formal_ctx.normalized.get("source", {})
+    formal_targets = formal_ctx.normalized.get("targets", [])
+    matches: list[Path] = []
+    for shadow_file in sorted(search_root.rglob("*.yaml")):
+        if shadow_file.resolve() in excluded:
+            continue
+        try:
+            shadow_ctx = build_context(shadow_file)
+            validate_context(shadow_ctx, "verify")
+        except ReleaseError:
+            continue
+        normalized = shadow_ctx.normalized
+        if normalized.get("release_type") != "shadow" or shadow_ctx.errors:
+            continue
+        approval = normalized.get("approval", {})
+        if not bool(approval.get("shadow_publish_authorized", False)):
+            continue
+        shadow_source = normalized.get("source", {})
+        if shadow_source.get("database") != formal_source.get("database"):
+            continue
+        if shadow_source.get("partitions") != formal_source.get("partitions"):
+            continue
+        shadow_targets = normalized.get("targets", [])
+        if not shadow_targets:
+            continue
+        if not any(
+            target.get("physical_name") == formal_source.get("physical_name")
+            and any(
+                formal_target.get("grain") == target.get("grain")
+                and list(formal_target.get("key", [])) == list(target.get("key", []))
+                for formal_target in formal_targets
+            )
+            for target in shadow_targets
+        ):
+            continue
+        report = existing_report(shadow_ctx)
+        if not report or str(report.get("status", "")).lower() not in {"succeeded", "finalized"}:
+            continue
+        if report.get("manifest_fingerprint") != shadow_ctx.manifest_fingerprint:
+            continue
+        matches.append(shadow_file.resolve())
+    return matches
+
+
+def discover_approved_promotion(
+    search_root: Path | None = None,
+) -> tuple[ReleaseContext, dict[str, Any]]:
+    """Find the single approved formal promotion that is safe to run.
+
+    This is the deterministic, post-review handoff.  It deliberately scans
+    formal release manifests rather than arbitrary SQL or shadow tables.  A
+    candidate is usable only when it is explicitly linked to a shadow package,
+    that shadow report is successful with the same fingerprint, and the formal
+    package is authorized.  A missing report is ready for ``full``; a pending
+    Git report is resumed with ``finalize``; an already successful report is
+    returned for idempotent reuse.
+    """
+    root = (search_root or PROJECT_ROOT / "config" / "warehouse_cleaning").resolve()
+    if not root.exists() or not root.is_dir():
+        raise ReleaseError(f"批准晋级扫描目录不存在: {root}")
+
+    candidates: list[dict[str, Any]] = []
+    skipped: list[str] = []
+    for formal_file in sorted(root.rglob("formal-release-*.yaml")):
+        try:
+            formal_ctx = build_context(formal_file)
+            validate_context(formal_ctx, "full")
+        except ReleaseError as exc:
+            skipped.append(f"{formal_file.name}: {exc}")
+            continue
+        normalized = formal_ctx.normalized
+        if normalized.get("release_type") != "formal":
+            continue
+        source = normalized.get("source", {})
+        if str(source.get("source_role", "")) != "approved_shadow_result_for_formalization":
+            continue
+        approval = normalized.get("approval", {})
+        if not bool(approval.get("formal_publish_authorized", approval.get("formal_dwd_authorized", False))):
+            continue
+        if formal_ctx.errors:
+            skipped.append(f"{formal_file.name}: " + "；".join(formal_ctx.errors))
+            continue
+
+        report = existing_report(formal_ctx)
+        report_status = str(report.get("status", "")).lower() if report else ""
+        if report_status in {"failed", "failed_rolled_back", "rollback_failed", "blocked", "cleanup_pending"}:
+            skipped.append(f"{formal_file.name}: 当前报告状态 {report_status}，不自动重跑")
+            continue
+
+        promotion_shadow_reference = str(
+            formal_ctx.normalized.get("promotion", {}).get("shadow_release", "")
+        ).strip()
+        shadow_reference = formal_shadow_release_reference(formal_ctx)
+        if not shadow_reference:
+            skipped.append(f"{formal_file.name}: 未声明 promotion.shadow_release")
+            continue
+        linked_shadow_path: Path | None = None
+        try:
+            linked_shadow_path = resolve_package_file(
+                formal_ctx.package_dir,
+                shadow_reference,
+                "promotion.shadow_release",
+            )
+            if not linked_shadow_path.exists():
+                raise ReleaseError(f"影子发布文件不存在: {relative_to(formal_ctx.package_dir, linked_shadow_path)}")
+            promoted_ctx, checks = prepare_shadow_promotion(linked_shadow_path, formal_file)
+            shadow_file = linked_shadow_path
+        except ReleaseError as exc:
+            # Already-published legacy packages may point at an earlier
+            # blocked shadow. Recover only when the current directory contains
+            # exactly one successful, fingerprint-valid business match. An
+            # explicit promotion.shadow_release is never silently replaced.
+            if promotion_shadow_reference:
+                skipped.append(f"{formal_file.name}: {exc}")
+                continue
+            repaired = discover_verified_shadow_for_formal(
+                formal_ctx,
+                root,
+                excluded={linked_shadow_path} if linked_shadow_path else set(),
+            )
+            if len(repaired) != 1:
+                detail = f"；兼容匹配数={len(repaired)}" if repaired else ""
+                skipped.append(f"{formal_file.name}: {exc}{detail}")
+                continue
+            shadow_file = repaired[0]
+            try:
+                promoted_ctx, checks = prepare_shadow_promotion(shadow_file, formal_file)
+            except ReleaseError as repaired_exc:
+                skipped.append(f"{formal_file.name}: 兼容影子绑定校验失败: {repaired_exc}")
+                continue
+            checks["legacy_shadow_link_repaired"] = True
+            checks["legacy_shadow_link_original"] = shadow_reference
+
+        if report_status == "version_record_pending":
+            action = "finalize"
+        elif report_status in {"succeeded", "finalized"}:
+            action = "idempotent_reuse"
+        elif not report_status:
+            action = "full"
+        else:
+            skipped.append(f"{formal_file.name}: 当前报告状态 {report_status or '未知'} 不允许自动晋级")
+            continue
+        checks["promotion_discovery_candidate"] = {
+            "formal_release": audit_path(formal_file),
+            "shadow_release": audit_path(shadow_file),
+            "formal_report_status": report_status or "not_started",
+            "action": action,
+        }
+        candidates.append({
+            "formal_file": formal_file,
+            "shadow_file": shadow_file,
+            "context": promoted_ctx,
+            "checks": checks,
+            "action": action,
+        })
+
+    actionable = [item for item in candidates if item["action"] in {"full", "finalize"}]
+    if len(actionable) > 1:
+        names = ", ".join(audit_path(item["formal_file"]) for item in actionable)
+        raise ReleaseError(
+            "发现多个待执行的已批准正式发布包，禁止自动猜测；请显式指定正式发布包: " + names
+        )
+    if len(actionable) == 1:
+        selected = actionable[0]
+    else:
+        completed = [item for item in candidates if item["action"] == "idempotent_reuse"]
+        if len(completed) > 1:
+            names = ", ".join(audit_path(item["formal_file"]) for item in completed)
+            raise ReleaseError("发现多个已完成正式发布包，无法确定要复核的对象: " + names)
+        if len(completed) == 1:
+            selected = completed[0]
+        else:
+            detail = "；".join(skipped[:8])
+            suffix = f"；跳过原因: {detail}" if detail else ""
+            raise ReleaseError("没有找到同时满足正式授权、影子报告通过和版本状态门禁的待晋级发布包" + suffix)
+
+    checks = dict(selected["checks"])
+    checks["promotion_discovery"] = {
+        "search_root": audit_path(root),
+        "candidate_count": len(candidates),
+        "skipped_count": len(skipped),
+        "selected_formal_release": audit_path(selected["formal_file"]),
+        "selected_shadow_release": audit_path(selected["shadow_file"]),
+        "action": selected["action"],
+    }
+    return selected["context"], checks
+
+
 def update_existing_report(ctx: ReleaseContext, report: dict[str, Any], status: str, extra: dict[str, Any] | None = None) -> dict[str, Any]:
     """Update a persisted report without rebuilding or losing prior steps."""
     updated = dict(report)
@@ -1760,7 +1977,17 @@ def parse_args() -> argparse.Namespace:
     release_group = parser.add_mutually_exclusive_group(required=True)
     release_group.add_argument("--release", type=Path, help="发布 YAML 路径")
     release_group.add_argument("--promote-shadow", type=Path, help="已批准影子发布 YAML；自动解析正式发布包并执行 full")
+    release_group.add_argument(
+        "--promote-approved",
+        action="store_true",
+        help="自动发现唯一已批准且可晋级的正式发布包；默认执行 full",
+    )
     parser.add_argument("--formal-release", type=Path, help="覆盖影子发布包中 promotion.formal_release 的正式发布 YAML")
+    parser.add_argument(
+        "--promotion-root",
+        type=Path,
+        help="批准晋级自动发现目录；默认扫描 config/warehouse_cleaning",
+    )
     parser.add_argument("--mode", choices=("plan", "verify", "full", "finalize"), default=None)
     parser.add_argument("--git-executable", help="Git 可执行文件路径；默认自动发现")
     parser.add_argument("--clickhouse-executor", type=Path, default=DEFAULT_CH_EXECUTOR)
@@ -1773,15 +2000,24 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     try:
-        requested_mode = args.mode or ("full" if args.promote_shadow else "plan")
+        requested_mode = args.mode or ("full" if (args.promote_shadow or args.promote_approved) else "plan")
         if args.promote_shadow:
             if requested_mode not in {"plan", "verify", "full"}:
                 raise ReleaseError("影子晋级只支持 plan、verify 或 full，不支持 finalize")
             ctx, promotion_checks = prepare_shadow_promotion(args.promote_shadow, args.formal_release)
             ctx.add_step("shadow_promotion_route", "resolved", checks=promotion_checks)
-        else:
+        elif args.promote_approved:
             if args.formal_release:
                 raise ReleaseError("--formal-release 只能与 --promote-shadow 一起使用")
+            if requested_mode not in {"plan", "verify", "full"}:
+                raise ReleaseError("批准晋级自动发现只支持 plan、verify 或 full")
+            ctx, promotion_checks = discover_approved_promotion(args.promotion_root)
+            ctx.add_step("approved_promotion_route", "resolved", checks=promotion_checks)
+            if requested_mode == "full" and promotion_checks.get("promotion_discovery", {}).get("action") == "finalize":
+                requested_mode = "finalize"
+        else:
+            if args.formal_release or args.promotion_root:
+                raise ReleaseError("--formal-release 和 --promotion-root 只能用于批准晋级入口")
             ctx = build_context(args.release)
             validate_context(ctx, requested_mode)
 

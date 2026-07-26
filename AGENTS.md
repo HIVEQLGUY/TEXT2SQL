@@ -309,13 +309,13 @@ warehouse-release.cmd --release <发布YAML> --mode full
 warehouse-release.cmd --release <发布YAML> --mode finalize
 ```
 
-已批准影子表的正式晋级使用固定一键入口：
+已批准影子表的正式晋级使用固定一键入口，正常情况下不需要传文件路径：
 
 ```powershell
-C:\Users\24796\Documents\TEXT2SQL\warehouse-promote.cmd <影子发布YAML>
+C:\Users\24796\Documents\TEXT2SQL\warehouse-promote.cmd
 ```
 
-该入口只接受影子发布报告已为 `succeeded`/`finalized` 且指纹一致的结果，自动解析 `promotion.formal_release` 或唯一匹配的正式发布包，校验来源表、分区、粒度和主键后调用正式 `full` 发布。正式发布包仍必须通过 ClickHouse、OpenMetadata 和 Git 全部门禁；一键入口只是固化路由，不降低业务确认或生产质量门槛。Git 推送默认在发布进程内自动重试，并在必要时自动进入 `finalize`，不得要求 AI 或聊天继续接力。
+该入口只扫描正式发布包：正式授权、来源角色为 `approved_shadow_result_for_formalization`、通过 `promotion.shadow_release`（旧包兼容 `artifacts.shadow_release`）明确绑定影子发布，且影子发布报告为 `succeeded`/`finalized`、指纹一致。待执行候选有且仅有一个时，自动调用正式 `full` 发布；已完成版本幂等返回，Git 待补记版本自动进入 `finalize`。多个候选、缺少绑定或失败中的旧版本直接阻断，不按文件时间猜测。多版本并行时才使用 `warehouse-promote.cmd <影子发布YAML>` 显式指定。正式发布包仍必须通过 ClickHouse、OpenMetadata 和 Git 全部门禁；一键入口只是固化路由，不降低业务确认或生产质量门槛。Git 推送默认在发布进程内自动重试，并在必要时自动进入 `finalize`，不得要求 AI 或聊天继续接力。
 
 发布总控已经固化以下门禁：发布指纹、同一 release_id 版本漂移、同一 SQL 多阶段复用、候选表与生产表重名、只读阶段出现 DDL/DML、构建阶段直写生产表、清理 SQL 未覆盖声明对象、OpenMetadata 契约重复指向同一表、Git 暂存区污染、重复发布幂等、并发发布锁、ClickHouse 阶段失败、切换后回滚、临时对象清理失败、Git 最终留痕失败和远程同步失败。
 

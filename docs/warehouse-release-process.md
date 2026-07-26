@@ -57,13 +57,23 @@ C:\Users\24796\Documents\TEXT2SQL\warehouse-release.cmd --release <发布YAML> -
 
 ## 影子晋级一键入口
 
-影子表完成业务审阅并且影子发布报告为 `succeeded` 或 `finalized` 后，不再需要 AI 重新寻找正式 SQL、核对字段或逐步执行命令。影子发布 YAML 在 `promotion.formal_release` 中登记预先固化的正式发布 YAML，然后直接运行：
+影子表完成业务审阅并且影子发布报告为 `succeeded` 或 `finalized` 后，不再需要 AI 重新寻找正式 SQL、核对字段或逐步执行命令。正式发布包在生成时就通过 `promotion.shadow_release`（旧包允许使用 `artifacts.shadow_release`）绑定影子包；正式授权和影子报告共同构成唯一晋级门禁。
+
+正常操作只运行这一条命令：
+
+```powershell
+C:\Users\24796\Documents\TEXT2SQL\warehouse-promote.cmd
+```
+
+入口只扫描 `config/warehouse_cleaning` 下满足以下条件的正式发布包：正式授权、来源角色为 `approved_shadow_result_for_formalization`、明确绑定影子发布、影子报告成功且指纹一致。待执行候选有且仅有一个时自动运行；多个候选、失败中的旧版本或缺少绑定时直接阻断，不按文件时间或模糊匹配选包。已完成版本会直接返回幂等结果，Git 待补记版本会自动进入 `finalize`，不需要 AI 继续接力。
+
+发生多版本并行开发时，再使用显式路径作为排查入口：
 
 ```powershell
 C:\Users\24796\Documents\TEXT2SQL\warehouse-promote.cmd <影子发布YAML>
 ```
 
-该入口自动完成：影子报告和发布指纹校验、正式发布包定位、来源表/分区/粒度/主键一致性校验、正式 `full` 发布、ClickHouse 候选切换与质量门禁、OpenMetadata `plan -> apply -> verify`、影子清理、Git 提交/标签/远程同步。正式发布包已存在但影子包尚未补充 `promotion.formal_release` 时，只有目录内存在唯一匹配的正式发布包才允许自动发现；发现多个候选或无法匹配时直接阻断，避免静默选错版本。
+该入口自动完成：影子报告和发布指纹校验、正式发布包定位、来源表/分区/粒度/主键一致性校验、正式 `full` 发布、ClickHouse 候选切换与质量门禁、OpenMetadata `plan -> apply -> verify`、影子清理、Git 提交/标签/远程同步。`plan`、`preflight`、`quality`、`postcheck`、OpenMetadata 三阶段和 Git 留痕是发布器内部步骤，不再要求用户或 AI 分轮执行。
 
 正式平台步骤完成后，Git 推送由发布器在同一进程内按配置自动重试；仍失败时自动进入 `finalize` 补记路径，网络恢复时再次重试，不需要用户继续和 AI 往返。失败仍会留下 `version_record_pending` 报告，不能伪造完成状态。
 

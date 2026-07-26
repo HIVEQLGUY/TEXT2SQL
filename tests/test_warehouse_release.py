@@ -18,6 +18,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from scripts.warehouse_release import (  # noqa: E402
     build_context,
     clickhouse_config,
+    discover_approved_promotion,
     git_push,
     git_runtime_environment,
     prepare_shadow_promotion,
@@ -26,6 +27,7 @@ from scripts.warehouse_release import (  # noqa: E402
     run_verify,
     run_finalize,
     run_full,
+    ReleaseError,
     validate_context,
 )
 
@@ -587,6 +589,169 @@ class WarehouseReleaseValidationTests(unittest.TestCase):
             self.assertTrue(checks["source_table_match"])
             self.assertTrue(checks["grain_key_match"])
             self.assertFalse(checks["formal_release_auto_discovered"])
+
+    def test_approved_promotion_discovers_single_formal_package_without_shadow_argument(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            formal_source = create_package(root)
+            formal = formal_source.with_name("formal-release-test-1.0.0.yaml")
+            formal_source.rename(formal)
+            formal_text = formal.read_text(encoding="utf-8").replace(
+                "  partitions: ['2026-07-22']\n",
+                "  partitions: ['2026-07-22']\n"
+                "  physical_name: dwd_demo\n"
+                "  source_role: approved_shadow_result_for_formalization\n",
+                1,
+            )
+            formal_text += "\nartifacts:\n  shadow_release: shadow-release-test-1.0.0.yaml\n"
+            formal.write_text(formal_text, encoding="utf-8")
+
+            shadow = formal.with_name("shadow-release-test-1.0.0.yaml")
+            shadow_text = formal_text.replace(
+                "release_id: test_release_1_0_0", "release_id: test_shadow_1_0_0"
+            ).replace(
+                "release_type: formal", "release_type: shadow"
+            ).replace(
+                "formal_publish_authorized: true", "shadow_publish_authorized: true"
+            ).replace(
+                "warehouse/test-release-1.0.0", "warehouse/test-shadow-1.0.0"
+            )
+            shadow.write_text(shadow_text, encoding="utf-8")
+            shadow_context = build_context(shadow)
+            validate_context(shadow_context, "verify")
+            self.assertEqual(shadow_context.errors, [])
+            (shadow.parent / "release-report-test_shadow_1_0_0.json").write_text(
+                json.dumps(
+                    {
+                        "status": "succeeded",
+                        "manifest_fingerprint": shadow_context.manifest_fingerprint,
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            formal_context, checks = discover_approved_promotion(root)
+
+            self.assertEqual(formal_context.release_id, "test_release_1_0_0")
+            self.assertEqual(
+                checks["promotion_discovery"]["action"],
+                "full",
+            )
+            self.assertTrue(
+                checks["promotion_discovery"]["selected_formal_release"].endswith(
+                    "formal-release-test-1.0.0.yaml"
+                )
+            )
+
+    def test_approved_promotion_rejects_multiple_pending_formal_packages(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            formal = create_package(root)
+            formal_text = formal.read_text(encoding="utf-8").replace(
+                "  partitions: ['2026-07-22']\n",
+                "  partitions: ['2026-07-22']\n"
+                "  physical_name: dwd_demo\n"
+                "  source_role: approved_shadow_result_for_formalization\n",
+                1,
+            )
+            formal_text += "\nartifacts:\n  shadow_release: shadow-release-test-1.0.0.yaml\n"
+            formal = formal.with_name("formal-release-test-1.0.0.yaml")
+            formal.write_text(formal_text, encoding="utf-8")
+            second = formal.with_name("formal-release-test-1.0.1.yaml")
+            second.write_text(formal_text.replace("test_release_1_0_0", "test_release_1_0_1"), encoding="utf-8")
+
+            shadow = formal.with_name("shadow-release-test-1.0.0.yaml")
+            shadow_text = formal_text.replace(
+                "release_id: test_release_1_0_0", "release_id: test_shadow_1_0_0"
+            ).replace(
+                "release_type: formal", "release_type: shadow"
+            ).replace(
+                "formal_publish_authorized: true", "shadow_publish_authorized: true"
+            ).replace(
+                "warehouse/test-release-1.0.0", "warehouse/test-shadow-1.0.0"
+            )
+            shadow.write_text(shadow_text, encoding="utf-8")
+            shadow_context = build_context(shadow)
+            validate_context(shadow_context, "verify")
+            (shadow.parent / "release-report-test_shadow_1_0_0.json").write_text(
+                json.dumps(
+                    {
+                        "status": "succeeded",
+                        "manifest_fingerprint": shadow_context.manifest_fingerprint,
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            with self.assertRaisesRegex(ReleaseError, "多个待执行"):
+                discover_approved_promotion(root)
+
+    def test_approved_promotion_repairs_stale_legacy_shadow_link_from_unique_success(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            formal_source = create_package(root)
+            formal = formal_source.with_name("formal-release-test-1.0.2.yaml")
+            formal_source.rename(formal)
+            formal_text = formal.read_text(encoding="utf-8").replace(
+                "  partitions: ['2026-07-22']\n",
+                "  partitions: ['2026-07-22']\n"
+                "  physical_name: dwd_demo\n"
+                "  source_role: approved_shadow_result_for_formalization\n",
+                1,
+            )
+            formal_text += "\nartifacts:\n  shadow_release: shadow-release-stale.yaml\n"
+            formal.write_text(formal_text, encoding="utf-8")
+
+            stale = formal.with_name("shadow-release-stale.yaml")
+            stale_text = formal_text.replace(
+                "release_id: test_release_1_0_0", "release_id: test_shadow_stale_1_0_0"
+            ).replace(
+                "release_type: formal", "release_type: shadow"
+            ).replace(
+                "formal_publish_authorized: true", "shadow_publish_authorized: true"
+            ).replace(
+                "warehouse/test-release-1.0.0", "warehouse/test-shadow-stale-1.0.0"
+            )
+            stale.write_text(stale_text, encoding="utf-8")
+            stale_context = build_context(stale)
+            validate_context(stale_context, "verify")
+            (stale.parent / "release-report-test_shadow_stale_1_0_0.json").write_text(
+                json.dumps(
+                    {
+                        "status": "blocked",
+                        "manifest_fingerprint": stale_context.manifest_fingerprint,
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            corrected = formal.with_name("corrective-release-test-1.0.2.yaml")
+            corrected_text = stale_text.replace(
+                "release_id: test_shadow_stale_1_0_0", "release_id: test_shadow_corrected_1_0_0"
+            ).replace(
+                "warehouse/test-shadow-stale-1.0.0", "warehouse/test-shadow-corrected-1.0.0"
+            )
+            corrected.write_text(corrected_text, encoding="utf-8")
+            corrected_context = build_context(corrected)
+            validate_context(corrected_context, "verify")
+            (corrected.parent / "release-report-test_shadow_corrected_1_0_0.json").write_text(
+                json.dumps(
+                    {
+                        "status": "succeeded",
+                        "manifest_fingerprint": corrected_context.manifest_fingerprint,
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            _, checks = discover_approved_promotion(root)
+
+            self.assertTrue(checks["legacy_shadow_link_repaired"])
+            self.assertTrue(
+                checks["promotion_discovery"]["selected_shadow_release"].endswith(
+                    "corrective-release-test-1.0.2.yaml"
+                )
+            )
 
     def test_git_runtime_environment_disables_interactive_prompts(self) -> None:
         environment = git_runtime_environment(GIT_EXECUTABLE)

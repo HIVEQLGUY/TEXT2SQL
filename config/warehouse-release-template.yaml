@@ -68,7 +68,9 @@ approval:
   authorized_at: '2026-07-23T00:00:00+08:00'
   user_confirmation: 影子结果已审阅，批准候选表切换正式表
 
-# 影子发布包在业务审阅完成后填写 formal_release；正式发布包可填写 shadow_release 供审计回溯。
+# 在生成影子验证包时就固化晋级关系，不要等用户确认后再让 AI 猜正式包。
+# 影子包填写 formal_release；正式包填写 shadow_release。正式包获批后可直接由
+# warehouse-promote.cmd 无参数发现并执行，文件名和修改时间不参与选包。
 promotion:
   formal_release: ''
   shadow_release: ''
