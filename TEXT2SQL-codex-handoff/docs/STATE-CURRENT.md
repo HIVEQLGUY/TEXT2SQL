@@ -7,7 +7,7 @@
 - 当前待审阅影子表有一张：DWD_抖店订单物流快递单号粒度影子表(`dwd_trade_order_logistics_tracking_no_shadow_1_3_3`)，41,140 行、18 字段，粒度为店铺ID(`shop_id`) + 店铺订单号(`shop_order_id`) + 快递单号(`tracking_no`)；包裹ID不作为目标粒度，尚未批准晋级正式 DWD。
 - 已通过清理发布 `doudian_order_dwd_runtime_cleanup_1_4_1` 删除 10 个已替代影子、包裹验证表和物理备份对象；没有创建新的物理备份表，历史由 Git 发布包重建。
 - ClickHouse 清理、正式表/影子表后检、OpenMetadata `plan -> apply -> verify` 和 10 个旧资产退休回读均通过。OpenMetadata 服务已恢复，版本 `1.12.11`；退休同步器已修正为全局三阶段，避免把 `full` 错当成只读回读。
-- 本地 Git 已形成清理发布提交和标签：`warehouse/doudian-order-dwd-runtime-cleanup-1.4.1`；由于 GitHub HTTPS 连接被重置/超时，发布报告当前为 `version_record_pending`，远程分支尚未确认同步，不能汇报为“远程发布完成”。`finalize` 已按固定路径尝试，后续仍须在远程可达后重试同一发布。
+- 本地 Git 已形成清理发布提交和标签：`warehouse/doudian-order-dwd-runtime-cleanup-1.4.1`；`finalize` 最终返回成功，发布报告已为 `finalized`，并明确推送 `origin/main` 到 `96347d6`。随后单独只读复核受 GitHub 网络波动影响未能重新连接，但发布器推送返回和本地远程跟踪指针均已确认成功。
 - 主流程已固化为：契约确认 -> 影子验证 -> 业务批准 -> 按同契约重建正式候选表 -> 质量门禁 -> 切换正式表 -> OpenMetadata 同步 -> 清理影子/临时对象 -> Git 报告、标签和远程同步；退回、过期或替代对象直接走 cleanup 发布。
 - 发布总控新增非交互 Git 推送和 60 秒超时；远程异常统一落 `version_record_pending`，不保留后台推送进程。OpenMetadata 全量同步和发布器回归测试共 20 项通过。
 

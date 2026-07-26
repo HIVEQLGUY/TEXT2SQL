@@ -11,7 +11,7 @@
 - ClickHouse 测试库(youmei_sandbox)：2026-07-24 15:50 的纠正影子发布已通过 ClickHouse 全阶段质量、切换和回读；16:04 曾短暂连接拒绝，16:09 已通过 Windows 回退资源入口和只读 SQL 恢复确认。
 - 本次 `check-resource.cmd clickhouse-local` 触发脚本路径编码异常，未作为成功校验记录；后续需要修复该资源别名脚本。OpenMetadata 资源别名(openmetadata-local)在 2026-07-23 16:58 +08:00 已通过统一入口登录校验，版本 `1.12.11`。
 - 上述旧记录中的物流包裹正式表已被后续粒度规则撤回；当前表清单以本文件最新 DWD 复核和 `STATE-CURRENT.md` 为准。
-更新时间：2026-07-26 11:59 +08:00
+更新时间：2026-07-26 12:06 +08:00
 
 本文件是当前唯一资源状态入口。每一次资源查询都代表一次新的状态确认，查询后必须更新本文件的“最近确认时间、最近状态、确认方式、备注”。
 
@@ -58,10 +58,10 @@ C:\Users\24796\Documents\TEXT2SQL\check-resource.cmd <资源别名>
 | 旧 RDS `youmei_ai` | 历史业务源/RDS 资源，当前不作为未来默认链路 | `rm-bp1mx4778wjne596xko.mysql.rds.aliyuncs.com:3306` | 2026-07-26 11:31 +08:00 | 不可用/待处理：校验失败：(2003, "Can't connect to MySQL server on 'rm-bp1mx4778wjne596xko.mysql.rds.aliyuncs.com' ([WinError 10013] 以一种访问权限不允许的方式做了一个访问套接字的尝试。)") | mysql_env 校验 | 凭据映射：`local/credentials/project.env` / `META_DB_*`；历史业务源/RDS 资源；当前不作为未来默认链路，但可用统一脚本做只读登录验证。 |
 | Superset | BI 服务保留 | `http://127.0.0.1:8088` | 2026-07-26 11:31 +08:00 | 不可用/待处理：校验失败：<urlopen error [WinError 10061] 由于目标计算机积极拒绝，无法连接。> | http 校验 | BI 服务保留；仅验证 HTTP 可访问，不打印管理员密码。 |
 | DolphinScheduler | 调度服务保留 | `http://127.0.0.1:12345/dolphinscheduler/ui/` | 2026-07-26 11:31 +08:00 | 不可用/待处理：校验失败：<urlopen error [WinError 10061] 由于目标计算机积极拒绝，无法连接。> | http 校验 | 调度服务保留；仅验证 UI 可访问。 |
-| OpenMetadata | ClickHouse 数仓表、字段和清洗契约元数据登记 | `127.0.0.1:8585/8586` | 2026-07-26 11:59 +08:00 | 登录成功，版本 `1.12.11`，耗时 0.60s | 读取 `local/credentials/openmetadata.env` 的 `OPENMETADATA_*` 并调用 OpenMetadata 登录和版本接口 | ClickHouse 数仓表、字段和清洗契约元数据登记。 |
+| OpenMetadata | ClickHouse 数仓表、字段和清洗契约元数据登记 | `127.0.0.1:8585/8586` | 2026-07-26 12:06 +08:00 | 登录成功，版本 `1.12.11`，耗时 0.56s | 读取 `local/credentials/openmetadata.env` 的 `OPENMETADATA_*` 并调用 OpenMetadata 登录和版本接口 | ClickHouse 数仓表、字段和清洗契约元数据登记。 |
 | OpenMetadata 到 ClickHouse bridge | OpenMetadata 访问本机 ClickHouse 的桥接 | `172.16.240.1:18124` | 2026-07-19 15:51 +08:00 | 可用 | `/ping` 返回 `Ok.` | 仅服务本机 Docker/WSL 内部链路 |
 | 历史接口接入留存包 | 旧 API ingestion 代码、契约、SDK bridge、隐性经验留存 | `C:\Users\24796\Desktop\youmei-api-ingestion-archive-20260719.zip` | 2026-07-19 15:51 +08:00 | 文件存在 | 文件大小 995,237 bytes | 仅供历史参考，不代表当前架构继续推进 |
-| GitHub `HIVEQLGUY/TEXT2SQL` | 数仓 SQL、清洗契约、发布报告和版本记录的 Git 权威来源 | `https://github.com/HIVEQLGUY/TEXT2SQL.git` | 2026-07-26 11:57 +08:00 | 不可用/待处理：Git 远程访问失败（凭据或网络校验未通过） | Git 只读检查 `https://github.com/HIVEQLGUY/TEXT2SQL.git` 的远程分支 | Git 版本源；只读校验远程分支可访问性，不记录密码或 Token。 |
+| GitHub `HIVEQLGUY/TEXT2SQL` | 数仓 SQL、清洗契约、发布报告和版本记录的 Git 权威来源 | `https://github.com/HIVEQLGUY/TEXT2SQL.git` | 2026-07-26 12:06 +08:00 | 不可用/待处理：Git 远程访问失败（凭据或网络校验未通过） | Git 只读检查 `https://github.com/HIVEQLGUY/TEXT2SQL.git` 的远程分支 | Git 版本源；只读校验远程分支可访问性，不记录密码或 Token。 |
 
 ## 已下线的本机历史组件
 
