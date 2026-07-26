@@ -1,6 +1,6 @@
 {
-  "ok": false,
-  "run_time": "2026-07-26T11:40:11+08:00",
+  "ok": true,
+  "run_time": "2026-07-26T11:45:53+08:00",
   "package_dir": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1",
   "release_file": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\cleanup-dwd-runtime-1.4.1.yaml",
   "mode": "full",
@@ -93,6 +93,193 @@
       "stderr": ""
     },
     {
+      "contract": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\metadata-contract-formal-item-parent-1.3.1.yaml",
+      "mode": "plan",
+      "returncode": 0,
+      "ok": true,
+      "stdout": {
+        "ok": true,
+        "mode": "plan",
+        "services": [
+          {
+            "name": "youmei_clickhouse",
+            "serviceType": "Clickhouse",
+            "displayName": null,
+            "databaseSchema": "youmei_sandbox",
+            "hostPort": "172.16.240.1:18124"
+          },
+          {
+            "name": "youmei_doris",
+            "serviceType": "Doris",
+            "displayName": "佑美 Doris 数仓",
+            "databaseSchema": "agent_warehouse",
+            "hostPort": "100.115.222.97:9030"
+          }
+        ],
+        "diff": {
+          "table_fqn": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_df",
+          "exists": true,
+          "desired_columns": 37,
+          "desired_custom_properties": 26
+        }
+      },
+      "stderr": ""
+    },
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_shadow_1_2_0",
+        "mode": "plan",
+        "ok": true,
+        "action": "already_absent",
+        "reason": "已晋级正式订单主单事实表"
+      },
+      "mode": "plan",
+      "returncode": 0,
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_shadow_1_2_0",
+      "ok": true,
+      "action": "already_absent",
+      "reason": "已晋级正式订单主单事实表"
+    },
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0",
+        "mode": "plan",
+        "ok": true,
+        "action": "planned_retire",
+        "entity_id": "9de389a3-60d7-451a-afba-d8c29d6b02c5",
+        "reason": "已晋级正式订单商品明细事实表"
+      },
+      "mode": "plan",
+      "returncode": 0,
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0",
+      "ok": true,
+      "action": "planned_retire",
+      "entity_id": "9de389a3-60d7-451a-afba-d8c29d6b02c5",
+      "reason": "已晋级正式订单商品明细事实表"
+    },
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2",
+        "mode": "plan",
+        "ok": true,
+        "action": "planned_retire",
+        "entity_id": "3377894c-cb15-45a7-8c1e-b93cf870d5d6",
+        "reason": "已被快递单号粒度影子版本1.3.3替代"
+      },
+      "mode": "plan",
+      "returncode": 0,
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2",
+      "ok": true,
+      "action": "planned_retire",
+      "entity_id": "3377894c-cb15-45a7-8c1e-b93cf870d5d6",
+      "reason": "已被快递单号粒度影子版本1.3.3替代"
+    },
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_package_validation_1_3_1",
+        "mode": "plan",
+        "ok": true,
+        "action": "already_absent",
+        "reason": "包裹ID不作为当前目标业务粒度"
+      },
+      "mode": "plan",
+      "returncode": 0,
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_package_validation_1_3_1",
+      "ok": true,
+      "action": "already_absent",
+      "reason": "包裹ID不作为当前目标业务粒度"
+    },
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_package_item_validation_1_3_1",
+        "mode": "plan",
+        "ok": true,
+        "action": "already_absent",
+        "reason": "包裹ID不作为当前目标业务粒度"
+      },
+      "mode": "plan",
+      "returncode": 0,
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_package_item_validation_1_3_1",
+      "ok": true,
+      "action": "already_absent",
+      "reason": "包裹ID不作为当前目标业务粒度"
+    },
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_df_backup_1_2_0",
+        "mode": "plan",
+        "ok": true,
+        "action": "already_absent",
+        "reason": "历史物理备份改由Git发布包管理"
+      },
+      "mode": "plan",
+      "returncode": 0,
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_df_backup_1_2_0",
+      "ok": true,
+      "action": "already_absent",
+      "reason": "历史物理备份改由Git发布包管理"
+    },
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_df_backup_1_2_0",
+        "mode": "plan",
+        "ok": true,
+        "action": "already_absent",
+        "reason": "历史物理备份改由Git发布包管理"
+      },
+      "mode": "plan",
+      "returncode": 0,
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_df_backup_1_2_0",
+      "ok": true,
+      "action": "already_absent",
+      "reason": "历史物理备份改由Git发布包管理"
+    },
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_df_direct_logistics_backup_1_3_1",
+        "mode": "plan",
+        "ok": true,
+        "action": "already_absent",
+        "reason": "已撤回的历史物流直连物理备份"
+      },
+      "mode": "plan",
+      "returncode": 0,
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_df_direct_logistics_backup_1_3_1",
+      "ok": true,
+      "action": "already_absent",
+      "reason": "已撤回的历史物流直连物理备份"
+    },
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_deprecated_actual_receive_amount_detail_backup_1_2_1",
+        "mode": "plan",
+        "ok": true,
+        "action": "already_absent",
+        "reason": "已废弃的商家收入明细项物理备份"
+      },
+      "mode": "plan",
+      "returncode": 0,
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_deprecated_actual_receive_amount_detail_backup_1_2_1",
+      "ok": true,
+      "action": "already_absent",
+      "reason": "已废弃的商家收入明细项物理备份"
+    },
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_deprecated_logistics_info_backup_1_2_1",
+        "mode": "plan",
+        "ok": true,
+        "action": "already_absent",
+        "reason": "已废弃的物流信息物理备份"
+      },
+      "mode": "plan",
+      "returncode": 0,
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_deprecated_logistics_info_backup_1_2_1",
+      "ok": true,
+      "action": "already_absent",
+      "reason": "已废弃的物流信息物理备份"
+    },
+    {
       "contract": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\metadata-contract-formal-order-1.3.1.yaml",
       "mode": "apply",
       "returncode": 0,
@@ -108,6 +295,3047 @@
       "stderr": ""
     },
     {
+      "contract": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\metadata-contract-formal-item-parent-1.3.1.yaml",
+      "mode": "apply",
+      "returncode": 0,
+      "ok": true,
+      "stdout": {
+        "ok": true,
+        "mode": "apply",
+        "method": "PUT",
+        "fqn": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_df",
+        "verified": true,
+        "id": "993d379f-a0ff-4d24-ba97-1e1aedc72c0f"
+      },
+      "stderr": ""
+    },
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_shadow_1_2_0",
+        "mode": "apply",
+        "ok": true,
+        "action": "already_absent",
+        "reason": "已晋级正式订单主单事实表"
+      },
+      "mode": "apply",
+      "returncode": 0,
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_shadow_1_2_0",
+      "ok": true,
+      "action": "already_absent",
+      "reason": "已晋级正式订单主单事实表"
+    },
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0",
+        "mode": "apply",
+        "ok": true,
+        "action": "deleted",
+        "entity_id": "9de389a3-60d7-451a-afba-d8c29d6b02c5",
+        "response": {
+          "id": "9de389a3-60d7-451a-afba-d8c29d6b02c5",
+          "name": "dwd_trade_order_item_shadow_1_2_0",
+          "displayName": "DWD_抖店订单商品明细影子清洗表",
+          "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0",
+          "description": "抖店订单商品明细影子清洗结果；仅用于清洗契约验证，不代表正式DWD，不保留原始JSON。",
+          "version": 0.1,
+          "updatedAt": 1784769441868,
+          "updatedBy": "admin",
+          "tableType": "Regular",
+          "columns": [
+            {
+              "name": "snapshot_date",
+              "displayName": "数据快照日期",
+              "dataType": "DATE",
+              "dataTypeDisplay": "date",
+              "description": "来源ODS快照分区日期",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.snapshot_date",
+              "tags": [
+                {
+                  "tagFQN": "PII.NonSensitive",
+                  "name": "NonSensitive",
+                  "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                  "source": "Classification",
+                  "labelType": "Manual",
+                  "state": "Confirmed",
+                  "appliedAt": 1784769442758
+                }
+              ],
+              "ordinalPosition": 1,
+              "children": [],
+              "extension": {
+                "source_field": "dt",
+                "enum_definition": "{}",
+                "business_name_zh": "数据快照日期",
+                "sensitivity_level": "internal"
+              }
+            },
+            {
+              "name": "shop_id",
+              "displayName": "店铺ID",
+              "dataType": "STRING",
+              "dataTypeDisplay": "nullable(string)",
+              "description": "来源订单所属店铺标识",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.shop_id",
+              "tags": [
+                {
+                  "tagFQN": "PII.NonSensitive",
+                  "name": "NonSensitive",
+                  "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                  "source": "Classification",
+                  "labelType": "Manual",
+                  "state": "Confirmed",
+                  "appliedAt": 1784769442758
+                }
+              ],
+              "ordinalPosition": 2,
+              "children": [],
+              "extension": {
+                "source_field": "shop_id",
+                "enum_definition": "{}",
+                "business_name_zh": "店铺ID",
+                "sensitivity_level": "internal"
+              }
+            },
+            {
+              "name": "shop_name",
+              "displayName": "店铺名称",
+              "dataType": "STRING",
+              "dataTypeDisplay": "nullable(string)",
+              "description": "来源订单所属店铺名称",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.shop_name",
+              "tags": [
+                {
+                  "tagFQN": "PII.NonSensitive",
+                  "name": "NonSensitive",
+                  "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                  "source": "Classification",
+                  "labelType": "Manual",
+                  "state": "Confirmed",
+                  "appliedAt": 1784769442758
+                }
+              ],
+              "ordinalPosition": 3,
+              "children": [],
+              "extension": {
+                "source_field": "shop_name",
+                "enum_definition": "{}",
+                "business_name_zh": "店铺名称",
+                "sensitivity_level": "internal"
+              }
+            },
+            {
+              "name": "shop_order_id",
+              "displayName": "店铺订单号",
+              "dataType": "STRING",
+              "dataTypeDisplay": "string",
+              "description": "店铺订单业务标识",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.shop_order_id",
+              "tags": [
+                {
+                  "tagFQN": "PII.NonSensitive",
+                  "name": "NonSensitive",
+                  "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                  "source": "Classification",
+                  "labelType": "Manual",
+                  "state": "Confirmed",
+                  "appliedAt": 1784769442758
+                }
+              ],
+              "constraint": "PRIMARY_KEY",
+              "ordinalPosition": 4,
+              "children": [],
+              "extension": {
+                "source_field": "order_id",
+                "enum_definition": "{}",
+                "business_name_zh": "店铺订单号",
+                "sensitivity_level": "internal"
+              }
+            },
+            {
+              "name": "item_index",
+              "displayName": "商品明细序号",
+              "dataType": "INT",
+              "dataTypeDisplay": "uint16",
+              "description": "商品明细JSON数组中的1起始序号",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.item_index",
+              "tags": [
+                {
+                  "tagFQN": "PII.NonSensitive",
+                  "name": "NonSensitive",
+                  "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                  "source": "Classification",
+                  "labelType": "Manual",
+                  "state": "Confirmed",
+                  "appliedAt": 1784769442758
+                }
+              ],
+              "ordinalPosition": 5,
+              "children": [],
+              "extension": {
+                "source_field": "sku_order_list.item_index",
+                "enum_definition": "{}",
+                "business_name_zh": "商品明细序号",
+                "sensitivity_level": "internal"
+              }
+            },
+            {
+              "name": "product_id",
+              "displayName": "商品ID",
+              "dataType": "STRING",
+              "dataTypeDisplay": "nullable(string)",
+              "description": "商品标识",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.product_id",
+              "tags": [
+                {
+                  "tagFQN": "PII.NonSensitive",
+                  "name": "NonSensitive",
+                  "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                  "source": "Classification",
+                  "labelType": "Manual",
+                  "state": "Confirmed",
+                  "appliedAt": 1784769442758
+                }
+              ],
+              "ordinalPosition": 6,
+              "children": [],
+              "extension": {
+                "source_field": "sku_order_list.product_id",
+                "enum_definition": "{}",
+                "business_name_zh": "商品ID",
+                "sensitivity_level": "internal"
+              }
+            },
+            {
+              "name": "product_name",
+              "displayName": "商品名称",
+              "dataType": "STRING",
+              "dataTypeDisplay": "nullable(string)",
+              "description": "商品名称",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.product_name",
+              "tags": [
+                {
+                  "tagFQN": "PII.NonSensitive",
+                  "name": "NonSensitive",
+                  "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                  "source": "Classification",
+                  "labelType": "Manual",
+                  "state": "Confirmed",
+                  "appliedAt": 1784769442758
+                }
+              ],
+              "ordinalPosition": 7,
+              "children": [],
+              "extension": {
+                "source_field": "sku_order_list.product_name",
+                "enum_definition": "{}",
+                "business_name_zh": "商品名称",
+                "sensitivity_level": "internal"
+              }
+            },
+            {
+              "name": "sku_id",
+              "displayName": "SKU ID",
+              "dataType": "STRING",
+              "dataTypeDisplay": "nullable(string)",
+              "description": "SKU标识",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.sku_id",
+              "tags": [
+                {
+                  "tagFQN": "PII.NonSensitive",
+                  "name": "NonSensitive",
+                  "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                  "source": "Classification",
+                  "labelType": "Manual",
+                  "state": "Confirmed",
+                  "appliedAt": 1784769442758
+                }
+              ],
+              "ordinalPosition": 8,
+              "children": [],
+              "extension": {
+                "source_field": "sku_order_list.sku_id",
+                "enum_definition": "{}",
+                "business_name_zh": "SKU ID",
+                "sensitivity_level": "internal"
+              }
+            },
+            {
+              "name": "sku_specification",
+              "displayName": "SKU规格",
+              "dataType": "STRING",
+              "dataTypeDisplay": "nullable(string)",
+              "description": "已展开的规格名称和值",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.sku_specification",
+              "tags": [
+                {
+                  "tagFQN": "PII.NonSensitive",
+                  "name": "NonSensitive",
+                  "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                  "source": "Classification",
+                  "labelType": "Manual",
+                  "state": "Confirmed",
+                  "appliedAt": 1784769442758
+                }
+              ],
+              "ordinalPosition": 9,
+              "children": [],
+              "extension": {
+                "source_field": "sku_order_list.spec",
+                "enum_definition": "{}",
+                "business_name_zh": "SKU规格",
+                "sensitivity_level": "internal"
+              }
+            },
+            {
+              "name": "item_quantity",
+              "displayName": "商品数量",
+              "dataType": "BIGINT",
+              "dataTypeDisplay": "nullable(int64)",
+              "description": "商品购买数量",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.item_quantity",
+              "tags": [
+                {
+                  "tagFQN": "PII.NonSensitive",
+                  "name": "NonSensitive",
+                  "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                  "source": "Classification",
+                  "labelType": "Manual",
+                  "state": "Confirmed",
+                  "appliedAt": 1784769442758
+                }
+              ],
+              "ordinalPosition": 10,
+              "children": [],
+              "extension": {
+                "source_field": "sku_order_list.item_num",
+                "enum_definition": "{}",
+                "business_name_zh": "商品数量",
+                "sensitivity_level": "internal"
+              }
+            },
+            {
+              "name": "goods_amount",
+              "displayName": "商品原价",
+              "dataType": "DECIMAL",
+              "dataTypeDisplay": "nullable(decimal128(2))",
+              "description": "商品原价，按元解析并保留两位小数",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.goods_amount",
+              "tags": [
+                {
+                  "tagFQN": "PII.NonSensitive",
+                  "name": "NonSensitive",
+                  "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                  "source": "Classification",
+                  "labelType": "Manual",
+                  "state": "Confirmed",
+                  "appliedAt": 1784769442758
+                }
+              ],
+              "ordinalPosition": 11,
+              "children": [],
+              "extension": {
+                "source_field": "sku_order_list.goods_price",
+                "enum_definition": "{}",
+                "business_name_zh": "商品原价",
+                "sensitivity_level": "internal"
+              }
+            },
+            {
+              "name": "item_paid_amount",
+              "displayName": "商品支付金额",
+              "dataType": "DECIMAL",
+              "dataTypeDisplay": "nullable(decimal128(2))",
+              "description": "商品支付金额，源单位分，清洗后转为元并保留两位小数",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.item_paid_amount",
+              "tags": [
+                {
+                  "tagFQN": "PII.NonSensitive",
+                  "name": "NonSensitive",
+                  "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                  "source": "Classification",
+                  "labelType": "Manual",
+                  "state": "Confirmed",
+                  "appliedAt": 1784769442758
+                }
+              ],
+              "ordinalPosition": 12,
+              "children": [],
+              "extension": {
+                "source_field": "sku_order_list.pay_amount",
+                "enum_definition": "{}",
+                "business_name_zh": "商品支付金额",
+                "sensitivity_level": "internal"
+              }
+            },
+            {
+              "name": "room_id",
+              "displayName": "直播间ID",
+              "dataType": "STRING",
+              "dataTypeDisplay": "nullable(string)",
+              "description": "直播间标识，空值和0统一为NULL",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.room_id",
+              "tags": [
+                {
+                  "tagFQN": "PII.NonSensitive",
+                  "name": "NonSensitive",
+                  "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                  "source": "Classification",
+                  "labelType": "Manual",
+                  "state": "Confirmed",
+                  "appliedAt": 1784769442758
+                }
+              ],
+              "ordinalPosition": 13,
+              "children": [],
+              "extension": {
+                "source_field": "sku_order_list.room_id",
+                "enum_definition": "{}",
+                "business_name_zh": "直播间ID",
+                "sensitivity_level": "internal"
+              }
+            },
+            {
+              "name": "author_id",
+              "displayName": "达人ID",
+              "dataType": "STRING",
+              "dataTypeDisplay": "nullable(string)",
+              "description": "达人标识，空值和0统一为NULL",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.author_id",
+              "tags": [
+                {
+                  "tagFQN": "PII.NonSensitive",
+                  "name": "NonSensitive",
+                  "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                  "source": "Classification",
+                  "labelType": "Manual",
+                  "state": "Confirmed",
+                  "appliedAt": 1784769442758
+                }
+              ],
+              "ordinalPosition": 14,
+              "children": [],
+              "extension": {
+                "source_field": "sku_order_list.author_id",
+                "enum_definition": "{}",
+                "business_name_zh": "达人ID",
+                "sensitivity_level": "internal"
+              }
+            },
+            {
+              "name": "author_name",
+              "displayName": "达人名称",
+              "dataType": "STRING",
+              "dataTypeDisplay": "nullable(string)",
+              "description": "接口返回的达人名称",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.author_name",
+              "tags": [
+                {
+                  "tagFQN": "PII.NonSensitive",
+                  "name": "NonSensitive",
+                  "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                  "source": "Classification",
+                  "labelType": "Manual",
+                  "state": "Confirmed",
+                  "appliedAt": 1784769442758
+                }
+              ],
+              "ordinalPosition": 15,
+              "children": [],
+              "extension": {
+                "source_field": "sku_order_list.author_name",
+                "enum_definition": "{}",
+                "business_name_zh": "达人名称",
+                "sensitivity_level": "internal"
+              }
+            },
+            {
+              "name": "content_id",
+              "displayName": "内容ID",
+              "dataType": "STRING",
+              "dataTypeDisplay": "nullable(string)",
+              "description": "内容标识",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.content_id",
+              "tags": [
+                {
+                  "tagFQN": "PII.NonSensitive",
+                  "name": "NonSensitive",
+                  "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                  "source": "Classification",
+                  "labelType": "Manual",
+                  "state": "Confirmed",
+                  "appliedAt": 1784769442758
+                }
+              ],
+              "ordinalPosition": 16,
+              "children": [],
+              "extension": {
+                "source_field": "sku_order_list.content_id",
+                "enum_definition": "{}",
+                "business_name_zh": "内容ID",
+                "sensitivity_level": "internal"
+              }
+            },
+            {
+              "name": "ad_environment_type",
+              "displayName": "广告环境类型",
+              "dataType": "STRING",
+              "dataTypeDisplay": "nullable(string)",
+              "description": "广告环境类型编码",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.ad_environment_type",
+              "tags": [
+                {
+                  "tagFQN": "PII.NonSensitive",
+                  "name": "NonSensitive",
+                  "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                  "source": "Classification",
+                  "labelType": "Manual",
+                  "state": "Confirmed",
+                  "appliedAt": 1784769442758
+                }
+              ],
+              "ordinalPosition": 17,
+              "children": [],
+              "extension": {
+                "source_field": "sku_order_list.ad_env_type",
+                "enum_definition": "{}",
+                "business_name_zh": "广告环境类型",
+                "sensitivity_level": "internal"
+              }
+            },
+            {
+              "name": "order_entry_code",
+              "displayName": "下单端编码",
+              "dataType": "STRING",
+              "dataTypeDisplay": "nullable(string)",
+              "description": "下单端编码",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.order_entry_code",
+              "tags": [
+                {
+                  "tagFQN": "PII.NonSensitive",
+                  "name": "NonSensitive",
+                  "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                  "source": "Classification",
+                  "labelType": "Manual",
+                  "state": "Confirmed",
+                  "appliedAt": 1784769442758
+                }
+              ],
+              "ordinalPosition": 18,
+              "children": [],
+              "extension": {
+                "source_field": "sku_order_list.b_type",
+                "enum_definition": "{}",
+                "business_name_zh": "下单端编码",
+                "sensitivity_level": "internal"
+              }
+            },
+            {
+              "name": "order_entry_name",
+              "displayName": "下单端名称",
+              "dataType": "STRING",
+              "dataTypeDisplay": "nullable(string)",
+              "description": "下单端名称",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.order_entry_name",
+              "tags": [
+                {
+                  "tagFQN": "PII.NonSensitive",
+                  "name": "NonSensitive",
+                  "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                  "source": "Classification",
+                  "labelType": "Manual",
+                  "state": "Confirmed",
+                  "appliedAt": 1784769442758
+                }
+              ],
+              "ordinalPosition": 19,
+              "children": [],
+              "extension": {
+                "source_field": "sku_order_list.b_type_desc",
+                "enum_definition": "{}",
+                "business_name_zh": "下单端名称",
+                "sensitivity_level": "internal"
+              }
+            },
+            {
+              "name": "order_scene_code",
+              "displayName": "下单场景编码",
+              "dataType": "STRING",
+              "dataTypeDisplay": "nullable(string)",
+              "description": "下单场景编码",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.order_scene_code",
+              "tags": [
+                {
+                  "tagFQN": "PII.NonSensitive",
+                  "name": "NonSensitive",
+                  "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                  "source": "Classification",
+                  "labelType": "Manual",
+                  "state": "Confirmed",
+                  "appliedAt": 1784769442758
+                }
+              ],
+              "ordinalPosition": 20,
+              "children": [],
+              "extension": {
+                "source_field": "sku_order_list.sub_b_type",
+                "enum_definition": "{}",
+                "business_name_zh": "下单场景编码",
+                "sensitivity_level": "internal"
+              }
+            },
+            {
+              "name": "order_scene_name",
+              "displayName": "下单场景名称",
+              "dataType": "STRING",
+              "dataTypeDisplay": "nullable(string)",
+              "description": "下单场景名称",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.order_scene_name",
+              "tags": [
+                {
+                  "tagFQN": "PII.NonSensitive",
+                  "name": "NonSensitive",
+                  "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                  "source": "Classification",
+                  "labelType": "Manual",
+                  "state": "Confirmed",
+                  "appliedAt": 1784769442758
+                }
+              ],
+              "ordinalPosition": 21,
+              "children": [],
+              "extension": {
+                "source_field": "sku_order_list.sub_b_type_desc",
+                "enum_definition": "{}",
+                "business_name_zh": "下单场景名称",
+                "sensitivity_level": "internal"
+              }
+            },
+            {
+              "name": "payment_type_code",
+              "displayName": "支付方式编码",
+              "dataType": "STRING",
+              "dataTypeDisplay": "nullable(string)",
+              "description": "支付方式编码",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.payment_type_code",
+              "tags": [
+                {
+                  "tagFQN": "PII.NonSensitive",
+                  "name": "NonSensitive",
+                  "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                  "source": "Classification",
+                  "labelType": "Manual",
+                  "state": "Confirmed",
+                  "appliedAt": 1784769442758
+                }
+              ],
+              "ordinalPosition": 22,
+              "children": [],
+              "extension": {
+                "source_field": "sku_order_list.pay_type",
+                "enum_definition": "{}",
+                "business_name_zh": "支付方式编码",
+                "sensitivity_level": "internal"
+              }
+            },
+            {
+              "name": "paid_at",
+              "displayName": "支付时间",
+              "dataType": "DATETIME",
+              "dataTypeDisplay": "nullable(datetime('asia/shanghai'))",
+              "description": "Unix秒级支付时间，0转NULL，上海时区",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.paid_at",
+              "tags": [
+                {
+                  "tagFQN": "PII.NonSensitive",
+                  "name": "NonSensitive",
+                  "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                  "source": "Classification",
+                  "labelType": "Manual",
+                  "state": "Confirmed",
+                  "appliedAt": 1784769442758
+                }
+              ],
+              "ordinalPosition": 23,
+              "children": [],
+              "extension": {
+                "source_field": "sku_order_list.pay_time",
+                "enum_definition": "{}",
+                "business_name_zh": "支付时间",
+                "sensitivity_level": "internal"
+              }
+            },
+            {
+              "name": "created_at",
+              "displayName": "下单时间",
+              "dataType": "DATETIME",
+              "dataTypeDisplay": "nullable(datetime('asia/shanghai'))",
+              "description": "Unix秒级下单时间，上海时区",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.created_at",
+              "tags": [
+                {
+                  "tagFQN": "PII.NonSensitive",
+                  "name": "NonSensitive",
+                  "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                  "source": "Classification",
+                  "labelType": "Manual",
+                  "state": "Confirmed",
+                  "appliedAt": 1784769442758
+                }
+              ],
+              "ordinalPosition": 24,
+              "children": [],
+              "extension": {
+                "source_field": "sku_order_list.create_time",
+                "enum_definition": "{}",
+                "business_name_zh": "下单时间",
+                "sensitivity_level": "internal"
+              }
+            },
+            {
+              "name": "updated_at",
+              "displayName": "订单更新时间",
+              "dataType": "DATETIME",
+              "dataTypeDisplay": "nullable(datetime('asia/shanghai'))",
+              "description": "Unix秒级订单更新时间，上海时区",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.updated_at",
+              "tags": [
+                {
+                  "tagFQN": "PII.NonSensitive",
+                  "name": "NonSensitive",
+                  "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                  "source": "Classification",
+                  "labelType": "Manual",
+                  "state": "Confirmed",
+                  "appliedAt": 1784769442758
+                }
+              ],
+              "ordinalPosition": 25,
+              "children": [],
+              "extension": {
+                "source_field": "sku_order_list.update_time",
+                "enum_definition": "{}",
+                "business_name_zh": "订单更新时间",
+                "sensitivity_level": "internal"
+              }
+            },
+            {
+              "name": "order_status_code",
+              "displayName": "商品订单状态编码",
+              "dataType": "STRING",
+              "dataTypeDisplay": "nullable(string)",
+              "description": "商品订单状态编码",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.order_status_code",
+              "tags": [
+                {
+                  "tagFQN": "PII.NonSensitive",
+                  "name": "NonSensitive",
+                  "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                  "source": "Classification",
+                  "labelType": "Manual",
+                  "state": "Confirmed",
+                  "appliedAt": 1784769442758
+                }
+              ],
+              "ordinalPosition": 26,
+              "children": [],
+              "extension": {
+                "source_field": "sku_order_list.order_status",
+                "enum_definition": "{}",
+                "business_name_zh": "商品订单状态编码",
+                "sensitivity_level": "internal"
+              }
+            },
+            {
+              "name": "order_status_name",
+              "displayName": "商品订单状态名称",
+              "dataType": "STRING",
+              "dataTypeDisplay": "nullable(string)",
+              "description": "商品订单状态名称",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.order_status_name",
+              "tags": [
+                {
+                  "tagFQN": "PII.NonSensitive",
+                  "name": "NonSensitive",
+                  "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                  "source": "Classification",
+                  "labelType": "Manual",
+                  "state": "Confirmed",
+                  "appliedAt": 1784769442758
+                }
+              ],
+              "ordinalPosition": 27,
+              "children": [],
+              "extension": {
+                "source_field": "sku_order_list.order_status_desc",
+                "enum_definition": "{}",
+                "business_name_zh": "商品订单状态名称",
+                "sensitivity_level": "internal"
+              }
+            },
+            {
+              "name": "main_status_code",
+              "displayName": "主流程状态编码",
+              "dataType": "STRING",
+              "dataTypeDisplay": "nullable(string)",
+              "description": "主流程状态编码",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.main_status_code",
+              "tags": [
+                {
+                  "tagFQN": "PII.NonSensitive",
+                  "name": "NonSensitive",
+                  "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                  "source": "Classification",
+                  "labelType": "Manual",
+                  "state": "Confirmed",
+                  "appliedAt": 1784769442758
+                }
+              ],
+              "ordinalPosition": 28,
+              "children": [],
+              "extension": {
+                "source_field": "sku_order_list.main_status",
+                "enum_definition": "{}",
+                "business_name_zh": "主流程状态编码",
+                "sensitivity_level": "internal"
+              }
+            },
+            {
+              "name": "main_status_name",
+              "displayName": "主流程状态名称",
+              "dataType": "STRING",
+              "dataTypeDisplay": "nullable(string)",
+              "description": "主流程状态名称",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.main_status_name",
+              "tags": [
+                {
+                  "tagFQN": "PII.NonSensitive",
+                  "name": "NonSensitive",
+                  "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                  "source": "Classification",
+                  "labelType": "Manual",
+                  "state": "Confirmed",
+                  "appliedAt": 1784769442758
+                }
+              ],
+              "ordinalPosition": 29,
+              "children": [],
+              "extension": {
+                "source_field": "sku_order_list.main_status_desc",
+                "enum_definition": "{}",
+                "business_name_zh": "主流程状态名称",
+                "sensitivity_level": "internal"
+              }
+            },
+            {
+              "name": "documented_json_path_count",
+              "displayName": "接口文档JSON路径数",
+              "dataType": "INT",
+              "dataTypeDisplay": "uint16",
+              "description": "当前接口文档字段树登记路径数量",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.documented_json_path_count",
+              "tags": [
+                {
+                  "tagFQN": "PII.NonSensitive",
+                  "name": "NonSensitive",
+                  "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                  "source": "Classification",
+                  "labelType": "Manual",
+                  "state": "Confirmed",
+                  "appliedAt": 1784769442758
+                }
+              ],
+              "ordinalPosition": 30,
+              "children": [],
+              "extension": {
+                "source_field": "json-expansion-inventory.yaml",
+                "enum_definition": "{}",
+                "business_name_zh": "接口文档JSON路径数",
+                "sensitivity_level": "internal"
+              }
+            },
+            {
+              "name": "documented_scalar_field_count",
+              "displayName": "接口文档JSON标量字段数",
+              "dataType": "INT",
+              "dataTypeDisplay": "uint16",
+              "description": "当前接口文档定义的标量字段数量",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.documented_scalar_field_count",
+              "tags": [
+                {
+                  "tagFQN": "PII.NonSensitive",
+                  "name": "NonSensitive",
+                  "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                  "source": "Classification",
+                  "labelType": "Manual",
+                  "state": "Confirmed",
+                  "appliedAt": 1784769442758
+                }
+              ],
+              "ordinalPosition": 31,
+              "children": [],
+              "extension": {
+                "source_field": "json-field-contracts.yaml",
+                "enum_definition": "{}",
+                "business_name_zh": "接口文档JSON标量字段数",
+                "sensitivity_level": "internal"
+              }
+            },
+            {
+              "name": "documented_business_relation_count",
+              "displayName": "接口文档JSON业务关系数",
+              "dataType": "INT",
+              "dataTypeDisplay": "uint8",
+              "description": "当前接口文档定义并拆分的业务数组关系数量",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.documented_business_relation_count",
+              "tags": [
+                {
+                  "tagFQN": "PII.NonSensitive",
+                  "name": "NonSensitive",
+                  "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                  "source": "Classification",
+                  "labelType": "Manual",
+                  "state": "Confirmed",
+                  "appliedAt": 1784769442758
+                }
+              ],
+              "ordinalPosition": 32,
+              "children": [],
+              "extension": {
+                "source_field": "json-relation-contracts.yaml",
+                "enum_definition": "{}",
+                "business_name_zh": "接口文档JSON业务关系数",
+                "sensitivity_level": "internal"
+              }
+            },
+            {
+              "name": "json_expansion_status",
+              "displayName": "JSON展开状态",
+              "dataType": "STRING",
+              "dataTypeDisplay": "string",
+              "description": "JSON全字段展开和数组关系化状态",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.json_expansion_status",
+              "tags": [
+                {
+                  "tagFQN": "PII.NonSensitive",
+                  "name": "NonSensitive",
+                  "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                  "source": "Classification",
+                  "labelType": "Manual",
+                  "state": "Confirmed",
+                  "appliedAt": 1784769442758
+                }
+              ],
+              "ordinalPosition": 33,
+              "children": [],
+              "extension": {
+                "source_field": "cleaning-contract.yaml",
+                "enum_definition": "{}",
+                "business_name_zh": "JSON展开状态",
+                "sensitivity_level": "internal"
+              }
+            },
+            {
+              "name": "cleaning_contract_version",
+              "displayName": "清洗契约版本",
+              "dataType": "STRING",
+              "dataTypeDisplay": "string",
+              "description": "当前清洗契约版本",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.cleaning_contract_version",
+              "tags": [
+                {
+                  "tagFQN": "PII.NonSensitive",
+                  "name": "NonSensitive",
+                  "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                  "source": "Classification",
+                  "labelType": "Manual",
+                  "state": "Confirmed",
+                  "appliedAt": 1784769442758
+                }
+              ],
+              "ordinalPosition": 34,
+              "children": [],
+              "extension": {
+                "source_field": "cleaning-contract.yaml",
+                "enum_definition": "{}",
+                "business_name_zh": "清洗契约版本",
+                "sensitivity_level": "internal"
+              }
+            },
+            {
+              "name": "source_task_instance_id",
+              "displayName": "来源任务实例ID",
+              "dataType": "STRING",
+              "dataTypeDisplay": "nullable(string)",
+              "description": "来源采集任务实例标识",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.source_task_instance_id",
+              "tags": [
+                {
+                  "tagFQN": "PII.NonSensitive",
+                  "name": "NonSensitive",
+                  "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                  "source": "Classification",
+                  "labelType": "Manual",
+                  "state": "Confirmed",
+                  "appliedAt": 1784769442758
+                }
+              ],
+              "ordinalPosition": 35,
+              "children": [],
+              "extension": {
+                "source_field": "yuce_task_instance_id",
+                "enum_definition": "{}",
+                "business_name_zh": "来源任务实例ID",
+                "sensitivity_level": "internal"
+              }
+            },
+            {
+              "name": "etl_time",
+              "displayName": "清洗处理时间",
+              "dataType": "DATETIME",
+              "dataTypeDisplay": "datetime('asia/shanghai')",
+              "description": "影子清洗处理时间",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.etl_time",
+              "tags": [
+                {
+                  "tagFQN": "PII.NonSensitive",
+                  "name": "NonSensitive",
+                  "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                  "source": "Classification",
+                  "labelType": "Manual",
+                  "state": "Confirmed",
+                  "appliedAt": 1784769442758
+                }
+              ],
+              "ordinalPosition": 36,
+              "children": [],
+              "extension": {
+                "source_field": "system_time",
+                "enum_definition": "{}",
+                "business_name_zh": "清洗处理时间",
+                "sensitivity_level": "internal"
+              }
+            }
+          ],
+          "owners": [],
+          "databaseSchema": {
+            "id": "ed4d9991-052f-49c7-a522-b069989e6987",
+            "type": "databaseSchema",
+            "name": "youmei_sandbox",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox",
+            "displayName": "youmei_sandbox",
+            "deleted": false,
+            "href": "http://127.0.0.1:8585/api/v1/databaseSchemas/ed4d9991-052f-49c7-a522-b069989e6987"
+          },
+          "database": {
+            "id": "84700061-04e4-4859-8830-67c001d8a726",
+            "type": "database",
+            "name": "default",
+            "fullyQualifiedName": "youmei_clickhouse.default",
+            "displayName": "default",
+            "deleted": false,
+            "href": "http://127.0.0.1:8585/api/v1/databases/84700061-04e4-4859-8830-67c001d8a726"
+          },
+          "service": {
+            "id": "caca166b-5d77-4ca3-81bb-b4d74e872741",
+            "type": "databaseService",
+            "name": "youmei_clickhouse",
+            "fullyQualifiedName": "youmei_clickhouse",
+            "displayName": "youmei_clickhouse",
+            "deleted": false,
+            "href": "http://127.0.0.1:8585/api/v1/services/databaseServices/caca166b-5d77-4ca3-81bb-b4d74e872741"
+          },
+          "serviceType": "Clickhouse",
+          "tags": [
+            {
+              "tagFQN": "Tier.Tier2",
+              "name": "Tier2",
+              "description": "**Important business datasets for your company (not as critical as Tier 1)**\n\n- Used in important business metrics, product metrics, and dashboards to drive internal decisions\n\n- Used in important compliance reporting to major regulators, govt entities, and third party\n\n- Used for less critical online user-facing experiences (user activity, user behavior)\n\n- Source used to derive other critical Tier-2 datasets",
+              "source": "Classification",
+              "labelType": "Manual",
+              "state": "Confirmed",
+              "appliedAt": 1784769442737
+            }
+          ],
+          "followers": [],
+          "deleted": false,
+          "extension": {
+            "amount_conversion_status": "pay_amount_fen_to_yuan_goods_price_yuan_preserved",
+            "amount_rule_version": "1.2.0",
+            "amount_unit_strategy": "field_level_unit_evidence",
+            "business_table_name_zh": "DWD_抖店订单商品明细影子清洗表",
+            "cleaning_contract_id": "doudian_order_item",
+            "cleaning_contract_version": "1.2.0",
+            "data_quality_status": "shadow_passed",
+            "enum_dictionary_json": "{\"status\":\"reviewed\",\"source\":\"enum-dictionary.yaml\",\"unknown_policy\":\"preserve_unknown_and_flag\"}",
+            "enum_dictionary_version": "pending",
+            "grain": "店铺订单号 + 商品明细数组序号",
+            "json_business_relation_count": "51",
+            "json_documented_path_count": "622",
+            "json_documented_scalar_field_count": "502",
+            "json_expansion_policy": "all_interface_defined_fields_expanded",
+            "json_field_contract_version": "1.2.0",
+            "json_inventory_version": "1.0.0",
+            "json_relation_contract_version": "1.2.0",
+            "json_transport_array_not_materialized": "shop_order_list",
+            "null_value_policy": "empty_or_null_to_NULL_non_empty_invalid_to_exception_count_zero_preserved",
+            "refresh_mode": "window_full_snapshot",
+            "sensitivity_level": "internal",
+            "source_api": "order.searchList",
+            "source_api_doc": "https://op.jinritemai.com/docs/api-docs/15/1342",
+            "source_system": "doudian_api",
+            "technical_key_fields": "shop_order_id,item_index",
+            "warehouse_layer": "DWD"
+          },
+          "domains": [],
+          "dataProducts": [],
+          "votes": {
+            "upVotes": 0,
+            "downVotes": 0,
+            "upVoters": [],
+            "downVoters": []
+          },
+          "processedLineage": false,
+          "entityStatus": "Unprocessed"
+        }
+      },
+      "mode": "apply",
+      "returncode": 0,
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0",
+      "ok": true,
+      "action": "deleted",
+      "entity_id": "9de389a3-60d7-451a-afba-d8c29d6b02c5",
+      "response": {
+        "id": "9de389a3-60d7-451a-afba-d8c29d6b02c5",
+        "name": "dwd_trade_order_item_shadow_1_2_0",
+        "displayName": "DWD_抖店订单商品明细影子清洗表",
+        "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0",
+        "description": "抖店订单商品明细影子清洗结果；仅用于清洗契约验证，不代表正式DWD，不保留原始JSON。",
+        "version": 0.1,
+        "updatedAt": 1784769441868,
+        "updatedBy": "admin",
+        "tableType": "Regular",
+        "columns": [
+          {
+            "name": "snapshot_date",
+            "displayName": "数据快照日期",
+            "dataType": "DATE",
+            "dataTypeDisplay": "date",
+            "description": "来源ODS快照分区日期",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.snapshot_date",
+            "tags": [
+              {
+                "tagFQN": "PII.NonSensitive",
+                "name": "NonSensitive",
+                "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                "source": "Classification",
+                "labelType": "Manual",
+                "state": "Confirmed",
+                "appliedAt": 1784769442758
+              }
+            ],
+            "ordinalPosition": 1,
+            "children": [],
+            "extension": {
+              "source_field": "dt",
+              "enum_definition": "{}",
+              "business_name_zh": "数据快照日期",
+              "sensitivity_level": "internal"
+            }
+          },
+          {
+            "name": "shop_id",
+            "displayName": "店铺ID",
+            "dataType": "STRING",
+            "dataTypeDisplay": "nullable(string)",
+            "description": "来源订单所属店铺标识",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.shop_id",
+            "tags": [
+              {
+                "tagFQN": "PII.NonSensitive",
+                "name": "NonSensitive",
+                "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                "source": "Classification",
+                "labelType": "Manual",
+                "state": "Confirmed",
+                "appliedAt": 1784769442758
+              }
+            ],
+            "ordinalPosition": 2,
+            "children": [],
+            "extension": {
+              "source_field": "shop_id",
+              "enum_definition": "{}",
+              "business_name_zh": "店铺ID",
+              "sensitivity_level": "internal"
+            }
+          },
+          {
+            "name": "shop_name",
+            "displayName": "店铺名称",
+            "dataType": "STRING",
+            "dataTypeDisplay": "nullable(string)",
+            "description": "来源订单所属店铺名称",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.shop_name",
+            "tags": [
+              {
+                "tagFQN": "PII.NonSensitive",
+                "name": "NonSensitive",
+                "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                "source": "Classification",
+                "labelType": "Manual",
+                "state": "Confirmed",
+                "appliedAt": 1784769442758
+              }
+            ],
+            "ordinalPosition": 3,
+            "children": [],
+            "extension": {
+              "source_field": "shop_name",
+              "enum_definition": "{}",
+              "business_name_zh": "店铺名称",
+              "sensitivity_level": "internal"
+            }
+          },
+          {
+            "name": "shop_order_id",
+            "displayName": "店铺订单号",
+            "dataType": "STRING",
+            "dataTypeDisplay": "string",
+            "description": "店铺订单业务标识",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.shop_order_id",
+            "tags": [
+              {
+                "tagFQN": "PII.NonSensitive",
+                "name": "NonSensitive",
+                "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                "source": "Classification",
+                "labelType": "Manual",
+                "state": "Confirmed",
+                "appliedAt": 1784769442758
+              }
+            ],
+            "constraint": "PRIMARY_KEY",
+            "ordinalPosition": 4,
+            "children": [],
+            "extension": {
+              "source_field": "order_id",
+              "enum_definition": "{}",
+              "business_name_zh": "店铺订单号",
+              "sensitivity_level": "internal"
+            }
+          },
+          {
+            "name": "item_index",
+            "displayName": "商品明细序号",
+            "dataType": "INT",
+            "dataTypeDisplay": "uint16",
+            "description": "商品明细JSON数组中的1起始序号",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.item_index",
+            "tags": [
+              {
+                "tagFQN": "PII.NonSensitive",
+                "name": "NonSensitive",
+                "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                "source": "Classification",
+                "labelType": "Manual",
+                "state": "Confirmed",
+                "appliedAt": 1784769442758
+              }
+            ],
+            "ordinalPosition": 5,
+            "children": [],
+            "extension": {
+              "source_field": "sku_order_list.item_index",
+              "enum_definition": "{}",
+              "business_name_zh": "商品明细序号",
+              "sensitivity_level": "internal"
+            }
+          },
+          {
+            "name": "product_id",
+            "displayName": "商品ID",
+            "dataType": "STRING",
+            "dataTypeDisplay": "nullable(string)",
+            "description": "商品标识",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.product_id",
+            "tags": [
+              {
+                "tagFQN": "PII.NonSensitive",
+                "name": "NonSensitive",
+                "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                "source": "Classification",
+                "labelType": "Manual",
+                "state": "Confirmed",
+                "appliedAt": 1784769442758
+              }
+            ],
+            "ordinalPosition": 6,
+            "children": [],
+            "extension": {
+              "source_field": "sku_order_list.product_id",
+              "enum_definition": "{}",
+              "business_name_zh": "商品ID",
+              "sensitivity_level": "internal"
+            }
+          },
+          {
+            "name": "product_name",
+            "displayName": "商品名称",
+            "dataType": "STRING",
+            "dataTypeDisplay": "nullable(string)",
+            "description": "商品名称",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.product_name",
+            "tags": [
+              {
+                "tagFQN": "PII.NonSensitive",
+                "name": "NonSensitive",
+                "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                "source": "Classification",
+                "labelType": "Manual",
+                "state": "Confirmed",
+                "appliedAt": 1784769442758
+              }
+            ],
+            "ordinalPosition": 7,
+            "children": [],
+            "extension": {
+              "source_field": "sku_order_list.product_name",
+              "enum_definition": "{}",
+              "business_name_zh": "商品名称",
+              "sensitivity_level": "internal"
+            }
+          },
+          {
+            "name": "sku_id",
+            "displayName": "SKU ID",
+            "dataType": "STRING",
+            "dataTypeDisplay": "nullable(string)",
+            "description": "SKU标识",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.sku_id",
+            "tags": [
+              {
+                "tagFQN": "PII.NonSensitive",
+                "name": "NonSensitive",
+                "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                "source": "Classification",
+                "labelType": "Manual",
+                "state": "Confirmed",
+                "appliedAt": 1784769442758
+              }
+            ],
+            "ordinalPosition": 8,
+            "children": [],
+            "extension": {
+              "source_field": "sku_order_list.sku_id",
+              "enum_definition": "{}",
+              "business_name_zh": "SKU ID",
+              "sensitivity_level": "internal"
+            }
+          },
+          {
+            "name": "sku_specification",
+            "displayName": "SKU规格",
+            "dataType": "STRING",
+            "dataTypeDisplay": "nullable(string)",
+            "description": "已展开的规格名称和值",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.sku_specification",
+            "tags": [
+              {
+                "tagFQN": "PII.NonSensitive",
+                "name": "NonSensitive",
+                "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                "source": "Classification",
+                "labelType": "Manual",
+                "state": "Confirmed",
+                "appliedAt": 1784769442758
+              }
+            ],
+            "ordinalPosition": 9,
+            "children": [],
+            "extension": {
+              "source_field": "sku_order_list.spec",
+              "enum_definition": "{}",
+              "business_name_zh": "SKU规格",
+              "sensitivity_level": "internal"
+            }
+          },
+          {
+            "name": "item_quantity",
+            "displayName": "商品数量",
+            "dataType": "BIGINT",
+            "dataTypeDisplay": "nullable(int64)",
+            "description": "商品购买数量",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.item_quantity",
+            "tags": [
+              {
+                "tagFQN": "PII.NonSensitive",
+                "name": "NonSensitive",
+                "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                "source": "Classification",
+                "labelType": "Manual",
+                "state": "Confirmed",
+                "appliedAt": 1784769442758
+              }
+            ],
+            "ordinalPosition": 10,
+            "children": [],
+            "extension": {
+              "source_field": "sku_order_list.item_num",
+              "enum_definition": "{}",
+              "business_name_zh": "商品数量",
+              "sensitivity_level": "internal"
+            }
+          },
+          {
+            "name": "goods_amount",
+            "displayName": "商品原价",
+            "dataType": "DECIMAL",
+            "dataTypeDisplay": "nullable(decimal128(2))",
+            "description": "商品原价，按元解析并保留两位小数",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.goods_amount",
+            "tags": [
+              {
+                "tagFQN": "PII.NonSensitive",
+                "name": "NonSensitive",
+                "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                "source": "Classification",
+                "labelType": "Manual",
+                "state": "Confirmed",
+                "appliedAt": 1784769442758
+              }
+            ],
+            "ordinalPosition": 11,
+            "children": [],
+            "extension": {
+              "source_field": "sku_order_list.goods_price",
+              "enum_definition": "{}",
+              "business_name_zh": "商品原价",
+              "sensitivity_level": "internal"
+            }
+          },
+          {
+            "name": "item_paid_amount",
+            "displayName": "商品支付金额",
+            "dataType": "DECIMAL",
+            "dataTypeDisplay": "nullable(decimal128(2))",
+            "description": "商品支付金额，源单位分，清洗后转为元并保留两位小数",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.item_paid_amount",
+            "tags": [
+              {
+                "tagFQN": "PII.NonSensitive",
+                "name": "NonSensitive",
+                "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                "source": "Classification",
+                "labelType": "Manual",
+                "state": "Confirmed",
+                "appliedAt": 1784769442758
+              }
+            ],
+            "ordinalPosition": 12,
+            "children": [],
+            "extension": {
+              "source_field": "sku_order_list.pay_amount",
+              "enum_definition": "{}",
+              "business_name_zh": "商品支付金额",
+              "sensitivity_level": "internal"
+            }
+          },
+          {
+            "name": "room_id",
+            "displayName": "直播间ID",
+            "dataType": "STRING",
+            "dataTypeDisplay": "nullable(string)",
+            "description": "直播间标识，空值和0统一为NULL",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.room_id",
+            "tags": [
+              {
+                "tagFQN": "PII.NonSensitive",
+                "name": "NonSensitive",
+                "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                "source": "Classification",
+                "labelType": "Manual",
+                "state": "Confirmed",
+                "appliedAt": 1784769442758
+              }
+            ],
+            "ordinalPosition": 13,
+            "children": [],
+            "extension": {
+              "source_field": "sku_order_list.room_id",
+              "enum_definition": "{}",
+              "business_name_zh": "直播间ID",
+              "sensitivity_level": "internal"
+            }
+          },
+          {
+            "name": "author_id",
+            "displayName": "达人ID",
+            "dataType": "STRING",
+            "dataTypeDisplay": "nullable(string)",
+            "description": "达人标识，空值和0统一为NULL",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.author_id",
+            "tags": [
+              {
+                "tagFQN": "PII.NonSensitive",
+                "name": "NonSensitive",
+                "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                "source": "Classification",
+                "labelType": "Manual",
+                "state": "Confirmed",
+                "appliedAt": 1784769442758
+              }
+            ],
+            "ordinalPosition": 14,
+            "children": [],
+            "extension": {
+              "source_field": "sku_order_list.author_id",
+              "enum_definition": "{}",
+              "business_name_zh": "达人ID",
+              "sensitivity_level": "internal"
+            }
+          },
+          {
+            "name": "author_name",
+            "displayName": "达人名称",
+            "dataType": "STRING",
+            "dataTypeDisplay": "nullable(string)",
+            "description": "接口返回的达人名称",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.author_name",
+            "tags": [
+              {
+                "tagFQN": "PII.NonSensitive",
+                "name": "NonSensitive",
+                "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                "source": "Classification",
+                "labelType": "Manual",
+                "state": "Confirmed",
+                "appliedAt": 1784769442758
+              }
+            ],
+            "ordinalPosition": 15,
+            "children": [],
+            "extension": {
+              "source_field": "sku_order_list.author_name",
+              "enum_definition": "{}",
+              "business_name_zh": "达人名称",
+              "sensitivity_level": "internal"
+            }
+          },
+          {
+            "name": "content_id",
+            "displayName": "内容ID",
+            "dataType": "STRING",
+            "dataTypeDisplay": "nullable(string)",
+            "description": "内容标识",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.content_id",
+            "tags": [
+              {
+                "tagFQN": "PII.NonSensitive",
+                "name": "NonSensitive",
+                "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                "source": "Classification",
+                "labelType": "Manual",
+                "state": "Confirmed",
+                "appliedAt": 1784769442758
+              }
+            ],
+            "ordinalPosition": 16,
+            "children": [],
+            "extension": {
+              "source_field": "sku_order_list.content_id",
+              "enum_definition": "{}",
+              "business_name_zh": "内容ID",
+              "sensitivity_level": "internal"
+            }
+          },
+          {
+            "name": "ad_environment_type",
+            "displayName": "广告环境类型",
+            "dataType": "STRING",
+            "dataTypeDisplay": "nullable(string)",
+            "description": "广告环境类型编码",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.ad_environment_type",
+            "tags": [
+              {
+                "tagFQN": "PII.NonSensitive",
+                "name": "NonSensitive",
+                "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                "source": "Classification",
+                "labelType": "Manual",
+                "state": "Confirmed",
+                "appliedAt": 1784769442758
+              }
+            ],
+            "ordinalPosition": 17,
+            "children": [],
+            "extension": {
+              "source_field": "sku_order_list.ad_env_type",
+              "enum_definition": "{}",
+              "business_name_zh": "广告环境类型",
+              "sensitivity_level": "internal"
+            }
+          },
+          {
+            "name": "order_entry_code",
+            "displayName": "下单端编码",
+            "dataType": "STRING",
+            "dataTypeDisplay": "nullable(string)",
+            "description": "下单端编码",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.order_entry_code",
+            "tags": [
+              {
+                "tagFQN": "PII.NonSensitive",
+                "name": "NonSensitive",
+                "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                "source": "Classification",
+                "labelType": "Manual",
+                "state": "Confirmed",
+                "appliedAt": 1784769442758
+              }
+            ],
+            "ordinalPosition": 18,
+            "children": [],
+            "extension": {
+              "source_field": "sku_order_list.b_type",
+              "enum_definition": "{}",
+              "business_name_zh": "下单端编码",
+              "sensitivity_level": "internal"
+            }
+          },
+          {
+            "name": "order_entry_name",
+            "displayName": "下单端名称",
+            "dataType": "STRING",
+            "dataTypeDisplay": "nullable(string)",
+            "description": "下单端名称",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.order_entry_name",
+            "tags": [
+              {
+                "tagFQN": "PII.NonSensitive",
+                "name": "NonSensitive",
+                "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                "source": "Classification",
+                "labelType": "Manual",
+                "state": "Confirmed",
+                "appliedAt": 1784769442758
+              }
+            ],
+            "ordinalPosition": 19,
+            "children": [],
+            "extension": {
+              "source_field": "sku_order_list.b_type_desc",
+              "enum_definition": "{}",
+              "business_name_zh": "下单端名称",
+              "sensitivity_level": "internal"
+            }
+          },
+          {
+            "name": "order_scene_code",
+            "displayName": "下单场景编码",
+            "dataType": "STRING",
+            "dataTypeDisplay": "nullable(string)",
+            "description": "下单场景编码",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.order_scene_code",
+            "tags": [
+              {
+                "tagFQN": "PII.NonSensitive",
+                "name": "NonSensitive",
+                "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                "source": "Classification",
+                "labelType": "Manual",
+                "state": "Confirmed",
+                "appliedAt": 1784769442758
+              }
+            ],
+            "ordinalPosition": 20,
+            "children": [],
+            "extension": {
+              "source_field": "sku_order_list.sub_b_type",
+              "enum_definition": "{}",
+              "business_name_zh": "下单场景编码",
+              "sensitivity_level": "internal"
+            }
+          },
+          {
+            "name": "order_scene_name",
+            "displayName": "下单场景名称",
+            "dataType": "STRING",
+            "dataTypeDisplay": "nullable(string)",
+            "description": "下单场景名称",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.order_scene_name",
+            "tags": [
+              {
+                "tagFQN": "PII.NonSensitive",
+                "name": "NonSensitive",
+                "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                "source": "Classification",
+                "labelType": "Manual",
+                "state": "Confirmed",
+                "appliedAt": 1784769442758
+              }
+            ],
+            "ordinalPosition": 21,
+            "children": [],
+            "extension": {
+              "source_field": "sku_order_list.sub_b_type_desc",
+              "enum_definition": "{}",
+              "business_name_zh": "下单场景名称",
+              "sensitivity_level": "internal"
+            }
+          },
+          {
+            "name": "payment_type_code",
+            "displayName": "支付方式编码",
+            "dataType": "STRING",
+            "dataTypeDisplay": "nullable(string)",
+            "description": "支付方式编码",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.payment_type_code",
+            "tags": [
+              {
+                "tagFQN": "PII.NonSensitive",
+                "name": "NonSensitive",
+                "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                "source": "Classification",
+                "labelType": "Manual",
+                "state": "Confirmed",
+                "appliedAt": 1784769442758
+              }
+            ],
+            "ordinalPosition": 22,
+            "children": [],
+            "extension": {
+              "source_field": "sku_order_list.pay_type",
+              "enum_definition": "{}",
+              "business_name_zh": "支付方式编码",
+              "sensitivity_level": "internal"
+            }
+          },
+          {
+            "name": "paid_at",
+            "displayName": "支付时间",
+            "dataType": "DATETIME",
+            "dataTypeDisplay": "nullable(datetime('asia/shanghai'))",
+            "description": "Unix秒级支付时间，0转NULL，上海时区",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.paid_at",
+            "tags": [
+              {
+                "tagFQN": "PII.NonSensitive",
+                "name": "NonSensitive",
+                "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                "source": "Classification",
+                "labelType": "Manual",
+                "state": "Confirmed",
+                "appliedAt": 1784769442758
+              }
+            ],
+            "ordinalPosition": 23,
+            "children": [],
+            "extension": {
+              "source_field": "sku_order_list.pay_time",
+              "enum_definition": "{}",
+              "business_name_zh": "支付时间",
+              "sensitivity_level": "internal"
+            }
+          },
+          {
+            "name": "created_at",
+            "displayName": "下单时间",
+            "dataType": "DATETIME",
+            "dataTypeDisplay": "nullable(datetime('asia/shanghai'))",
+            "description": "Unix秒级下单时间，上海时区",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.created_at",
+            "tags": [
+              {
+                "tagFQN": "PII.NonSensitive",
+                "name": "NonSensitive",
+                "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                "source": "Classification",
+                "labelType": "Manual",
+                "state": "Confirmed",
+                "appliedAt": 1784769442758
+              }
+            ],
+            "ordinalPosition": 24,
+            "children": [],
+            "extension": {
+              "source_field": "sku_order_list.create_time",
+              "enum_definition": "{}",
+              "business_name_zh": "下单时间",
+              "sensitivity_level": "internal"
+            }
+          },
+          {
+            "name": "updated_at",
+            "displayName": "订单更新时间",
+            "dataType": "DATETIME",
+            "dataTypeDisplay": "nullable(datetime('asia/shanghai'))",
+            "description": "Unix秒级订单更新时间，上海时区",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.updated_at",
+            "tags": [
+              {
+                "tagFQN": "PII.NonSensitive",
+                "name": "NonSensitive",
+                "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                "source": "Classification",
+                "labelType": "Manual",
+                "state": "Confirmed",
+                "appliedAt": 1784769442758
+              }
+            ],
+            "ordinalPosition": 25,
+            "children": [],
+            "extension": {
+              "source_field": "sku_order_list.update_time",
+              "enum_definition": "{}",
+              "business_name_zh": "订单更新时间",
+              "sensitivity_level": "internal"
+            }
+          },
+          {
+            "name": "order_status_code",
+            "displayName": "商品订单状态编码",
+            "dataType": "STRING",
+            "dataTypeDisplay": "nullable(string)",
+            "description": "商品订单状态编码",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.order_status_code",
+            "tags": [
+              {
+                "tagFQN": "PII.NonSensitive",
+                "name": "NonSensitive",
+                "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                "source": "Classification",
+                "labelType": "Manual",
+                "state": "Confirmed",
+                "appliedAt": 1784769442758
+              }
+            ],
+            "ordinalPosition": 26,
+            "children": [],
+            "extension": {
+              "source_field": "sku_order_list.order_status",
+              "enum_definition": "{}",
+              "business_name_zh": "商品订单状态编码",
+              "sensitivity_level": "internal"
+            }
+          },
+          {
+            "name": "order_status_name",
+            "displayName": "商品订单状态名称",
+            "dataType": "STRING",
+            "dataTypeDisplay": "nullable(string)",
+            "description": "商品订单状态名称",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.order_status_name",
+            "tags": [
+              {
+                "tagFQN": "PII.NonSensitive",
+                "name": "NonSensitive",
+                "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                "source": "Classification",
+                "labelType": "Manual",
+                "state": "Confirmed",
+                "appliedAt": 1784769442758
+              }
+            ],
+            "ordinalPosition": 27,
+            "children": [],
+            "extension": {
+              "source_field": "sku_order_list.order_status_desc",
+              "enum_definition": "{}",
+              "business_name_zh": "商品订单状态名称",
+              "sensitivity_level": "internal"
+            }
+          },
+          {
+            "name": "main_status_code",
+            "displayName": "主流程状态编码",
+            "dataType": "STRING",
+            "dataTypeDisplay": "nullable(string)",
+            "description": "主流程状态编码",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.main_status_code",
+            "tags": [
+              {
+                "tagFQN": "PII.NonSensitive",
+                "name": "NonSensitive",
+                "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                "source": "Classification",
+                "labelType": "Manual",
+                "state": "Confirmed",
+                "appliedAt": 1784769442758
+              }
+            ],
+            "ordinalPosition": 28,
+            "children": [],
+            "extension": {
+              "source_field": "sku_order_list.main_status",
+              "enum_definition": "{}",
+              "business_name_zh": "主流程状态编码",
+              "sensitivity_level": "internal"
+            }
+          },
+          {
+            "name": "main_status_name",
+            "displayName": "主流程状态名称",
+            "dataType": "STRING",
+            "dataTypeDisplay": "nullable(string)",
+            "description": "主流程状态名称",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.main_status_name",
+            "tags": [
+              {
+                "tagFQN": "PII.NonSensitive",
+                "name": "NonSensitive",
+                "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                "source": "Classification",
+                "labelType": "Manual",
+                "state": "Confirmed",
+                "appliedAt": 1784769442758
+              }
+            ],
+            "ordinalPosition": 29,
+            "children": [],
+            "extension": {
+              "source_field": "sku_order_list.main_status_desc",
+              "enum_definition": "{}",
+              "business_name_zh": "主流程状态名称",
+              "sensitivity_level": "internal"
+            }
+          },
+          {
+            "name": "documented_json_path_count",
+            "displayName": "接口文档JSON路径数",
+            "dataType": "INT",
+            "dataTypeDisplay": "uint16",
+            "description": "当前接口文档字段树登记路径数量",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.documented_json_path_count",
+            "tags": [
+              {
+                "tagFQN": "PII.NonSensitive",
+                "name": "NonSensitive",
+                "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                "source": "Classification",
+                "labelType": "Manual",
+                "state": "Confirmed",
+                "appliedAt": 1784769442758
+              }
+            ],
+            "ordinalPosition": 30,
+            "children": [],
+            "extension": {
+              "source_field": "json-expansion-inventory.yaml",
+              "enum_definition": "{}",
+              "business_name_zh": "接口文档JSON路径数",
+              "sensitivity_level": "internal"
+            }
+          },
+          {
+            "name": "documented_scalar_field_count",
+            "displayName": "接口文档JSON标量字段数",
+            "dataType": "INT",
+            "dataTypeDisplay": "uint16",
+            "description": "当前接口文档定义的标量字段数量",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.documented_scalar_field_count",
+            "tags": [
+              {
+                "tagFQN": "PII.NonSensitive",
+                "name": "NonSensitive",
+                "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                "source": "Classification",
+                "labelType": "Manual",
+                "state": "Confirmed",
+                "appliedAt": 1784769442758
+              }
+            ],
+            "ordinalPosition": 31,
+            "children": [],
+            "extension": {
+              "source_field": "json-field-contracts.yaml",
+              "enum_definition": "{}",
+              "business_name_zh": "接口文档JSON标量字段数",
+              "sensitivity_level": "internal"
+            }
+          },
+          {
+            "name": "documented_business_relation_count",
+            "displayName": "接口文档JSON业务关系数",
+            "dataType": "INT",
+            "dataTypeDisplay": "uint8",
+            "description": "当前接口文档定义并拆分的业务数组关系数量",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.documented_business_relation_count",
+            "tags": [
+              {
+                "tagFQN": "PII.NonSensitive",
+                "name": "NonSensitive",
+                "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                "source": "Classification",
+                "labelType": "Manual",
+                "state": "Confirmed",
+                "appliedAt": 1784769442758
+              }
+            ],
+            "ordinalPosition": 32,
+            "children": [],
+            "extension": {
+              "source_field": "json-relation-contracts.yaml",
+              "enum_definition": "{}",
+              "business_name_zh": "接口文档JSON业务关系数",
+              "sensitivity_level": "internal"
+            }
+          },
+          {
+            "name": "json_expansion_status",
+            "displayName": "JSON展开状态",
+            "dataType": "STRING",
+            "dataTypeDisplay": "string",
+            "description": "JSON全字段展开和数组关系化状态",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.json_expansion_status",
+            "tags": [
+              {
+                "tagFQN": "PII.NonSensitive",
+                "name": "NonSensitive",
+                "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                "source": "Classification",
+                "labelType": "Manual",
+                "state": "Confirmed",
+                "appliedAt": 1784769442758
+              }
+            ],
+            "ordinalPosition": 33,
+            "children": [],
+            "extension": {
+              "source_field": "cleaning-contract.yaml",
+              "enum_definition": "{}",
+              "business_name_zh": "JSON展开状态",
+              "sensitivity_level": "internal"
+            }
+          },
+          {
+            "name": "cleaning_contract_version",
+            "displayName": "清洗契约版本",
+            "dataType": "STRING",
+            "dataTypeDisplay": "string",
+            "description": "当前清洗契约版本",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.cleaning_contract_version",
+            "tags": [
+              {
+                "tagFQN": "PII.NonSensitive",
+                "name": "NonSensitive",
+                "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                "source": "Classification",
+                "labelType": "Manual",
+                "state": "Confirmed",
+                "appliedAt": 1784769442758
+              }
+            ],
+            "ordinalPosition": 34,
+            "children": [],
+            "extension": {
+              "source_field": "cleaning-contract.yaml",
+              "enum_definition": "{}",
+              "business_name_zh": "清洗契约版本",
+              "sensitivity_level": "internal"
+            }
+          },
+          {
+            "name": "source_task_instance_id",
+            "displayName": "来源任务实例ID",
+            "dataType": "STRING",
+            "dataTypeDisplay": "nullable(string)",
+            "description": "来源采集任务实例标识",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.source_task_instance_id",
+            "tags": [
+              {
+                "tagFQN": "PII.NonSensitive",
+                "name": "NonSensitive",
+                "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                "source": "Classification",
+                "labelType": "Manual",
+                "state": "Confirmed",
+                "appliedAt": 1784769442758
+              }
+            ],
+            "ordinalPosition": 35,
+            "children": [],
+            "extension": {
+              "source_field": "yuce_task_instance_id",
+              "enum_definition": "{}",
+              "business_name_zh": "来源任务实例ID",
+              "sensitivity_level": "internal"
+            }
+          },
+          {
+            "name": "etl_time",
+            "displayName": "清洗处理时间",
+            "dataType": "DATETIME",
+            "dataTypeDisplay": "datetime('asia/shanghai')",
+            "description": "影子清洗处理时间",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0.etl_time",
+            "tags": [
+              {
+                "tagFQN": "PII.NonSensitive",
+                "name": "NonSensitive",
+                "description": "PII which is easily accessible from public sources and can include zip code, race, gender, and date of birth.",
+                "source": "Classification",
+                "labelType": "Manual",
+                "state": "Confirmed",
+                "appliedAt": 1784769442758
+              }
+            ],
+            "ordinalPosition": 36,
+            "children": [],
+            "extension": {
+              "source_field": "system_time",
+              "enum_definition": "{}",
+              "business_name_zh": "清洗处理时间",
+              "sensitivity_level": "internal"
+            }
+          }
+        ],
+        "owners": [],
+        "databaseSchema": {
+          "id": "ed4d9991-052f-49c7-a522-b069989e6987",
+          "type": "databaseSchema",
+          "name": "youmei_sandbox",
+          "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox",
+          "displayName": "youmei_sandbox",
+          "deleted": false,
+          "href": "http://127.0.0.1:8585/api/v1/databaseSchemas/ed4d9991-052f-49c7-a522-b069989e6987"
+        },
+        "database": {
+          "id": "84700061-04e4-4859-8830-67c001d8a726",
+          "type": "database",
+          "name": "default",
+          "fullyQualifiedName": "youmei_clickhouse.default",
+          "displayName": "default",
+          "deleted": false,
+          "href": "http://127.0.0.1:8585/api/v1/databases/84700061-04e4-4859-8830-67c001d8a726"
+        },
+        "service": {
+          "id": "caca166b-5d77-4ca3-81bb-b4d74e872741",
+          "type": "databaseService",
+          "name": "youmei_clickhouse",
+          "fullyQualifiedName": "youmei_clickhouse",
+          "displayName": "youmei_clickhouse",
+          "deleted": false,
+          "href": "http://127.0.0.1:8585/api/v1/services/databaseServices/caca166b-5d77-4ca3-81bb-b4d74e872741"
+        },
+        "serviceType": "Clickhouse",
+        "tags": [
+          {
+            "tagFQN": "Tier.Tier2",
+            "name": "Tier2",
+            "description": "**Important business datasets for your company (not as critical as Tier 1)**\n\n- Used in important business metrics, product metrics, and dashboards to drive internal decisions\n\n- Used in important compliance reporting to major regulators, govt entities, and third party\n\n- Used for less critical online user-facing experiences (user activity, user behavior)\n\n- Source used to derive other critical Tier-2 datasets",
+            "source": "Classification",
+            "labelType": "Manual",
+            "state": "Confirmed",
+            "appliedAt": 1784769442737
+          }
+        ],
+        "followers": [],
+        "deleted": false,
+        "extension": {
+          "amount_conversion_status": "pay_amount_fen_to_yuan_goods_price_yuan_preserved",
+          "amount_rule_version": "1.2.0",
+          "amount_unit_strategy": "field_level_unit_evidence",
+          "business_table_name_zh": "DWD_抖店订单商品明细影子清洗表",
+          "cleaning_contract_id": "doudian_order_item",
+          "cleaning_contract_version": "1.2.0",
+          "data_quality_status": "shadow_passed",
+          "enum_dictionary_json": "{\"status\":\"reviewed\",\"source\":\"enum-dictionary.yaml\",\"unknown_policy\":\"preserve_unknown_and_flag\"}",
+          "enum_dictionary_version": "pending",
+          "grain": "店铺订单号 + 商品明细数组序号",
+          "json_business_relation_count": "51",
+          "json_documented_path_count": "622",
+          "json_documented_scalar_field_count": "502",
+          "json_expansion_policy": "all_interface_defined_fields_expanded",
+          "json_field_contract_version": "1.2.0",
+          "json_inventory_version": "1.0.0",
+          "json_relation_contract_version": "1.2.0",
+          "json_transport_array_not_materialized": "shop_order_list",
+          "null_value_policy": "empty_or_null_to_NULL_non_empty_invalid_to_exception_count_zero_preserved",
+          "refresh_mode": "window_full_snapshot",
+          "sensitivity_level": "internal",
+          "source_api": "order.searchList",
+          "source_api_doc": "https://op.jinritemai.com/docs/api-docs/15/1342",
+          "source_system": "doudian_api",
+          "technical_key_fields": "shop_order_id,item_index",
+          "warehouse_layer": "DWD"
+        },
+        "domains": [],
+        "dataProducts": [],
+        "votes": {
+          "upVotes": 0,
+          "downVotes": 0,
+          "upVoters": [],
+          "downVoters": []
+        },
+        "processedLineage": false,
+        "entityStatus": "Unprocessed"
+      }
+    },
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2",
+        "mode": "apply",
+        "ok": true,
+        "action": "deleted",
+        "entity_id": "3377894c-cb15-45a7-8c1e-b93cf870d5d6",
+        "response": {
+          "id": "3377894c-cb15-45a7-8c1e-b93cf870d5d6",
+          "name": "dwd_trade_order_logistics_tracking_no_shadow_1_3_2",
+          "displayName": "DWD_???????????????",
+          "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2",
+          "description": "???????????????????????????????????ID????????",
+          "version": 0.1,
+          "updatedAt": 1784798481619,
+          "updatedBy": "admin",
+          "tableType": "Regular",
+          "columns": [
+            {
+              "name": "snapshot_date",
+              "displayName": "数据快照日期",
+              "dataType": "DATE",
+              "dataTypeDisplay": "date",
+              "description": "数据快照日期",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2.snapshot_date",
+              "tags": [],
+              "ordinalPosition": 1,
+              "children": [],
+              "extension": {
+                "source_field": "snapshot_date",
+                "enum_definition": "{}",
+                "business_name_zh": "数据快照日期"
+              }
+            },
+            {
+              "name": "shop_id",
+              "displayName": "店铺ID",
+              "dataType": "STRING",
+              "dataTypeDisplay": "string",
+              "description": "店铺ID",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2.shop_id",
+              "tags": [],
+              "ordinalPosition": 2,
+              "children": [],
+              "extension": {
+                "source_field": "shop_id",
+                "enum_definition": "{}",
+                "business_name_zh": "店铺ID"
+              }
+            },
+            {
+              "name": "shop_name",
+              "displayName": "店铺名称",
+              "dataType": "STRING",
+              "dataTypeDisplay": "nullable(string)",
+              "description": "店铺名称",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2.shop_name",
+              "tags": [],
+              "ordinalPosition": 3,
+              "children": [],
+              "extension": {
+                "source_field": "shop_name",
+                "enum_definition": "{}",
+                "business_name_zh": "店铺名称"
+              }
+            },
+            {
+              "name": "shop_order_id",
+              "displayName": "店铺订单号",
+              "dataType": "STRING",
+              "dataTypeDisplay": "string",
+              "description": "店铺订单号",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2.shop_order_id",
+              "tags": [],
+              "ordinalPosition": 4,
+              "children": [],
+              "extension": {
+                "source_field": "shop_order_id",
+                "enum_definition": "{}",
+                "business_name_zh": "店铺订单号"
+              }
+            },
+            {
+              "name": "tracking_no",
+              "displayName": "快递单号；用于后续运费匹配",
+              "dataType": "STRING",
+              "dataTypeDisplay": "string",
+              "description": "快递单号；用于后续运费匹配",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2.tracking_no",
+              "tags": [],
+              "ordinalPosition": 5,
+              "children": [],
+              "extension": {
+                "source_field": "tracking_no",
+                "enum_definition": "{}",
+                "business_name_zh": "快递单号；用于后续运费匹配"
+              }
+            },
+            {
+              "name": "logistics_company_names",
+              "displayName": "物流公司名称列表，按快递单号粒度去重拼接",
+              "dataType": "STRING",
+              "dataTypeDisplay": "nullable(string)",
+              "description": "物流公司名称列表，按快递单号粒度去重拼接",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2.logistics_company_names",
+              "tags": [],
+              "ordinalPosition": 6,
+              "children": [],
+              "extension": {
+                "source_field": "logistics_company_names",
+                "enum_definition": "{}",
+                "business_name_zh": "物流公司名称列表，按快递单号粒度去重拼接"
+              }
+            },
+            {
+              "name": "first_shipped_at",
+              "displayName": "最早发货时间",
+              "dataType": "DATETIME",
+              "dataTypeDisplay": "nullable(datetime('asia/shanghai'))",
+              "description": "最早发货时间",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2.first_shipped_at",
+              "tags": [],
+              "ordinalPosition": 7,
+              "children": [],
+              "extension": {
+                "source_field": "first_shipped_at",
+                "enum_definition": "{}",
+                "business_name_zh": "最早发货时间"
+              }
+            },
+            {
+              "name": "latest_shipped_at",
+              "displayName": "最晚发货时间",
+              "dataType": "DATETIME",
+              "dataTypeDisplay": "nullable(datetime('asia/shanghai'))",
+              "description": "最晚发货时间",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2.latest_shipped_at",
+              "tags": [],
+              "ordinalPosition": 8,
+              "children": [],
+              "extension": {
+                "source_field": "latest_shipped_at",
+                "enum_definition": "{}",
+                "business_name_zh": "最晚发货时间"
+              }
+            },
+            {
+              "name": "package_count",
+              "displayName": "快递单号下源包裹记录数；包裹ID不作为业务粒度，仅用于汇总计数",
+              "dataType": "INT",
+              "dataTypeDisplay": "uint16",
+              "description": "快递单号下源包裹记录数；包裹ID不作为业务粒度，仅用于汇总计数",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2.package_count",
+              "tags": [],
+              "ordinalPosition": 9,
+              "children": [],
+              "extension": {
+                "source_field": "package_count",
+                "enum_definition": "{}",
+                "business_name_zh": "快递单号下源包裹记录数；包裹ID不作为业务粒度，仅用于汇总计数"
+              }
+            },
+            {
+              "name": "package_product_row_count",
+              "displayName": "快递单号下物流商品关系行数",
+              "dataType": "INT",
+              "dataTypeDisplay": "uint32",
+              "description": "快递单号下物流商品关系行数",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2.package_product_row_count",
+              "tags": [],
+              "ordinalPosition": 10,
+              "children": [],
+              "extension": {
+                "source_field": "package_product_row_count",
+                "enum_definition": "{}",
+                "business_name_zh": "快递单号下物流商品关系行数"
+              }
+            },
+            {
+              "name": "sku_order_count",
+              "displayName": "快递单号下商品子单数",
+              "dataType": "INT",
+              "dataTypeDisplay": "uint32",
+              "description": "快递单号下商品子单数",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2.sku_order_count",
+              "tags": [],
+              "ordinalPosition": 11,
+              "children": [],
+              "extension": {
+                "source_field": "sku_order_count",
+                "enum_definition": "{}",
+                "business_name_zh": "快递单号下商品子单数"
+              }
+            },
+            {
+              "name": "sku_order_ids",
+              "displayName": "商品子单号列表，按快递单号粒度去重拼接",
+              "dataType": "STRING",
+              "dataTypeDisplay": "nullable(string)",
+              "description": "商品子单号列表，按快递单号粒度去重拼接",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2.sku_order_ids",
+              "tags": [],
+              "ordinalPosition": 12,
+              "children": [],
+              "extension": {
+                "source_field": "sku_order_ids",
+                "enum_definition": "{}",
+                "business_name_zh": "商品子单号列表，按快递单号粒度去重拼接"
+              }
+            },
+            {
+              "name": "shipped_product_count",
+              "displayName": "发货商品数量合计",
+              "dataType": "BIGINT",
+              "dataTypeDisplay": "nullable(int64)",
+              "description": "发货商品数量合计",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2.shipped_product_count",
+              "tags": [],
+              "ordinalPosition": 13,
+              "children": [],
+              "extension": {
+                "source_field": "shipped_product_count",
+                "enum_definition": "{}",
+                "business_name_zh": "发货商品数量合计"
+              }
+            },
+            {
+              "name": "guarantee_amount",
+              "displayName": "物流保价金额合计，源单位分，清洗后单位元",
+              "dataType": "DECIMAL",
+              "dataTypeDisplay": "nullable(decimal(38, 2))",
+              "description": "物流保价金额合计，源单位分，清洗后单位元",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2.guarantee_amount",
+              "tags": [],
+              "ordinalPosition": 14,
+              "children": [],
+              "extension": {
+                "source_field": "guarantee_amount",
+                "enum_definition": "{}",
+                "business_name_zh": "物流保价金额合计，源单位分，清洗后单位元"
+              }
+            },
+            {
+              "name": "platform_delivery_discount_amount",
+              "displayName": "即时零售平台运力配送优惠金额合计，源单位分，清洗后单位元",
+              "dataType": "DECIMAL",
+              "dataTypeDisplay": "nullable(decimal(38, 2))",
+              "description": "即时零售平台运力配送优惠金额合计，源单位分，清洗后单位元",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2.platform_delivery_discount_amount",
+              "tags": [],
+              "ordinalPosition": 15,
+              "children": [],
+              "extension": {
+                "source_field": "platform_delivery_discount_amount",
+                "enum_definition": "{}",
+                "business_name_zh": "即时零售平台运力配送优惠金额合计，源单位分，清洗后单位元"
+              }
+            },
+            {
+              "name": "platform_delivery_paid_amount",
+              "displayName": "即时零售平台运力配送实付金额合计，源单位分，清洗后单位元",
+              "dataType": "DECIMAL",
+              "dataTypeDisplay": "nullable(decimal(38, 2))",
+              "description": "即时零售平台运力配送实付金额合计，源单位分，清洗后单位元",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2.platform_delivery_paid_amount",
+              "tags": [],
+              "ordinalPosition": 16,
+              "children": [],
+              "extension": {
+                "source_field": "platform_delivery_paid_amount",
+                "enum_definition": "{}",
+                "business_name_zh": "即时零售平台运力配送实付金额合计，源单位分，清洗后单位元"
+              }
+            },
+            {
+              "name": "platform_delivery_payable_amount",
+              "displayName": "即时零售平台运力配送应付金额合计，源单位分，清洗后单位元",
+              "dataType": "DECIMAL",
+              "dataTypeDisplay": "nullable(decimal(38, 2))",
+              "description": "即时零售平台运力配送应付金额合计，源单位分，清洗后单位元",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2.platform_delivery_payable_amount",
+              "tags": [],
+              "ordinalPosition": 17,
+              "children": [],
+              "extension": {
+                "source_field": "platform_delivery_payable_amount",
+                "enum_definition": "{}",
+                "business_name_zh": "即时零售平台运力配送应付金额合计，源单位分，清洗后单位元"
+              }
+            },
+            {
+              "name": "avg_product_price_amount",
+              "displayName": "物流商品单价平均值，源单位分，清洗后单位元；平均型指标按快递单号粒度取平均",
+              "dataType": "DECIMAL",
+              "dataTypeDisplay": "nullable(decimal(38, 2))",
+              "description": "物流商品单价平均值，源单位分，清洗后单位元；平均型指标按快递单号粒度取平均",
+              "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2.avg_product_price_amount",
+              "tags": [],
+              "ordinalPosition": 18,
+              "children": [],
+              "extension": {
+                "source_field": "avg_product_price_amount",
+                "enum_definition": "{}",
+                "business_name_zh": "物流商品单价平均值，源单位分，清洗后单位元；平均型指标按快递单号粒度取平均"
+              }
+            }
+          ],
+          "owners": [],
+          "databaseSchema": {
+            "id": "ed4d9991-052f-49c7-a522-b069989e6987",
+            "type": "databaseSchema",
+            "name": "youmei_sandbox",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox",
+            "displayName": "youmei_sandbox",
+            "deleted": false,
+            "href": "http://127.0.0.1:8585/api/v1/databaseSchemas/ed4d9991-052f-49c7-a522-b069989e6987"
+          },
+          "database": {
+            "id": "84700061-04e4-4859-8830-67c001d8a726",
+            "type": "database",
+            "name": "default",
+            "fullyQualifiedName": "youmei_clickhouse.default",
+            "displayName": "default",
+            "deleted": false,
+            "href": "http://127.0.0.1:8585/api/v1/databases/84700061-04e4-4859-8830-67c001d8a726"
+          },
+          "service": {
+            "id": "caca166b-5d77-4ca3-81bb-b4d74e872741",
+            "type": "databaseService",
+            "name": "youmei_clickhouse",
+            "fullyQualifiedName": "youmei_clickhouse",
+            "displayName": "youmei_clickhouse",
+            "deleted": false,
+            "href": "http://127.0.0.1:8585/api/v1/services/databaseServices/caca166b-5d77-4ca3-81bb-b4d74e872741"
+          },
+          "serviceType": "Clickhouse",
+          "tags": [
+            {
+              "tagFQN": "Tier.Tier2",
+              "name": "Tier2",
+              "description": "**Important business datasets for your company (not as critical as Tier 1)**\n\n- Used in important business metrics, product metrics, and dashboards to drive internal decisions\n\n- Used in important compliance reporting to major regulators, govt entities, and third party\n\n- Used for less critical online user-facing experiences (user activity, user behavior)\n\n- Source used to derive other critical Tier-2 datasets",
+              "source": "Classification",
+              "labelType": "Manual",
+              "state": "Confirmed",
+              "appliedAt": 1784798481836
+            }
+          ],
+          "followers": [],
+          "deleted": false,
+          "extension": {
+            "amount_conversion_status": "tracking_no_shadow_amounts_summed_average_metrics_averaged",
+            "amount_rule_version": "1.3.2",
+            "amount_unit_strategy": "field_level_unit_evidence",
+            "business_field_retention_policy": "tracking_no_business_grain_package_id_excluded",
+            "business_table_name_zh": "DWD_???????????????",
+            "cleaning_contract_id": "doudian_order_tracking_no_shadow_contract",
+            "cleaning_contract_version": "1.3.2",
+            "data_quality_status": "shadow_passed_pending_user_review",
+            "grain": "??ID(shop_id) + ?????(shop_order_id) + ????(tracking_no)",
+            "json_expansion_policy": "shadow_tracking_no_grain_package_id_not_materialized",
+            "null_value_policy": "empty_or_null_to_NULL_non_empty_invalid_to_exception_count_zero_preserved",
+            "refresh_mode": "window_full_snapshot",
+            "source_api": "order.searchList",
+            "source_api_doc": "https://op.jinritemai.com/docs/api-docs/15/1342",
+            "source_system": "doudian_api",
+            "technical_key_fields": "shop_id,shop_order_id,tracking_no",
+            "warehouse_layer": "DWD_SHADOW"
+          },
+          "domains": [],
+          "dataProducts": [],
+          "votes": {
+            "upVotes": 0,
+            "downVotes": 0,
+            "upVoters": [],
+            "downVoters": []
+          },
+          "processedLineage": false,
+          "entityStatus": "Unprocessed"
+        }
+      },
+      "mode": "apply",
+      "returncode": 0,
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2",
+      "ok": true,
+      "action": "deleted",
+      "entity_id": "3377894c-cb15-45a7-8c1e-b93cf870d5d6",
+      "response": {
+        "id": "3377894c-cb15-45a7-8c1e-b93cf870d5d6",
+        "name": "dwd_trade_order_logistics_tracking_no_shadow_1_3_2",
+        "displayName": "DWD_???????????????",
+        "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2",
+        "description": "???????????????????????????????????ID????????",
+        "version": 0.1,
+        "updatedAt": 1784798481619,
+        "updatedBy": "admin",
+        "tableType": "Regular",
+        "columns": [
+          {
+            "name": "snapshot_date",
+            "displayName": "数据快照日期",
+            "dataType": "DATE",
+            "dataTypeDisplay": "date",
+            "description": "数据快照日期",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2.snapshot_date",
+            "tags": [],
+            "ordinalPosition": 1,
+            "children": [],
+            "extension": {
+              "source_field": "snapshot_date",
+              "enum_definition": "{}",
+              "business_name_zh": "数据快照日期"
+            }
+          },
+          {
+            "name": "shop_id",
+            "displayName": "店铺ID",
+            "dataType": "STRING",
+            "dataTypeDisplay": "string",
+            "description": "店铺ID",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2.shop_id",
+            "tags": [],
+            "ordinalPosition": 2,
+            "children": [],
+            "extension": {
+              "source_field": "shop_id",
+              "enum_definition": "{}",
+              "business_name_zh": "店铺ID"
+            }
+          },
+          {
+            "name": "shop_name",
+            "displayName": "店铺名称",
+            "dataType": "STRING",
+            "dataTypeDisplay": "nullable(string)",
+            "description": "店铺名称",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2.shop_name",
+            "tags": [],
+            "ordinalPosition": 3,
+            "children": [],
+            "extension": {
+              "source_field": "shop_name",
+              "enum_definition": "{}",
+              "business_name_zh": "店铺名称"
+            }
+          },
+          {
+            "name": "shop_order_id",
+            "displayName": "店铺订单号",
+            "dataType": "STRING",
+            "dataTypeDisplay": "string",
+            "description": "店铺订单号",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2.shop_order_id",
+            "tags": [],
+            "ordinalPosition": 4,
+            "children": [],
+            "extension": {
+              "source_field": "shop_order_id",
+              "enum_definition": "{}",
+              "business_name_zh": "店铺订单号"
+            }
+          },
+          {
+            "name": "tracking_no",
+            "displayName": "快递单号；用于后续运费匹配",
+            "dataType": "STRING",
+            "dataTypeDisplay": "string",
+            "description": "快递单号；用于后续运费匹配",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2.tracking_no",
+            "tags": [],
+            "ordinalPosition": 5,
+            "children": [],
+            "extension": {
+              "source_field": "tracking_no",
+              "enum_definition": "{}",
+              "business_name_zh": "快递单号；用于后续运费匹配"
+            }
+          },
+          {
+            "name": "logistics_company_names",
+            "displayName": "物流公司名称列表，按快递单号粒度去重拼接",
+            "dataType": "STRING",
+            "dataTypeDisplay": "nullable(string)",
+            "description": "物流公司名称列表，按快递单号粒度去重拼接",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2.logistics_company_names",
+            "tags": [],
+            "ordinalPosition": 6,
+            "children": [],
+            "extension": {
+              "source_field": "logistics_company_names",
+              "enum_definition": "{}",
+              "business_name_zh": "物流公司名称列表，按快递单号粒度去重拼接"
+            }
+          },
+          {
+            "name": "first_shipped_at",
+            "displayName": "最早发货时间",
+            "dataType": "DATETIME",
+            "dataTypeDisplay": "nullable(datetime('asia/shanghai'))",
+            "description": "最早发货时间",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2.first_shipped_at",
+            "tags": [],
+            "ordinalPosition": 7,
+            "children": [],
+            "extension": {
+              "source_field": "first_shipped_at",
+              "enum_definition": "{}",
+              "business_name_zh": "最早发货时间"
+            }
+          },
+          {
+            "name": "latest_shipped_at",
+            "displayName": "最晚发货时间",
+            "dataType": "DATETIME",
+            "dataTypeDisplay": "nullable(datetime('asia/shanghai'))",
+            "description": "最晚发货时间",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2.latest_shipped_at",
+            "tags": [],
+            "ordinalPosition": 8,
+            "children": [],
+            "extension": {
+              "source_field": "latest_shipped_at",
+              "enum_definition": "{}",
+              "business_name_zh": "最晚发货时间"
+            }
+          },
+          {
+            "name": "package_count",
+            "displayName": "快递单号下源包裹记录数；包裹ID不作为业务粒度，仅用于汇总计数",
+            "dataType": "INT",
+            "dataTypeDisplay": "uint16",
+            "description": "快递单号下源包裹记录数；包裹ID不作为业务粒度，仅用于汇总计数",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2.package_count",
+            "tags": [],
+            "ordinalPosition": 9,
+            "children": [],
+            "extension": {
+              "source_field": "package_count",
+              "enum_definition": "{}",
+              "business_name_zh": "快递单号下源包裹记录数；包裹ID不作为业务粒度，仅用于汇总计数"
+            }
+          },
+          {
+            "name": "package_product_row_count",
+            "displayName": "快递单号下物流商品关系行数",
+            "dataType": "INT",
+            "dataTypeDisplay": "uint32",
+            "description": "快递单号下物流商品关系行数",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2.package_product_row_count",
+            "tags": [],
+            "ordinalPosition": 10,
+            "children": [],
+            "extension": {
+              "source_field": "package_product_row_count",
+              "enum_definition": "{}",
+              "business_name_zh": "快递单号下物流商品关系行数"
+            }
+          },
+          {
+            "name": "sku_order_count",
+            "displayName": "快递单号下商品子单数",
+            "dataType": "INT",
+            "dataTypeDisplay": "uint32",
+            "description": "快递单号下商品子单数",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2.sku_order_count",
+            "tags": [],
+            "ordinalPosition": 11,
+            "children": [],
+            "extension": {
+              "source_field": "sku_order_count",
+              "enum_definition": "{}",
+              "business_name_zh": "快递单号下商品子单数"
+            }
+          },
+          {
+            "name": "sku_order_ids",
+            "displayName": "商品子单号列表，按快递单号粒度去重拼接",
+            "dataType": "STRING",
+            "dataTypeDisplay": "nullable(string)",
+            "description": "商品子单号列表，按快递单号粒度去重拼接",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2.sku_order_ids",
+            "tags": [],
+            "ordinalPosition": 12,
+            "children": [],
+            "extension": {
+              "source_field": "sku_order_ids",
+              "enum_definition": "{}",
+              "business_name_zh": "商品子单号列表，按快递单号粒度去重拼接"
+            }
+          },
+          {
+            "name": "shipped_product_count",
+            "displayName": "发货商品数量合计",
+            "dataType": "BIGINT",
+            "dataTypeDisplay": "nullable(int64)",
+            "description": "发货商品数量合计",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2.shipped_product_count",
+            "tags": [],
+            "ordinalPosition": 13,
+            "children": [],
+            "extension": {
+              "source_field": "shipped_product_count",
+              "enum_definition": "{}",
+              "business_name_zh": "发货商品数量合计"
+            }
+          },
+          {
+            "name": "guarantee_amount",
+            "displayName": "物流保价金额合计，源单位分，清洗后单位元",
+            "dataType": "DECIMAL",
+            "dataTypeDisplay": "nullable(decimal(38, 2))",
+            "description": "物流保价金额合计，源单位分，清洗后单位元",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2.guarantee_amount",
+            "tags": [],
+            "ordinalPosition": 14,
+            "children": [],
+            "extension": {
+              "source_field": "guarantee_amount",
+              "enum_definition": "{}",
+              "business_name_zh": "物流保价金额合计，源单位分，清洗后单位元"
+            }
+          },
+          {
+            "name": "platform_delivery_discount_amount",
+            "displayName": "即时零售平台运力配送优惠金额合计，源单位分，清洗后单位元",
+            "dataType": "DECIMAL",
+            "dataTypeDisplay": "nullable(decimal(38, 2))",
+            "description": "即时零售平台运力配送优惠金额合计，源单位分，清洗后单位元",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2.platform_delivery_discount_amount",
+            "tags": [],
+            "ordinalPosition": 15,
+            "children": [],
+            "extension": {
+              "source_field": "platform_delivery_discount_amount",
+              "enum_definition": "{}",
+              "business_name_zh": "即时零售平台运力配送优惠金额合计，源单位分，清洗后单位元"
+            }
+          },
+          {
+            "name": "platform_delivery_paid_amount",
+            "displayName": "即时零售平台运力配送实付金额合计，源单位分，清洗后单位元",
+            "dataType": "DECIMAL",
+            "dataTypeDisplay": "nullable(decimal(38, 2))",
+            "description": "即时零售平台运力配送实付金额合计，源单位分，清洗后单位元",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2.platform_delivery_paid_amount",
+            "tags": [],
+            "ordinalPosition": 16,
+            "children": [],
+            "extension": {
+              "source_field": "platform_delivery_paid_amount",
+              "enum_definition": "{}",
+              "business_name_zh": "即时零售平台运力配送实付金额合计，源单位分，清洗后单位元"
+            }
+          },
+          {
+            "name": "platform_delivery_payable_amount",
+            "displayName": "即时零售平台运力配送应付金额合计，源单位分，清洗后单位元",
+            "dataType": "DECIMAL",
+            "dataTypeDisplay": "nullable(decimal(38, 2))",
+            "description": "即时零售平台运力配送应付金额合计，源单位分，清洗后单位元",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2.platform_delivery_payable_amount",
+            "tags": [],
+            "ordinalPosition": 17,
+            "children": [],
+            "extension": {
+              "source_field": "platform_delivery_payable_amount",
+              "enum_definition": "{}",
+              "business_name_zh": "即时零售平台运力配送应付金额合计，源单位分，清洗后单位元"
+            }
+          },
+          {
+            "name": "avg_product_price_amount",
+            "displayName": "物流商品单价平均值，源单位分，清洗后单位元；平均型指标按快递单号粒度取平均",
+            "dataType": "DECIMAL",
+            "dataTypeDisplay": "nullable(decimal(38, 2))",
+            "description": "物流商品单价平均值，源单位分，清洗后单位元；平均型指标按快递单号粒度取平均",
+            "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2.avg_product_price_amount",
+            "tags": [],
+            "ordinalPosition": 18,
+            "children": [],
+            "extension": {
+              "source_field": "avg_product_price_amount",
+              "enum_definition": "{}",
+              "business_name_zh": "物流商品单价平均值，源单位分，清洗后单位元；平均型指标按快递单号粒度取平均"
+            }
+          }
+        ],
+        "owners": [],
+        "databaseSchema": {
+          "id": "ed4d9991-052f-49c7-a522-b069989e6987",
+          "type": "databaseSchema",
+          "name": "youmei_sandbox",
+          "fullyQualifiedName": "youmei_clickhouse.default.youmei_sandbox",
+          "displayName": "youmei_sandbox",
+          "deleted": false,
+          "href": "http://127.0.0.1:8585/api/v1/databaseSchemas/ed4d9991-052f-49c7-a522-b069989e6987"
+        },
+        "database": {
+          "id": "84700061-04e4-4859-8830-67c001d8a726",
+          "type": "database",
+          "name": "default",
+          "fullyQualifiedName": "youmei_clickhouse.default",
+          "displayName": "default",
+          "deleted": false,
+          "href": "http://127.0.0.1:8585/api/v1/databases/84700061-04e4-4859-8830-67c001d8a726"
+        },
+        "service": {
+          "id": "caca166b-5d77-4ca3-81bb-b4d74e872741",
+          "type": "databaseService",
+          "name": "youmei_clickhouse",
+          "fullyQualifiedName": "youmei_clickhouse",
+          "displayName": "youmei_clickhouse",
+          "deleted": false,
+          "href": "http://127.0.0.1:8585/api/v1/services/databaseServices/caca166b-5d77-4ca3-81bb-b4d74e872741"
+        },
+        "serviceType": "Clickhouse",
+        "tags": [
+          {
+            "tagFQN": "Tier.Tier2",
+            "name": "Tier2",
+            "description": "**Important business datasets for your company (not as critical as Tier 1)**\n\n- Used in important business metrics, product metrics, and dashboards to drive internal decisions\n\n- Used in important compliance reporting to major regulators, govt entities, and third party\n\n- Used for less critical online user-facing experiences (user activity, user behavior)\n\n- Source used to derive other critical Tier-2 datasets",
+            "source": "Classification",
+            "labelType": "Manual",
+            "state": "Confirmed",
+            "appliedAt": 1784798481836
+          }
+        ],
+        "followers": [],
+        "deleted": false,
+        "extension": {
+          "amount_conversion_status": "tracking_no_shadow_amounts_summed_average_metrics_averaged",
+          "amount_rule_version": "1.3.2",
+          "amount_unit_strategy": "field_level_unit_evidence",
+          "business_field_retention_policy": "tracking_no_business_grain_package_id_excluded",
+          "business_table_name_zh": "DWD_???????????????",
+          "cleaning_contract_id": "doudian_order_tracking_no_shadow_contract",
+          "cleaning_contract_version": "1.3.2",
+          "data_quality_status": "shadow_passed_pending_user_review",
+          "grain": "??ID(shop_id) + ?????(shop_order_id) + ????(tracking_no)",
+          "json_expansion_policy": "shadow_tracking_no_grain_package_id_not_materialized",
+          "null_value_policy": "empty_or_null_to_NULL_non_empty_invalid_to_exception_count_zero_preserved",
+          "refresh_mode": "window_full_snapshot",
+          "source_api": "order.searchList",
+          "source_api_doc": "https://op.jinritemai.com/docs/api-docs/15/1342",
+          "source_system": "doudian_api",
+          "technical_key_fields": "shop_id,shop_order_id,tracking_no",
+          "warehouse_layer": "DWD_SHADOW"
+        },
+        "domains": [],
+        "dataProducts": [],
+        "votes": {
+          "upVotes": 0,
+          "downVotes": 0,
+          "upVoters": [],
+          "downVoters": []
+        },
+        "processedLineage": false,
+        "entityStatus": "Unprocessed"
+      }
+    },
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_package_validation_1_3_1",
+        "mode": "apply",
+        "ok": true,
+        "action": "already_absent",
+        "reason": "包裹ID不作为当前目标业务粒度"
+      },
+      "mode": "apply",
+      "returncode": 0,
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_package_validation_1_3_1",
+      "ok": true,
+      "action": "already_absent",
+      "reason": "包裹ID不作为当前目标业务粒度"
+    },
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_package_item_validation_1_3_1",
+        "mode": "apply",
+        "ok": true,
+        "action": "already_absent",
+        "reason": "包裹ID不作为当前目标业务粒度"
+      },
+      "mode": "apply",
+      "returncode": 0,
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_package_item_validation_1_3_1",
+      "ok": true,
+      "action": "already_absent",
+      "reason": "包裹ID不作为当前目标业务粒度"
+    },
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_df_backup_1_2_0",
+        "mode": "apply",
+        "ok": true,
+        "action": "already_absent",
+        "reason": "历史物理备份改由Git发布包管理"
+      },
+      "mode": "apply",
+      "returncode": 0,
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_df_backup_1_2_0",
+      "ok": true,
+      "action": "already_absent",
+      "reason": "历史物理备份改由Git发布包管理"
+    },
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_df_backup_1_2_0",
+        "mode": "apply",
+        "ok": true,
+        "action": "already_absent",
+        "reason": "历史物理备份改由Git发布包管理"
+      },
+      "mode": "apply",
+      "returncode": 0,
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_df_backup_1_2_0",
+      "ok": true,
+      "action": "already_absent",
+      "reason": "历史物理备份改由Git发布包管理"
+    },
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_df_direct_logistics_backup_1_3_1",
+        "mode": "apply",
+        "ok": true,
+        "action": "already_absent",
+        "reason": "已撤回的历史物流直连物理备份"
+      },
+      "mode": "apply",
+      "returncode": 0,
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_df_direct_logistics_backup_1_3_1",
+      "ok": true,
+      "action": "already_absent",
+      "reason": "已撤回的历史物流直连物理备份"
+    },
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_deprecated_actual_receive_amount_detail_backup_1_2_1",
+        "mode": "apply",
+        "ok": true,
+        "action": "already_absent",
+        "reason": "已废弃的商家收入明细项物理备份"
+      },
+      "mode": "apply",
+      "returncode": 0,
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_deprecated_actual_receive_amount_detail_backup_1_2_1",
+      "ok": true,
+      "action": "already_absent",
+      "reason": "已废弃的商家收入明细项物理备份"
+    },
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_deprecated_logistics_info_backup_1_2_1",
+        "mode": "apply",
+        "ok": true,
+        "action": "already_absent",
+        "reason": "已废弃的物流信息物理备份"
+      },
+      "mode": "apply",
+      "returncode": 0,
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_deprecated_logistics_info_backup_1_2_1",
+      "ok": true,
+      "action": "already_absent",
+      "reason": "已废弃的物流信息物理备份"
+    },
+    {
       "contract": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\metadata-contract-formal-order-1.3.1.yaml",
       "mode": "verify",
       "returncode": 0,
@@ -120,6 +3348,57 @@
           "table_exists": true,
           "expected_column_count": 82,
           "actual_column_count": 82,
+          "missing_columns": [],
+          "unexpected_columns": [],
+          "column_mismatches": [],
+          "custom_property_mismatches": [],
+          "actual_extension_keys": [
+            "amount_conversion_status",
+            "amount_rule_version",
+            "amount_unit_strategy",
+            "business_field_retention_policy",
+            "business_table_name_zh",
+            "cleaning_contract_id",
+            "cleaning_contract_version",
+            "data_quality_status",
+            "enum_dictionary_json",
+            "enum_dictionary_version",
+            "grain",
+            "json_business_relation_count",
+            "json_documented_path_count",
+            "json_documented_scalar_field_count",
+            "json_expansion_policy",
+            "json_field_contract_version",
+            "json_inventory_version",
+            "json_relation_contract_version",
+            "json_transport_array_not_materialized",
+            "null_value_policy",
+            "refresh_mode",
+            "source_api",
+            "source_api_doc",
+            "source_system",
+            "technical_key_fields",
+            "warehouse_layer"
+          ],
+          "actual_first_column_tags": [],
+          "ok": true
+        }
+      },
+      "stderr": ""
+    },
+    {
+      "contract": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\metadata-contract-formal-item-parent-1.3.1.yaml",
+      "mode": "verify",
+      "returncode": 0,
+      "ok": true,
+      "stdout": {
+        "ok": true,
+        "mode": "verify",
+        "verification": {
+          "table_fqn": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_df",
+          "table_exists": true,
+          "expected_column_count": 37,
+          "actual_column_count": 37,
           "missing_columns": [],
           "unexpected_columns": [],
           "column_mismatches": [],
@@ -177,30 +3456,30 @@
       "retire": {
         "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0",
         "mode": "verify",
-        "ok": false,
-        "action": "still_present",
+        "ok": true,
+        "action": "already_absent",
         "reason": "已晋级正式订单商品明细事实表"
       },
       "mode": "verify",
-      "returncode": 1,
+      "returncode": 0,
       "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0",
-      "ok": false,
-      "action": "still_present",
+      "ok": true,
+      "action": "already_absent",
       "reason": "已晋级正式订单商品明细事实表"
     },
     {
       "retire": {
         "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2",
         "mode": "verify",
-        "ok": false,
-        "action": "still_present",
+        "ok": true,
+        "action": "already_absent",
         "reason": "已被快递单号粒度影子版本1.3.3替代"
       },
       "mode": "verify",
-      "returncode": 1,
+      "returncode": 0,
       "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2",
-      "ok": false,
-      "action": "still_present",
+      "ok": true,
+      "action": "already_absent",
       "reason": "已被快递单号粒度影子版本1.3.3替代"
     },
     {
@@ -307,140 +3586,6 @@
       "ok": true,
       "action": "already_absent",
       "reason": "已废弃的物流信息物理备份"
-    },
-    {
-      "contract": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\metadata-contract-formal-item-parent-1.3.1.yaml",
-      "mode": "plan",
-      "returncode": null,
-      "ok": false,
-      "skipped": true,
-      "stderr": "Skipped after previous failure."
-    },
-    {
-      "contract": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\metadata-contract-formal-item-parent-1.3.1.yaml",
-      "mode": "apply",
-      "returncode": null,
-      "ok": false,
-      "skipped": true,
-      "stderr": "Skipped after previous failure."
-    },
-    {
-      "contract": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\metadata-contract-formal-item-parent-1.3.1.yaml",
-      "mode": "verify",
-      "returncode": null,
-      "ok": false,
-      "skipped": true,
-      "stderr": "Skipped after previous failure."
-    },
-    {
-      "retire": {
-        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_shadow_1_2_0",
-        "reason": "已晋级正式订单主单事实表"
-      },
-      "mode": "verify",
-      "returncode": null,
-      "ok": false,
-      "skipped": true,
-      "stderr": "Skipped after previous failure."
-    },
-    {
-      "retire": {
-        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0",
-        "reason": "已晋级正式订单商品明细事实表"
-      },
-      "mode": "verify",
-      "returncode": null,
-      "ok": false,
-      "skipped": true,
-      "stderr": "Skipped after previous failure."
-    },
-    {
-      "retire": {
-        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2",
-        "reason": "已被快递单号粒度影子版本1.3.3替代"
-      },
-      "mode": "verify",
-      "returncode": null,
-      "ok": false,
-      "skipped": true,
-      "stderr": "Skipped after previous failure."
-    },
-    {
-      "retire": {
-        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_package_validation_1_3_1",
-        "reason": "包裹ID不作为当前目标业务粒度"
-      },
-      "mode": "verify",
-      "returncode": null,
-      "ok": false,
-      "skipped": true,
-      "stderr": "Skipped after previous failure."
-    },
-    {
-      "retire": {
-        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_package_item_validation_1_3_1",
-        "reason": "包裹ID不作为当前目标业务粒度"
-      },
-      "mode": "verify",
-      "returncode": null,
-      "ok": false,
-      "skipped": true,
-      "stderr": "Skipped after previous failure."
-    },
-    {
-      "retire": {
-        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_df_backup_1_2_0",
-        "reason": "历史物理备份改由Git发布包管理"
-      },
-      "mode": "verify",
-      "returncode": null,
-      "ok": false,
-      "skipped": true,
-      "stderr": "Skipped after previous failure."
-    },
-    {
-      "retire": {
-        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_df_backup_1_2_0",
-        "reason": "历史物理备份改由Git发布包管理"
-      },
-      "mode": "verify",
-      "returncode": null,
-      "ok": false,
-      "skipped": true,
-      "stderr": "Skipped after previous failure."
-    },
-    {
-      "retire": {
-        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_df_direct_logistics_backup_1_3_1",
-        "reason": "已撤回的历史物流直连物理备份"
-      },
-      "mode": "verify",
-      "returncode": null,
-      "ok": false,
-      "skipped": true,
-      "stderr": "Skipped after previous failure."
-    },
-    {
-      "retire": {
-        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_deprecated_actual_receive_amount_detail_backup_1_2_1",
-        "reason": "已废弃的商家收入明细项物理备份"
-      },
-      "mode": "verify",
-      "returncode": null,
-      "ok": false,
-      "skipped": true,
-      "stderr": "Skipped after previous failure."
-    },
-    {
-      "retire": {
-        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_deprecated_logistics_info_backup_1_2_1",
-        "reason": "已废弃的物流信息物理备份"
-      },
-      "mode": "verify",
-      "returncode": null,
-      "ok": false,
-      "skipped": true,
-      "stderr": "Skipped after previous failure."
     }
   ]
 }
