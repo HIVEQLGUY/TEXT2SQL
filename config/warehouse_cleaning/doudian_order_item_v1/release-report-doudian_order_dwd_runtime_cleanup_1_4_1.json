@@ -1,12 +1,12 @@
 {
   "report_version": "warehouse-release-report/v1",
-  "status": "failed",
+  "status": "prepared",
   "release_id": "doudian_order_dwd_runtime_cleanup_1_4_1",
   "version": "1.4.1",
   "release_type": "cleanup",
   "environment": "test",
   "requested_mode": "full",
-  "started_at": "2026-07-26T11:40:11+08:00",
+  "started_at": "2026-07-26T11:45:40+08:00",
   "package_dir": "config/warehouse_cleaning/doudian_order_item_v1",
   "release_file": "config/warehouse_cleaning/doudian_order_item_v1/cleanup-dwd-runtime-1.4.1.yaml",
   "source": {
@@ -30,213 +30,7 @@
   },
   "warnings": [],
   "validation_errors": [],
-  "steps": [
-    {
-      "name": "git_preflight",
-      "status": "passed",
-      "at": "2026-07-26T11:39:59+08:00",
-      "result": {
-        "ok": true,
-        "git": "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\git\\cmd\\git.EXE",
-        "repo_root": "C:\\Users\\24796\\Documents\\TEXT2SQL",
-        "worktree_status": " M .gitignore\n M AGENTS.md\n M \"TEXT2SQL-codex-handoff/docs/RESOURCE-\\350\\265\\204\\346\\272\\220\\347\\231\\273\\350\\256\\260.md\"\n M TEXT2SQL-codex-handoff/docs/STATE-CURRENT.md\n M config/warehouse_cleaning/doudian_order_item_v1/metadata-contract-formal-item-1.3.1.yaml\n M docs/clickhouse-query-workbench-evaluation.md\n M docs/warehouse-release-process.md\n M scripts/sync_openmetadata_release.py\n M scripts/warehouse_release.py\n M tests/test_warehouse_release.py\n M tools/clickhouse-query-workbench/README.md\n M tools/clickhouse-query-workbench/client/main.tsx\n M tools/clickhouse-query-workbench/client/styles.css\n M tools/clickhouse-query-workbench/eslint.config.js\n M tools/clickhouse-query-workbench/package.json\n M tools/clickhouse-query-workbench/server/clickhouse.ts\n M tools/clickhouse-query-workbench/server/sqlGuard.ts\n M tools/clickhouse-query-workbench/vite.config.ts\n?? \" .Destination}}{{end}}\"\n?? config/warehouse_cleaning/doudian_order_item_v1/.warehouse-release-doudian_order_dwd_runtime_cleanup_1_4_1.lock\n?? config/warehouse_cleaning/doudian_order_item_v1/cleanup-dwd-runtime-1.4.0.yaml\n?? config/warehouse_cleaning/doudian_order_item_v1/cleanup-dwd-runtime-1.4.1.yaml\n?? config/warehouse_cleaning/doudian_order_item_v1/cleanup-dwd-runtime-execution-1.4.0.sql\n?? config/warehouse_cleaning/doudian_order_item_v1/cleanup-dwd-runtime-execution-1.4.1.sql\n?? config/warehouse_cleaning/doudian_order_item_v1/cleanup-dwd-runtime-postcheck-1.4.0.sql\n?? config/warehouse_cleaning/doudian_order_item_v1/cleanup-dwd-runtime-postcheck-1.4.1.sql\n?? config/warehouse_cleaning/doudian_order_item_v1/cleanup-dwd-runtime-preflight-1.4.0.sql\n?? config/warehouse_cleaning/doudian_order_item_v1/cleanup-dwd-runtime-preflight-1.4.1.sql\n?? config/warehouse_cleaning/doudian_order_item_v1/cleanup-dwd-runtime-quality-1.4.0.sql\n?? config/warehouse_cleaning/doudian_order_item_v1/cleanup-dwd-runtime-quality-1.4.1.sql\n?? config/warehouse_cleaning/doudian_order_item_v1/metadata-contract-formal-item-parent-1.3.1.yaml\n?? config/warehouse_cleaning/doudian_order_item_v1/metadata-contract-formal-order-1.3.1.yaml\n?? config/warehouse_cleaning/doudian_order_item_v1/openmetadata-sync-report-cleanup-dwd-runtime-1.4.0.json\n?? config/warehouse_cleaning/doudian_order_item_v1/openmetadata-sync-report-cleanup-dwd-runtime-1.4.1.json\n?? config/warehouse_cleaning/doudian_order_item_v1/release-plan-doudian_order_dwd_runtime_cleanup_1_4_0.json\n?? config/warehouse_cleaning/doudian_order_item_v1/release-plan-doudian_order_dwd_runtime_cleanup_1_4_1.json\n?? config/warehouse_cleaning/doudian_order_item_v1/release-plan-doudian_order_tracking_no_shadow_1_3_3.json\n?? config/warehouse_cleaning/doudian_order_item_v1/release-plan-doudian_order_tracking_no_shadow_corrective_1_3_3.json\n?? config/warehouse_cleaning/doudian_order_item_v1/release-report-doudian_order_dwd_runtime_cleanup_1_4_0.json\n?? config/warehouse_cleaning/doudian_order_item_v1/release-report-doudian_order_dwd_runtime_cleanup_1_4_1.json\n?? config/warehouse_cleaning/doudian_order_item_v1/release-report-doudian_order_tracking_no_shadow_1_3_3.json\n?? config/warehouse_cleaning/doudian_order_item_v1/shadow-logistics-tracking-no-execution-1.3.3.sql\n?? config/warehouse_cleaning/doudian_order_item_v1/shadow-logistics-tracking-no-quality-checks-1.3.3.sql\n?? config/warehouse_cleaning/doudian_order_item_v1/shadow-release-tracking-no-1.3.3.yaml\n?? docs/warehouse-collaboration-workflow.html\n?? tools/clickhouse-query-workbench/check-workbench.ps1\n?? tools/clickhouse-query-workbench/pnpm-lock.yaml\n?? tools/clickhouse-query-workbench/pnpm-workspace.yaml\n?? tools/clickhouse-query-workbench/start-workbench.ps1\n"
-      }
-    },
-    {
-      "name": "git_prepare_commit",
-      "status": "passed",
-      "at": "2026-07-26T11:40:00+08:00",
-      "result": {
-        "ok": true,
-        "commit": {
-          "label": "git:commit",
-          "ok": true,
-          "returncode": 0,
-          "stdout": "[main b716c5f] warehouse release doudian_order_dwd_runtime_cleanup_1_4_1 prepare\n 8 files changed, 1419 insertions(+)\n create mode 100644 config/warehouse_cleaning/doudian_order_item_v1/cleanup-dwd-runtime-1.4.1.yaml\n create mode 100644 config/warehouse_cleaning/doudian_order_item_v1/cleanup-dwd-runtime-execution-1.4.1.sql\n create mode 100644 config/warehouse_cleaning/doudian_order_item_v1/cleanup-dwd-runtime-postcheck-1.4.1.sql\n create mode 100644 config/warehouse_cleaning/doudian_order_item_v1/cleanup-dwd-runtime-preflight-1.4.1.sql\n create mode 100644 config/warehouse_cleaning/doudian_order_item_v1/cleanup-dwd-runtime-quality-1.4.1.sql\n create mode 100644 config/warehouse_cleaning/doudian_order_item_v1/metadata-contract-formal-item-parent-1.3.1.yaml\n create mode 100644 config/warehouse_cleaning/doudian_order_item_v1/metadata-contract-formal-order-1.3.1.yaml\n create mode 100644 config/warehouse_cleaning/doudian_order_item_v1/release-report-doudian_order_dwd_runtime_cleanup_1_4_1.json\n",
-          "stderr": "",
-          "command": [
-            "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\git\\cmd\\git.EXE",
-            "commit",
-            "-m",
-            "warehouse release doudian_order_dwd_runtime_cleanup_1_4_1 prepare"
-          ]
-        },
-        "head": "b716c5f62ae73c466436507f049e86e3d32b9d54"
-      }
-    },
-    {
-      "name": "clickhouse_health",
-      "status": "passed",
-      "at": "2026-07-26T11:40:00+08:00",
-      "result": {
-        "label": "clickhouse:health",
-        "ok": true,
-        "returncode": 0,
-        "stdout": "{\"database\":\"youmei_sandbox\",\"version\":\"26.6.1.1193\"}\n",
-        "stderr": "",
-        "command": [
-          "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
-          "C:\\Users\\24796\\.codex\\skills\\clickhouse-sql-dev\\scripts\\run_clickhouse_sql.py",
-          "--host",
-          "127.0.0.1",
-          "--port",
-          "8123",
-          "--database",
-          "youmei_sandbox",
-          "--query",
-          "SELECT currentDatabase() AS database, version() AS version",
-          "--format",
-          "JSONEachRow"
-        ]
-      }
-    },
-    {
-      "name": "clickhouse_preflight",
-      "status": "passed",
-      "at": "2026-07-26T11:40:01+08:00",
-      "result": {
-        "label": "clickhouse:preflight",
-        "ok": true,
-        "returncode": 0,
-        "stdout": "youmei_sandbox\t26.6.1.1193\ndwd_deprecated_actual_receive_amount_detail_backup_1_2_1\tMergeTree\t72575\t1237290\ndwd_deprecated_logistics_info_backup_1_2_1\tMergeTree\t42839\t1579525\ndwd_trade_order_df\tMergeTree\t49695\t49439989\ndwd_trade_order_df_backup_1_2_0\tMergeTree\t49695\t48261721\ndwd_trade_order_item_df\tMergeTree\t85770\t5327429\ndwd_trade_order_item_df_backup_1_2_0\tMergeTree\t85770\t4790323\ndwd_trade_order_item_df_direct_logistics_backup_1_3_1\tMergeTree\t85770\t6325321\ndwd_trade_order_item_shadow_1_2_0\tMergeTree\t90279\t5969640\ndwd_trade_order_logistics_package_item_validation_1_3_1\tMergeTree\t73934\t4011339\ndwd_trade_order_logistics_package_validation_1_3_1\tMergeTree\t42839\t1592366\ndwd_trade_order_logistics_tracking_no_shadow_1_3_2\tMergeTree\t42838\t2211197\ndwd_trade_order_logistics_tracking_no_shadow_1_3_3\tMergeTree\t41140\t2132752\ndwd_trade_order_shadow_1_2_0\tMergeTree\t49695\t48261721\n0\n0\n0\n{\"ok\": true, \"sql_file\": \"C:\\\\Users\\\\24796\\\\Documents\\\\TEXT2SQL\\\\config\\\\warehouse_cleaning\\\\doudian_order_item_v1\\\\cleanup-dwd-runtime-preflight-1.4.1.sql\", \"executed_statements\": 5}\n",
-        "stderr": "",
-        "command": [
-          "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
-          "C:\\Users\\24796\\.codex\\skills\\data-warehouse-cleaning\\scripts\\execute_clickhouse_sql.py",
-          "--sql-file",
-          "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\cleanup-dwd-runtime-preflight-1.4.1.sql",
-          "--base-url",
-          "http://127.0.0.1:8123",
-          "--database",
-          "youmei_sandbox",
-          "--print-results"
-        ]
-      }
-    },
-    {
-      "name": "clickhouse_quality",
-      "status": "passed",
-      "at": "2026-07-26T11:40:01+08:00",
-      "result": {
-        "label": "clickhouse:quality",
-        "ok": true,
-        "returncode": 0,
-        "stdout": "dwd_deprecated_actual_receive_amount_detail_backup_1_2_1\t72575\t1237290\t2026-07-23 15:28:45\ndwd_deprecated_logistics_info_backup_1_2_1\t42839\t1579525\t2026-07-23 15:28:45\ndwd_trade_order_df_backup_1_2_0\t49695\t48261721\t2026-07-23 14:23:37\ndwd_trade_order_item_df_backup_1_2_0\t85770\t4790323\t2026-07-23 14:23:37\ndwd_trade_order_item_df_direct_logistics_backup_1_3_1\t85770\t6325321\t2026-07-23 16:52:57\ndwd_trade_order_item_shadow_1_2_0\t90279\t5969640\t2026-07-23 09:09:05\ndwd_trade_order_logistics_package_item_validation_1_3_1\t73934\t4011339\t2026-07-23 16:53:03\ndwd_trade_order_logistics_package_validation_1_3_1\t42839\t1592366\t2026-07-23 16:53:01\ndwd_trade_order_logistics_tracking_no_shadow_1_3_2\t42838\t2211197\t2026-07-23 17:18:56\ndwd_trade_order_shadow_1_2_0\t49695\t48261721\t2026-07-23 13:34:30\n0\n{\"ok\": true, \"sql_file\": \"C:\\\\Users\\\\24796\\\\Documents\\\\TEXT2SQL\\\\config\\\\warehouse_cleaning\\\\doudian_order_item_v1\\\\cleanup-dwd-runtime-quality-1.4.1.sql\", \"executed_statements\": 2}\n",
-        "stderr": "",
-        "command": [
-          "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
-          "C:\\Users\\24796\\.codex\\skills\\data-warehouse-cleaning\\scripts\\execute_clickhouse_sql.py",
-          "--sql-file",
-          "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\cleanup-dwd-runtime-quality-1.4.1.sql",
-          "--base-url",
-          "http://127.0.0.1:8123",
-          "--database",
-          "youmei_sandbox",
-          "--print-results"
-        ]
-      }
-    },
-    {
-      "name": "openmetadata_plan_before_cleanup",
-      "status": "passed",
-      "at": "2026-07-26T11:40:05+08:00",
-      "result": {
-        "label": "openmetadata:plan",
-        "ok": true,
-        "returncode": 0,
-        "stdout": "{\n  \"ok\": true,\n  \"release_file\": \"C:\\\\Users\\\\24796\\\\Documents\\\\TEXT2SQL\\\\config\\\\warehouse_cleaning\\\\doudian_order_item_v1\\\\cleanup-dwd-runtime-1.4.1.yaml\",\n  \"contract_count\": 2,\n  \"mode\": \"plan\",\n  \"report\": \"C:\\\\Users\\\\24796\\\\Documents\\\\TEXT2SQL\\\\config\\\\warehouse_cleaning\\\\doudian_order_item_v1\\\\openmetadata-sync-report-cleanup-dwd-runtime-1.4.1.json\"\n}\n",
-        "stderr": "",
-        "command": [
-          "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
-          "C:\\Users\\24796\\Documents\\TEXT2SQL\\scripts\\sync_openmetadata_release.py",
-          "--package-dir",
-          "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1",
-          "--release",
-          "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\cleanup-dwd-runtime-1.4.1.yaml",
-          "--env-file",
-          "C:\\Users\\24796\\Documents\\TEXT2SQL\\local\\credentials\\openmetadata.env",
-          "--mode",
-          "plan",
-          "--report",
-          "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\openmetadata-sync-report-cleanup-dwd-runtime-1.4.1.json"
-        ],
-        "report_path": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\openmetadata-sync-report-cleanup-dwd-runtime-1.4.1.json"
-      }
-    },
-    {
-      "name": "clickhouse_cleanup",
-      "status": "passed",
-      "at": "2026-07-26T11:40:05+08:00",
-      "result": {
-        "label": "clickhouse:cleanup",
-        "ok": true,
-        "returncode": 0,
-        "stdout": "{\"ok\": true, \"sql_file\": \"C:\\\\Users\\\\24796\\\\Documents\\\\TEXT2SQL\\\\config\\\\warehouse_cleaning\\\\doudian_order_item_v1\\\\cleanup-dwd-runtime-execution-1.4.1.sql\", \"executed_statements\": 10}\n",
-        "stderr": "",
-        "command": [
-          "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
-          "C:\\Users\\24796\\.codex\\skills\\data-warehouse-cleaning\\scripts\\execute_clickhouse_sql.py",
-          "--sql-file",
-          "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\cleanup-dwd-runtime-execution-1.4.1.sql",
-          "--base-url",
-          "http://127.0.0.1:8123",
-          "--database",
-          "youmei_sandbox",
-          "--print-results"
-        ]
-      }
-    },
-    {
-      "name": "clickhouse_postcheck",
-      "status": "passed",
-      "at": "2026-07-26T11:40:05+08:00",
-      "result": {
-        "label": "clickhouse:postcheck",
-        "ok": true,
-        "returncode": 0,
-        "stdout": "dwd_trade_order_df\tMergeTree\t49695\t49439989\ndwd_trade_order_item_df\tMergeTree\t85770\t5327429\ndwd_trade_order_logistics_tracking_no_shadow_1_3_3\tMergeTree\t41140\t2132752\n0\n0\n{\"ok\": true, \"sql_file\": \"C:\\\\Users\\\\24796\\\\Documents\\\\TEXT2SQL\\\\config\\\\warehouse_cleaning\\\\doudian_order_item_v1\\\\cleanup-dwd-runtime-postcheck-1.4.1.sql\", \"executed_statements\": 3}\n",
-        "stderr": "",
-        "command": [
-          "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
-          "C:\\Users\\24796\\.codex\\skills\\data-warehouse-cleaning\\scripts\\execute_clickhouse_sql.py",
-          "--sql-file",
-          "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\cleanup-dwd-runtime-postcheck-1.4.1.sql",
-          "--base-url",
-          "http://127.0.0.1:8123",
-          "--database",
-          "youmei_sandbox",
-          "--print-results"
-        ]
-      }
-    },
-    {
-      "name": "openmetadata_full",
-      "status": "failed",
-      "at": "2026-07-26T11:40:11+08:00",
-      "result": {
-        "label": "openmetadata:full",
-        "ok": false,
-        "returncode": 1,
-        "stdout": "{\n  \"ok\": false,\n  \"release_file\": \"C:\\\\Users\\\\24796\\\\Documents\\\\TEXT2SQL\\\\config\\\\warehouse_cleaning\\\\doudian_order_item_v1\\\\cleanup-dwd-runtime-1.4.1.yaml\",\n  \"contract_count\": 2,\n  \"mode\": \"full\",\n  \"report\": \"C:\\\\Users\\\\24796\\\\Documents\\\\TEXT2SQL\\\\config\\\\warehouse_cleaning\\\\doudian_order_item_v1\\\\openmetadata-sync-report-cleanup-dwd-runtime-1.4.1.json\"\n}\n",
-        "stderr": "",
-        "command": [
-          "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
-          "C:\\Users\\24796\\Documents\\TEXT2SQL\\scripts\\sync_openmetadata_release.py",
-          "--package-dir",
-          "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1",
-          "--release",
-          "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\cleanup-dwd-runtime-1.4.1.yaml",
-          "--env-file",
-          "C:\\Users\\24796\\Documents\\TEXT2SQL\\local\\credentials\\openmetadata.env",
-          "--mode",
-          "full",
-          "--report",
-          "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\openmetadata-sync-report-cleanup-dwd-runtime-1.4.1.json"
-        ],
-        "report_path": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\openmetadata-sync-report-cleanup-dwd-runtime-1.4.1.json"
-      }
-    }
-  ],
+  "steps": [],
   "git": {
     "required": true,
     "auto_push": true,
@@ -244,6 +38,5 @@
     "branch": "main",
     "tag": "warehouse/doudian-order-dwd-runtime-cleanup-1.4.1"
   },
-  "failure_reason": "OpenMetadata plan/apply/verify 未全部通过",
-  "finished_at": "2026-07-26T11:40:11+08:00"
+  "finished_at": "2026-07-26T11:45:40+08:00"
 }
