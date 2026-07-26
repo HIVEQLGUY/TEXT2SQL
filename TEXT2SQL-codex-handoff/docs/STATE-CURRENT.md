@@ -1,5 +1,50 @@
 # 当前状态
 
+## 34. DWD 清理正式发布完成与主流程修正 2026-07-26
+
+- ClickHouse 测试库(youmei_sandbox) 当前可访问，版本 `26.6.1.1193`；本轮清理前共有 13 张 `dwd_` 对象，清理发布后只剩 3 张。
+- 当前正式 DWD 有两张：DWD_抖店订单主单事实全量快照表(`dwd_trade_order_df`)，49,695 行、82 字段、粒度为店铺ID(`shop_id`) + 店铺订单号(`shop_order_id`)；DWD_抖店订单商品明细事实全量快照表(`dwd_trade_order_item_df`)，85,770 行、37 字段、粒度为店铺ID(`shop_id`) + 店铺订单号(`shop_order_id`) + 商品明细序号(`item_index`)。
+- 当前待审阅影子表有一张：DWD_抖店订单物流快递单号粒度影子表(`dwd_trade_order_logistics_tracking_no_shadow_1_3_3`)，41,140 行、18 字段，粒度为店铺ID(`shop_id`) + 店铺订单号(`shop_order_id`) + 快递单号(`tracking_no`)；包裹ID不作为目标粒度，尚未批准晋级正式 DWD。
+- 已通过清理发布 `doudian_order_dwd_runtime_cleanup_1_4_1` 删除 10 个已替代影子、包裹验证表和物理备份对象；没有创建新的物理备份表，历史由 Git 发布包重建。
+- ClickHouse 清理、正式表/影子表后检、OpenMetadata `plan -> apply -> verify` 和 10 个旧资产退休回读均通过。OpenMetadata 服务已恢复，版本 `1.12.11`；退休同步器已修正为全局三阶段，避免把 `full` 错当成只读回读。
+- 本地 Git 已形成清理发布提交和标签：`warehouse/doudian-order-dwd-runtime-cleanup-1.4.1`；由于 GitHub HTTPS 连接被重置/超时，发布报告当前为 `version_record_pending`，远程分支尚未确认同步，不能汇报为“远程发布完成”。`finalize` 已按固定路径尝试，后续仍须在远程可达后重试同一发布。
+- 主流程已固化为：契约确认 -> 影子验证 -> 业务批准 -> 按同契约重建正式候选表 -> 质量门禁 -> 切换正式表 -> OpenMetadata 同步 -> 清理影子/临时对象 -> Git 报告、标签和远程同步；退回、过期或替代对象直接走 cleanup 发布。
+- 发布总控新增非交互 Git 推送和 60 秒超时；远程异常统一落 `version_record_pending`，不保留后台推送进程。OpenMetadata 全量同步和发布器回归测试共 20 项通过。
+
+## 32. DBeaver Community 安装与 ClickHouse 连接预配置 2026-07-24
+
+- 已安装 DBeaver Community 26.1.3 到当前 Windows 用户目录：`C:\Users\24796\AppData\Local\DBeaver\dbeaver.exe`。
+- 安装包来源为 DBeaver 官方 GitHub Release 的南京大学镜像同步包：`dbeaver-ce-26.1.3-windows-x86_64.exe`；本地下载文件 SHA256 为 `DF3E522E3DBD4E6A7F91DCD8E422A0BE13220D2E895A681B5B6732ADB518297D`。
+- 已初始化 DBeaver 当前用户工作区，并预配置连接 `ClickHouse 测试库(youmei_sandbox)`：`jdbc:clickhouse://127.0.0.1:8123/youmei_sandbox`，用户 `default`，密码为空。
+- 已确认 ClickHouse HTTP 健康检查 `http://127.0.0.1:8123/ping` 返回 `Ok.`；DBeaver 已打开供人工使用。若首次连接提示下载 ClickHouse JDBC 驱动，按 DBeaver 提示下载即可。
+
+## 31. CH-UI 删除与替代方向确认 2026-07-24
+
+- 已按用户要求删除 CH-UI 本地试用工具：WSL Docker 中 `youmei-ch-ui` 容器已删除，`ghcr.io/caioricciuti/ch-ui:latest` 镜像已删除，项目目录 `tools/ch-ui` 已删除。
+- `ch-ui_ch-ui-data` Docker 卷仍在 `docker volume ls` 中残留，但 `docker volume rm -f` 和 `docker system prune --volumes` 都因 Docker 元数据坏引用失败：Docker 认为该卷仍被已不存在的容器 `244c7affb948...` 占用。该残留卷不代表 CH-UI 服务仍可用，后续不得再按 CH-UI 运行入口处理。
+- 当前中文 ClickHouse 查询默认入口为自研 `ClickHouse 查询工作台`：`http://127.0.0.1:4177`；CH-UI 已不再作为保留工具。
+
+## 30. 发布后自动同步 Git 规则落地 2026-07-24
+
+- 发布总控已调整为：`full` 先完成 ClickHouse 候选切换、质量校验、OpenMetadata `plan -> apply -> verify` 和清理，再提交并自动推送 Git 分支与标签；发布前只做本地 Git 预提交，不再提前远程推送。
+- `full`、`rollback`、`finalize` 现在必须开启 `git.auto_push: true`，影子发布不再允许以本地留痕代替远程同步；`plan`/`verify` 仍为只读，不触发推送。
+- 远程推送失败统一进入 `version_record_pending`，`finalize` 可补记；同一发布的补记提交位于既有标签之后时保留原标签，只有无关提交的同名标签才阻断。
+- 发布器回归测试 14 项全部通过，覆盖发布完成后才推送、远程失败补记和标签补偿逻辑。本轮发布器、测试、发布流程文档和强规则已提交到本地 Git，提交为 `f4ec7c4`；基线推送因公开 GitHub 外发安全门禁被拒绝，尚未推送到 GitHub。
+
+## 29. 自研 ClickHouse 查询工作台前端中文化 2026-07-24
+
+- 已按用户“前端全部中文化，要合理中文化”的要求更新项目强规则 `AGENTS.md`：自研前端页面标题、导航、按钮、表单占位、提示、状态、错误、表格列头、空值和布尔值展示默认中文化；技术品牌、SQL 关键字、物理库表字段、环境变量和命令不强行翻译；第三方封闭前端不作为已中文化交付口径。
+- 已中文化自研 `ClickHouse 查询工作台` 前端：状态从 `demo/clickhouse/unknown` 转为中文显示；字段清单列头转为“字段名/字段类型/中文注释”；样例数据和查询结果优先按字段注释显示“中文名(物理名)”；空值显示“空”，布尔值显示“是/否”；查询历史和收藏显示中文验证备注。
+- 已验证 `tools/clickhouse-query-workbench` 类型检查通过，生产构建通过；构建产物已更新到 `dist/client`。
+- 当前已启动中文工作台服务：`http://127.0.0.1:4177`，连接 ClickHouse 测试库 `youmei_sandbox`，`/api/status` 返回 `ok=true`、版本 `26.6.1.1193`。
+- CH-UI 已在 2026-07-24 17:20 +08:00 按用户要求删除；当前中文主入口为自研 `ClickHouse 查询工作台`。
+
+## 28. GitHub 远程同步只读核验 2026-07-24
+
+- 已通过只读远程查询确认 GitHub `HIVEQLGUY/TEXT2SQL` 的 `main` 为 `62f0a7f`；本地 `main` 为 `7949bfc`，领先 11 个提交。
+- 本次没有执行远程推送。GitHub 连接器具备创建提交、更新分支指针等远程写入能力，但本次连接器传输失败；远程只读核验通过本地 Git `ls-remote` 完成。
+- 工作区仍有未提交的工作台、发布计划和其他文件，不能把整个工作区直接推送；后续必须先按发布范围分类，再显性授权推送已审阅提交。
+
 ## 25. 发布器回滚门禁测试完成 2026-07-24
 
 - 最新本地发布链路提交为 `23b00b6`（`test: cover rollback after postcheck failure`）；本地 `main` 相对缓存的 `origin/main` 领先 5 个提交，暂存区为空。

@@ -1,0 +1,538 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="ClickHouse 数仓建模与发布协作工作流">
+  <title>数仓协作工作流 | ClickHouse</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17242b;
+      --ink-soft: #34464f;
+      --muted: #6c7b83;
+      --line: #d6e0e3;
+      --line-strong: #b8c8cd;
+      --canvas: #edf2f3;
+      --surface: #ffffff;
+      --surface-soft: #f6f9f9;
+      --accent: #087f78;
+      --accent-soft: #e2f1ef;
+      --accent-line: #8fc9c2;
+      --amber: #a86116;
+      --amber-soft: #fff1dc;
+      --red: #a64646;
+      --red-soft: #fbeaea;
+      --navy: #243840;
+      --radius: 7px;
+      font-family: "Microsoft YaHei", "Segoe UI", Arial, sans-serif;
+      font-synthesis: none;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--canvas); color: var(--ink); }
+    button { font: inherit; }
+    button:focus-visible, a:focus-visible { outline: 3px solid #f1b852; outline-offset: 2px; }
+    .page { min-height: 100dvh; }
+    .shell { width: min(1440px, calc(100% - 40px)); margin: 0 auto; padding: 28px 0 48px; }
+
+    .masthead {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 24px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--line-strong);
+    }
+    .eyebrow {
+      margin: 0 0 10px;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+    h1 { margin: 0; font-size: 34px; line-height: 1.15; font-weight: 800; }
+    .lede { max-width: 760px; margin: 12px 0 0; color: var(--ink-soft); font-size: 15px; line-height: 1.7; }
+    .header-note {
+      min-width: 250px;
+      padding: 13px 15px;
+      border-left: 3px solid var(--accent);
+      background: var(--surface);
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+    .header-note strong { display: block; color: var(--ink); font-size: 14px; }
+
+    .status-strip {
+      display: grid;
+      grid-template-columns: 1.45fr repeat(3, 1fr);
+      margin: 22px 0;
+      border: 1px solid var(--line-strong);
+      background: var(--surface);
+    }
+    .status-cell { min-height: 86px; padding: 15px 17px; border-right: 1px solid var(--line); }
+    .status-cell:last-child { border-right: 0; }
+    .status-label { color: var(--muted); font-size: 12px; }
+    .status-value { margin-top: 8px; font-size: 16px; font-weight: 800; }
+    .status-value small { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; font-weight: 500; }
+    .status-value.active { color: var(--accent); }
+
+    .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 18px; margin: 30px 0 12px; }
+    .section-heading h2 { margin: 0; font-size: 20px; }
+    .section-heading p { margin: 0; color: var(--muted); font-size: 13px; }
+
+    .stepper {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      border: 1px solid var(--line-strong);
+      background: var(--surface);
+    }
+    .step-button {
+      position: relative;
+      min-width: 0;
+      min-height: 104px;
+      padding: 15px 12px 13px;
+      border: 0;
+      border-right: 1px solid var(--line);
+      border-radius: 0;
+      background: var(--surface);
+      color: var(--ink);
+      text-align: left;
+      cursor: pointer;
+    }
+    .step-button:last-child { border-right: 0; }
+    .step-button:hover { background: var(--surface-soft); }
+    .step-button.selected { background: var(--navy); color: #fff; }
+    .step-button.completed .step-number { color: var(--accent); }
+    .step-button.selected .step-number { color: #bce3dd; }
+    .step-button.locked { color: #8a979c; }
+    .step-number { display: block; margin-bottom: 12px; color: var(--muted); font-family: Consolas, monospace; font-size: 12px; font-weight: 700; }
+    .step-title { display: block; font-size: 14px; font-weight: 800; line-height: 1.35; }
+    .step-state { display: block; margin-top: 7px; color: var(--muted); font-size: 11px; }
+    .step-button.selected .step-state { color: #c9d7da; }
+
+    .filter-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin: 12px 0 0; }
+    .filters { display: flex; gap: 6px; flex-wrap: wrap; }
+    .filter-button, .action-button {
+      min-height: 34px;
+      padding: 0 11px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--ink-soft);
+      cursor: pointer;
+    }
+    .filter-button:hover, .action-button:hover { border-color: var(--accent); color: var(--accent); }
+    .filter-button.selected { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); font-weight: 700; }
+    .action-button.primary { border-color: var(--accent); background: var(--accent); color: #fff; }
+    .action-button.primary:hover { background: #066a65; color: #fff; }
+    .action-button.subtle { background: transparent; }
+
+    .detail-grid { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(280px, .7fr); gap: 16px; margin-top: 16px; }
+    .panel { border: 1px solid var(--line-strong); border-radius: var(--radius); background: var(--surface); }
+    .panel-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 18px; padding: 18px 20px; border-bottom: 1px solid var(--line); }
+    .panel-header h3 { margin: 0; font-size: 20px; }
+    .panel-header p { margin: 6px 0 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+    .stage-badge { flex: none; padding: 6px 9px; border: 1px solid var(--accent-line); border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-size: 12px; font-weight: 800; white-space: nowrap; }
+    .stage-badge.waiting { border-color: #e3bd83; background: var(--amber-soft); color: var(--amber); }
+    .stage-badge.locked { border-color: var(--line); background: var(--surface-soft); color: var(--muted); }
+    .panel-body { padding: 18px 20px; }
+    .detail-lead { margin: 0 0 18px; color: var(--ink-soft); font-size: 15px; line-height: 1.7; }
+    .detail-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+    .detail-block h4 { margin: 0 0 10px; color: var(--muted); font-size: 12px; font-weight: 800; text-transform: uppercase; }
+    .detail-block ul { margin: 0; padding-left: 18px; color: var(--ink-soft); font-size: 13px; line-height: 1.8; }
+    .detail-block li + li { margin-top: 4px; }
+    .mono { font-family: Consolas, "Microsoft YaHei", monospace; font-size: .95em; }
+    .callout { margin-top: 20px; padding: 13px 15px; border-left: 3px solid var(--accent); background: var(--accent-soft); color: var(--ink-soft); font-size: 13px; line-height: 1.6; }
+    .callout strong { color: var(--ink); }
+
+    .gate-list { display: grid; gap: 10px; }
+    .gate-item { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 10px; align-items: start; padding: 12px; border: 1px solid var(--line); background: var(--surface-soft); }
+    .gate-item.done { border-color: var(--accent-line); background: var(--accent-soft); }
+    .gate-item input { width: 16px; height: 16px; margin: 2px 0 0; accent-color: var(--accent); }
+    .gate-item strong { display: block; font-size: 13px; }
+    .gate-item span { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+    .gate-note { margin: 14px 0 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
+
+    .lower-grid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 16px; margin-top: 16px; }
+    .lane { display: grid; grid-template-columns: 145px minmax(0, 1fr); border-bottom: 1px solid var(--line); }
+    .lane:last-child { border-bottom: 0; }
+    .lane-label { padding: 15px 18px; border-right: 1px solid var(--line); color: var(--muted); font-size: 12px; font-weight: 800; }
+    .lane-content { padding: 15px 18px; color: var(--ink-soft); font-size: 13px; line-height: 1.7; }
+    .destination-list { display: grid; gap: 0; }
+    .destination { display: grid; grid-template-columns: 126px minmax(0, 1fr); gap: 14px; padding: 14px 18px; border-bottom: 1px solid var(--line); }
+    .destination:last-child { border-bottom: 0; }
+    .destination strong { font-size: 13px; }
+    .destination span { color: var(--muted); font-size: 12px; line-height: 1.55; }
+
+    .snapshot { margin-top: 16px; }
+    .snapshot-table { width: 100%; border-collapse: collapse; }
+    .snapshot-table th, .snapshot-table td { padding: 11px 14px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; font-size: 13px; }
+    .snapshot-table th { width: 25%; color: var(--muted); font-size: 12px; font-weight: 800; }
+    .snapshot-table tr:last-child th, .snapshot-table tr:last-child td { border-bottom: 0; }
+    .status-text { color: var(--accent); font-weight: 800; }
+    .status-text.waiting { color: var(--amber); }
+
+    .footer { display: flex; justify-content: space-between; gap: 18px; margin-top: 28px; padding-top: 16px; border-top: 1px solid var(--line-strong); color: var(--muted); font-size: 12px; line-height: 1.6; }
+    .footer strong { color: var(--ink-soft); }
+    .toast { position: fixed; right: 22px; bottom: 22px; max-width: 320px; padding: 11px 14px; border: 1px solid var(--accent-line); border-radius: var(--radius); background: var(--navy); color: #fff; font-size: 13px; opacity: 0; transform: translateY(8px); pointer-events: none; transition: opacity .18s ease, transform .18s ease; }
+    .toast.visible { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 1020px) {
+      .status-strip { grid-template-columns: repeat(2, 1fr); }
+      .status-cell:nth-child(2) { border-right: 0; }
+      .status-cell:nth-child(-n + 2) { border-bottom: 1px solid var(--line); }
+      .stepper { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .step-button:nth-child(4) { border-right: 0; }
+      .step-button:nth-child(-n + 4) { border-bottom: 1px solid var(--line); }
+      .detail-grid, .lower-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 680px) {
+      .shell { width: min(100% - 24px, 1440px); padding-top: 18px; }
+      .masthead { display: block; }
+      .header-note { min-width: 0; margin-top: 18px; }
+      h1 { font-size: 28px; }
+      .status-strip { grid-template-columns: 1fr; }
+      .status-cell, .status-cell:nth-child(2) { border-right: 0; border-bottom: 1px solid var(--line); }
+      .status-cell:last-child { border-bottom: 0; }
+      .stepper { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .step-button, .step-button:nth-child(4) { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+      .step-button:nth-child(even) { border-right: 0; }
+      .step-button:nth-last-child(-n + 1) { border-bottom: 0; }
+      .section-heading, .filter-row, .footer { display: block; }
+      .section-heading p { margin-top: 6px; }
+      .filters { margin-bottom: 10px; }
+      .detail-columns { grid-template-columns: 1fr; }
+      .panel-header { display: block; }
+      .stage-badge { display: inline-block; margin-top: 12px; }
+      .lane { grid-template-columns: 1fr; }
+      .lane-label { border-right: 0; border-bottom: 1px solid var(--line); }
+      .destination { grid-template-columns: 1fr; gap: 4px; }
+      .snapshot-table th, .snapshot-table td { display: block; width: auto; }
+      .snapshot-table th { padding-bottom: 3px; border-bottom: 0; }
+      .snapshot-table td { padding-top: 3px; }
+      .footer > div + div { margin-top: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <main class="shell">
+      <header class="masthead">
+        <div>
+          <p class="eyebrow">数仓协作工作流 / ClickHouse Warehouse</p>
+          <h1>从业务确认到可回滚发布</h1>
+          <p class="lede">这是一条给业务方、建模助手和数据平台共同使用的固定路径。你只确认业务规则和验证结果，系统负责把契约、SQL、元数据和版本记录组织成可重建的发布包。</p>
+        </div>
+        <div class="header-note">
+          <strong>本页面的边界</strong>
+          流程说明和协作交接入口，不直接执行 ClickHouse 写入；正式发布仍必须通过项目发布入口完成。
+        </div>
+      </header>
+
+      <section class="status-strip" aria-label="当前协作状态">
+        <div class="status-cell">
+          <div class="status-label">当前协作阶段</div>
+          <div class="status-value active">05 / 业务审阅<small>影子结果已完成，正式晋级待确认</small></div>
+        </div>
+        <div class="status-cell">
+          <div class="status-label">数据引擎</div>
+          <div class="status-value">ClickHouse<small>测试库：youmei_sandbox</small></div>
+        </div>
+        <div class="status-cell">
+          <div class="status-label">元数据</div>
+          <div class="status-value">OpenMetadata<small>表、字段、粒度、枚举和血缘</small></div>
+        </div>
+        <div class="status-cell">
+          <div class="status-label">版本源</div>
+          <div class="status-value">Git<small>保存重建规则，不保存数据行</small></div>
+        </div>
+      </section>
+
+      <section aria-labelledby="workflow-title">
+        <div class="section-heading">
+          <div>
+            <h2 id="workflow-title">一条主流程</h2>
+            <p>点击阶段查看参与人、确认点、产出物和写入位置。</p>
+          </div>
+          <div class="filters" role="group" aria-label="阶段筛选">
+            <button class="filter-button selected" data-filter="all">全部阶段</button>
+            <button class="filter-button" data-filter="attention">需要确认</button>
+            <button class="filter-button" data-filter="done">已完成</button>
+          </div>
+        </div>
+
+        <div class="stepper" id="stepper" role="tablist" aria-label="数仓协作阶段"></div>
+
+        <div class="detail-grid">
+          <section class="panel" id="stage-panel" aria-live="polite"></section>
+          <aside class="panel">
+            <div class="panel-header">
+              <div>
+                <h3>你只需要确认</h3>
+                <p>下面是业务确认，不是 Git 操作。</p>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="gate-list" id="gate-list"></div>
+              <p class="gate-note">页面上的勾选只保存在当前浏览器，用于记录阅读进度；正式授权仍要写入发布契约并由发布器校验。</p>
+              <button class="action-button subtle" id="reset-gates">重置本地阅读标记</button>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="lower-grid" aria-label="协作职责和系统去向">
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h3>谁在什么时候做什么</h3>
+              <p>把协作职责和技术动作分开，避免业务方被目录和命令淹没。</p>
+            </div>
+          </div>
+          <div class="lane">
+            <div class="lane-label">你 / 业务方</div>
+            <div class="lane-content">确认业务范围、字段语义、业务粒度、指标口径，以及影子结果是否可用于分析。</div>
+          </div>
+          <div class="lane">
+            <div class="lane-label">我 / 建模助手</div>
+            <div class="lane-content">盘点旧逻辑，统一中文字段名和物理字段名，固化清洗契约，生成 SQL、质量检查和发布包。</div>
+          </div>
+          <div class="lane">
+            <div class="lane-label">ClickHouse</div>
+            <div class="lane-content">先写候选表或影子表，质量通过后才切换唯一正式表；历史版本通过 Git 规则重建。</div>
+          </div>
+          <div class="lane">
+            <div class="lane-label">平台留痕</div>
+            <div class="lane-content">OpenMetadata 登记元数据，Git 保存契约、SQL、报告、标签和回滚依据。</div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h3>一份规则，三个落点</h3>
+              <p>数据、元数据和版本记录各自负责什么。</p>
+            </div>
+          </div>
+          <div class="destination-list">
+            <div class="destination"><strong>ClickHouse</strong><span>只保存当前正式 DWD 和当前待审阅影子结果；已晋级、退回或过期的影子表与历史备份通过清理发布删除，清理前先通过元数据只读计划。</span></div>
+            <div class="destination"><strong>OpenMetadata</strong><span>保存当前表、字段注释、粒度、枚举、标签和血缘；被删除的旧表资产通过退休清单回读确认。</span></div>
+            <div class="destination"><strong>Git / origin</strong><span>保存可重建的清洗契约、建模 SQL、发布 YAML、清理 SQL、质量 SQL、报告和发布标签，不保存数据行备份。</span></div>
+          </div>
+        </section>
+      </section>
+
+      <section class="panel snapshot" aria-labelledby="snapshot-title">
+        <div class="panel-header">
+          <div>
+            <h3 id="snapshot-title">本轮抖店订单实例</h3>
+            <p>用一个真实主题说明当前页面所对应的协作状态。</p>
+          </div>
+          <button class="action-button primary" id="copy-summary">复制本轮摘要</button>
+        </div>
+        <table class="snapshot-table">
+          <tbody>
+            <tr><th>源表</th><td>ODS_销售订单列表信息表(抖店API) <span class="mono">ods_api_dd_sale_order_list_info_f</span></td></tr>
+            <tr><th>当前影子表</th><td>DWD_抖店订单物流快递单号粒度影子表 <span class="mono">dwd_trade_order_logistics_tracking_no_shadow_1_3_3</span></td></tr>
+            <tr><th>业务粒度</th><td>店铺ID(<span class="mono">shop_id</span>) + 店铺订单号(<span class="mono">shop_order_id</span>) + 快递单号(<span class="mono">tracking_no</span>)</td></tr>
+            <tr><th>当前结果</th><td><span class="status-text">影子表质量验证通过</span>；正式 DWD 晋级仍需业务确认</td></tr>
+            <tr><th>遇到问题怎么办</th><td>新建纠正发布版本；批准则按正式候选流程晋级并清理影子，退回或过期则走 cleanup 发布，不直接手工改表。</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <footer class="footer">
+        <div><strong>正式执行入口：</strong><span class="mono">warehouse-release.cmd --release &lt;发布YAML&gt; --mode full</span></div>
+        <div>页面版本：协作工作流 v2 · 仅记录流程，不替代发布授权</div>
+      </footer>
+    </main>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </div>
+
+  <script>
+    const steps = [
+      {
+        number: "01", title: "需求交接", state: "已完成", kind: "done", filter: "done",
+        lead: "把模糊的业务目标整理成可执行的建模前置交接包。",
+        owner: ["你：说明要看什么业务、指标和分析维度。", "我：确认当前项目方向、资源边界和已有资产。"],
+        confirm: ["业务范围", "销售、退款、费用、成本、利润等指标范围", "分析维度", "商品、达人、直播间、订单和支付时间等维度"],
+        outputs: ["建模前置交接包", "需求范围和待确认问题清单"],
+        destination: "只写协作材料，不写 ClickHouse。"
+      },
+      {
+        number: "02", title: "源逻辑盘点", state: "已完成", kind: "done", filter: "done",
+        lead: "先理解 ODS 源表和旧 BI 逻辑，再决定哪些字段和明细有业务价值。",
+        owner: ["我：读取源表结构、接口文档和旧逻辑。", "我：识别同义不同名、同名不同义、中英文混杂和类型异常。"],
+        confirm: ["源表用途", "表是全量快照还是增量记录", "业务实体", "订单、商品明细、快递单号等是否有独立分析价值"],
+        outputs: ["源表画像", "字段口径表", "主粒度候选", "维度和指标来源表"],
+        destination: "证据和盘点材料进入清洗建模目录，仍不替换正式表。"
+      },
+      {
+        number: "03", title: "契约确认", state: "已完成", kind: "done", filter: "done",
+        lead: "把字段、金额、JSON、枚举、主键和粒度固化成一份可重复执行的规则。",
+        owner: ["我：生成中文字段名、物理字段名、类型和注释。", "你：确认金额单位、粒度、字段保留和枚举口径。"],
+        confirm: ["字段和类型", "中文业务名与物理字段名必须一一对应", "粒度和主键", "主键必须服务业务分析，不能由技术明细项主导"],
+        outputs: ["清洗契约", "JSON 字段契约", "枚举字典", "金额规则", "质量门禁"],
+        destination: "契约文件进入 Git；尚未写正式 DWD。"
+      },
+      {
+        number: "04", title: "影子验证", state: "已完成", kind: "done", filter: "done",
+        lead: "在测试库构建影子表，验证规则和粒度，不影响正式 DWD。",
+        owner: ["我：生成影子目标、质量 SQL 和回读报告。", "ClickHouse：承载待审阅影子数据和测试结果。"],
+        confirm: ["质量结果", "行数、主键唯一性、空值、金额和来源对账", "关系基数", "订单、商品明细与快递单号关系是否符合业务"],
+        outputs: ["影子表", "质量报告", "OpenMetadata 影子契约", "发布计划和执行报告"],
+        destination: "写入 ClickHouse 测试库；同步影子元数据；不切换正式表。"
+      },
+      {
+        number: "05", title: "业务审阅", state: "当前阶段", kind: "active", filter: "attention",
+        lead: "你审阅影子结果，决定这套粒度和字段是否可以进入正式 DWD。",
+        owner: ["你：确认结果能否支持运费、商品、订单和后续经营分析。", "我：根据反馈修订契约或准备正式发布包。"],
+        confirm: ["影子粒度", "店铺ID + 店铺订单号 + 快递单号是否作为物流分析粒度", "正式授权", "是否允许候选表切换为正式 DWD"],
+        outputs: ["审阅结论", "批准或退回原因", "正式发布授权"],
+        destination: "只记录审阅结论；没有正式授权就不能执行 full。"
+      },
+      {
+        number: "06", title: "正式发布", state: "待进入", kind: "locked", filter: "attention",
+        lead: "影子结果获批后，按同一契约重新构建正式候选表，切换唯一正式表，并清理已晋级影子表。",
+        owner: ["我：运行正式发布总控并登记影子清理对象。", "发布器：执行候选构建、质量、切换、元数据同步、影子清理和 Git 留痕。"],
+        confirm: ["正式授权", "正式发布必须有 formal_publish_authorized: true", "影子处理", "晋级后删除影子，不改名绕过正式门禁", "版本配置", "正式发布必须开启 git.auto_push: true"],
+        outputs: ["正式 DWD", "影子清理结果", "OpenMetadata 当前元数据", "Git 提交、标签和发布报告"],
+        destination: "ClickHouse 切换正式表并清理影子；OpenMetadata 执行 plan/apply/verify；Git 推送 origin/main 和版本标签。"
+      },
+      {
+        number: "07", title: "迭代、清理与回滚", state: "持续执行", kind: "ready", filter: "all",
+        lead: "规则变化、影子退回、历史对象清理和回滚都创建新的可审计发布版本。",
+        owner: ["你：提出口径变化、批准清理或确认回滚。", "我：创建纠正、清理或回滚发布包，复用同一套门禁。"],
+        confirm: ["变化分类", "是字段变化、粒度变化、指标变化、质量修复还是对象清理", "清理授权", "cleanup.objects 逐项声明且 cleanup_authorized=true", "回滚方式", "从 Git 上一版重建并以新版本重新切换"],
+        outputs: ["新 release_id", "纠正/清理/回滚报告", "新的 Git 标签和元数据回读报告"],
+        destination: "ClickHouse 不保留物理历史备份；清理前先做 OpenMetadata 只读计划，版本和重建依据全部保存在 Git。"
+      }
+    ];
+
+    const gates = [
+      { id: "contract", title: "我看懂了契约", description: "字段、金额、JSON、枚举、粒度和主键已经按业务含义说明。" },
+      { id: "shadow", title: "我看过了影子结果", description: "行数、主键、空值、金额和关系基数没有阻断问题。" },
+      { id: "formal", title: "我批准正式发布", description: "允许候选表切换为正式表，并清理已晋级影子表、执行 OpenMetadata 和 Git 留痕。" }
+    ];
+
+    let selected = 4;
+    let filter = "all";
+    const gateState = JSON.parse(localStorage.getItem("warehouse-workflow-gates") || "{}");
+
+    const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (char) => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    }[char]));
+
+    const stageMatchesFilter = (step) => filter === "all" || step.filter === filter || (filter === "done" && step.kind === "done");
+
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.add("visible");
+      window.setTimeout(() => toast.classList.remove("visible"), 2200);
+    }
+
+    function renderStepper() {
+      const stepper = document.getElementById("stepper");
+      stepper.innerHTML = steps.map((step, index) => `
+        <button class="step-button ${step.kind} ${selected === index ? "selected" : ""}" data-index="${index}" role="tab" aria-selected="${selected === index}">
+          <span class="step-number">${escapeHtml(step.number)}</span>
+          <span class="step-title">${escapeHtml(step.title)}</span>
+          <span class="step-state">${escapeHtml(step.state)}</span>
+        </button>
+      `).join("");
+      stepper.querySelectorAll(".step-button").forEach((button) => {
+        button.addEventListener("click", () => {
+          selected = Number(button.dataset.index);
+          render();
+        });
+        if (!stageMatchesFilter(steps[Number(button.dataset.index)])) button.style.display = "none";
+      });
+    }
+
+    function renderStage() {
+      const step = steps[selected];
+      const badgeClass = step.kind === "active" ? "stage-badge waiting" : step.kind === "locked" ? "stage-badge locked" : "stage-badge";
+      const statusText = step.kind === "active" ? "需要业务确认" : step.state;
+      document.getElementById("stage-panel").innerHTML = `
+        <div class="panel-header">
+          <div>
+            <h3>${escapeHtml(step.number)} / ${escapeHtml(step.title)}</h3>
+            <p>${escapeHtml(step.lead)}</p>
+          </div>
+          <span class="${badgeClass}">${escapeHtml(statusText)}</span>
+        </div>
+        <div class="panel-body">
+          <p class="detail-lead">这一阶段的判断依据必须进入后续契约或发布报告，不能只停留在聊天记录中。</p>
+          <div class="detail-columns">
+            <div class="detail-block"><h4>参与动作</h4><ul>${step.owner.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul></div>
+            <div class="detail-block"><h4>确认内容</h4><ul>${step.confirm.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul></div>
+            <div class="detail-block"><h4>阶段产出</h4><ul>${step.outputs.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul></div>
+            <div class="detail-block"><h4>写入位置</h4><ul><li>${escapeHtml(step.destination)}</li></ul></div>
+          </div>
+          <div class="callout"><strong>下一步：</strong>${escapeHtml(selected === 4 ? "你确认影子结果后，我再生成正式发布包；在此之前不切换正式 DWD。" : selected === 5 ? "正式发布成功后清理已晋级影子；退回或过期对象必须另建 cleanup 发布。" : "按阶段产出进入下一道门禁。")}</div>
+        </div>
+      `;
+    }
+
+    function renderGates() {
+      document.getElementById("gate-list").innerHTML = gates.map((gate) => `
+        <label class="gate-item ${gateState[gate.id] ? "done" : ""}">
+          <input type="checkbox" data-gate="${gate.id}" ${gateState[gate.id] ? "checked" : ""}>
+          <span><strong>${escapeHtml(gate.title)}</strong><span>${escapeHtml(gate.description)}</span></span>
+        </label>
+      `).join("");
+      document.querySelectorAll("[data-gate]").forEach((input) => {
+        input.addEventListener("change", () => {
+          gateState[input.dataset.gate] = input.checked;
+          localStorage.setItem("warehouse-workflow-gates", JSON.stringify(gateState));
+          renderGates();
+          showToast(input.checked ? "已记录本地阅读标记" : "已取消本地阅读标记");
+        });
+      });
+    }
+
+    function render() {
+      renderStepper();
+      renderStage();
+      renderGates();
+      document.querySelectorAll("[data-filter]").forEach((button) => button.classList.toggle("selected", button.dataset.filter === filter));
+    }
+
+    document.querySelectorAll("[data-filter]").forEach((button) => button.addEventListener("click", () => {
+      filter = button.dataset.filter;
+      render();
+    }));
+
+    document.getElementById("reset-gates").addEventListener("click", () => {
+      Object.keys(gateState).forEach((key) => delete gateState[key]);
+      localStorage.removeItem("warehouse-workflow-gates");
+      renderGates();
+      showToast("已重置本地阅读标记");
+    });
+
+    document.getElementById("copy-summary").addEventListener("click", async () => {
+      const summary = [
+        "数仓协作工作流本轮摘要",
+        "当前阶段：05 / 业务审阅",
+        "源表：ODS_销售订单列表信息表(抖店API) (ods_api_dd_sale_order_list_info_f)",
+        "影子表：DWD_抖店订单物流快递单号粒度影子表 (dwd_trade_order_logistics_tracking_no_shadow_1_3_3)",
+        "粒度：店铺ID(shop_id) + 店铺订单号(shop_order_id) + 快递单号(tracking_no)",
+        "状态：影子表质量验证通过；正式DWD晋级待业务确认",
+        "原则：确认契约 -> 影子验证 -> 业务批准 -> 正式发布/清理影子 -> OpenMetadata和Git留痕"
+      ].join("\n");
+      try {
+        await navigator.clipboard.writeText(summary);
+        showToast("本轮摘要已复制");
+      } catch (error) {
+        showToast("当前浏览器不允许自动复制，请手动选择页面内容");
+      }
+    });
+
+    render();
+  </script>
+</body>
+</html>

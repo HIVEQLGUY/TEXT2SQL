@@ -1,0 +1,81 @@
+{
+  "report_version": "warehouse-release-report/v1",
+  "status": "planned",
+  "release_id": "doudian_order_dwd_runtime_cleanup_1_4_0",
+  "version": "1.4.0",
+  "release_type": "cleanup",
+  "environment": "test",
+  "requested_mode": "plan",
+  "started_at": "2026-07-26T11:03:57+08:00",
+  "package_dir": "config/warehouse_cleaning/doudian_order_item_v1",
+  "release_file": "config/warehouse_cleaning/doudian_order_item_v1/cleanup-dwd-runtime-1.4.0.yaml",
+  "source": {
+    "database": "youmei_sandbox",
+    "partitions": [
+      "2026-07-23"
+    ],
+    "chinese_name": "ODS_销售订单列表信息表(抖店API)",
+    "physical_name": "ods_api_dd_sale_order_list_info_f"
+  },
+  "targets": [],
+  "manifest_fingerprint": "be91ffc9ecd16eb0264cfdaa7fd5b6899460c3c13ca43c27963db7d54b37cfa1",
+  "artifact_hashes": {
+    "cleanup-dwd-runtime-1.4.0.yaml": "fdab8e112e5a2add95c5bed514490fbe2c337055c885dcc4e4e8973cc74b432b",
+    "cleanup-dwd-runtime-execution-1.4.0.sql": "6bf418ce061410775d3bb79a5eecb307728fda632a40e335417bdb1edb49ac88",
+    "cleanup-dwd-runtime-postcheck-1.4.0.sql": "fb127503be219df635ee3703c0d8d915999a536d452b75bf34a920185e12161c",
+    "cleanup-dwd-runtime-preflight-1.4.0.sql": "bc314c47206eddd3244272c89ef277b652b3a60b53d5809bf8c4ba698a941947",
+    "cleanup-dwd-runtime-quality-1.4.0.sql": "f01ba9c3916d374dec98842e0b80650a0623c4c6de4979df5367f1c728b25dcf",
+    "metadata-contract-formal-item-1.3.0.yaml": "a754cccd98bf8efa291a89af0d3161a02b354aff0d215af4c8b2d9f9f10724a1",
+    "metadata-contract-formal-order-1.3.0.yaml": "40b6becc90a9068f9f42a33824b922bffd347fb5c90df4cb0e8dd8061da054ee"
+  },
+  "warnings": [],
+  "validation_errors": [],
+  "steps": [
+    {
+      "name": "validation",
+      "status": "passed",
+      "at": "2026-07-26T11:03:57+08:00",
+      "error_count": 0
+    },
+    {
+      "name": "git_preflight",
+      "status": "passed",
+      "at": "2026-07-26T11:03:57+08:00",
+      "checked_only": true,
+      "result": {
+        "ok": true,
+        "git": "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\git\\cmd\\git.EXE",
+        "repo_root": "C:\\Users\\24796\\Documents\\TEXT2SQL",
+        "worktree_status": " M .gitignore\n M AGENTS.md\n M \"TEXT2SQL-codex-handoff/docs/RESOURCE-\\350\\265\\204\\346\\272\\220\\347\\231\\273\\350\\256\\260.md\"\n M TEXT2SQL-codex-handoff/docs/STATE-CURRENT.md\n M docs/clickhouse-query-workbench-evaluation.md\n M docs/warehouse-release-process.md\n M scripts/sync_openmetadata_release.py\n M scripts/warehouse_release.py\n M tests/test_warehouse_release.py\n M tools/clickhouse-query-workbench/README.md\n M tools/clickhouse-query-workbench/client/main.tsx\n M tools/clickhouse-query-workbench/client/styles.css\n M tools/clickhouse-query-workbench/eslint.config.js\n M tools/clickhouse-query-workbench/package.json\n M tools/clickhouse-query-workbench/server/clickhouse.ts\n M tools/clickhouse-query-workbench/server/sqlGuard.ts\n M tools/clickhouse-query-workbench/vite.config.ts\n?? \" .Destination}}{{end}}\"\n?? config/warehouse_cleaning/doudian_order_item_v1/cleanup-dwd-runtime-1.4.0.yaml\n?? config/warehouse_cleaning/doudian_order_item_v1/cleanup-dwd-runtime-execution-1.4.0.sql\n?? config/warehouse_cleaning/doudian_order_item_v1/cleanup-dwd-runtime-postcheck-1.4.0.sql\n?? config/warehouse_cleaning/doudian_order_item_v1/cleanup-dwd-runtime-preflight-1.4.0.sql\n?? config/warehouse_cleaning/doudian_order_item_v1/cleanup-dwd-runtime-quality-1.4.0.sql\n?? config/warehouse_cleaning/doudian_order_item_v1/release-plan-doudian_order_tracking_no_shadow_1_3_3.json\n?? config/warehouse_cleaning/doudian_order_item_v1/release-plan-doudian_order_tracking_no_shadow_corrective_1_3_3.json\n?? config/warehouse_cleaning/doudian_order_item_v1/release-report-doudian_order_tracking_no_shadow_1_3_3.json\n?? config/warehouse_cleaning/doudian_order_item_v1/shadow-logistics-tracking-no-execution-1.3.3.sql\n?? config/warehouse_cleaning/doudian_order_item_v1/shadow-logistics-tracking-no-quality-checks-1.3.3.sql\n?? config/warehouse_cleaning/doudian_order_item_v1/shadow-release-tracking-no-1.3.3.yaml\n?? docs/warehouse-collaboration-workflow.html\n?? tools/clickhouse-query-workbench/check-workbench.ps1\n?? tools/clickhouse-query-workbench/pnpm-lock.yaml\n?? tools/clickhouse-query-workbench/pnpm-workspace.yaml\n?? tools/clickhouse-query-workbench/start-workbench.ps1\n"
+      }
+    },
+    {
+      "name": "clickhouse",
+      "status": "planned",
+      "at": "2026-07-26T11:03:57+08:00",
+      "phases": [
+        "preflight",
+        "quality",
+        "cleanup",
+        "postcheck"
+      ]
+    },
+    {
+      "name": "openmetadata",
+      "status": "planned",
+      "at": "2026-07-26T11:03:57+08:00",
+      "contracts": [
+        "metadata-contract-formal-order-1.3.0.yaml",
+        "metadata-contract-formal-item-1.3.0.yaml"
+      ]
+    }
+  ],
+  "git": {
+    "required": true,
+    "auto_push": true,
+    "remote": "origin",
+    "branch": "main",
+    "tag": "warehouse/doudian-order-dwd-runtime-cleanup-1.4.0"
+  },
+  "finished_at": "2026-07-26T11:03:57+08:00"
+}

@@ -265,6 +265,15 @@ def normalize_manifest(raw: dict[str, Any], release_file: Path, package_dir: Pat
     legacy = legacy or not bool(str(raw.get("release_api_version", "")).strip())
     openmetadata = raw.get("openmetadata") if isinstance(raw.get("openmetadata"), dict) else {}
     contracts = [str(item).strip() for item in as_list(openmetadata.get("contracts")) if str(item).strip()]
+    retire_objects: list[dict[str, str]] = []
+    for item in as_list(openmetadata.get("retire")):
+        if isinstance(item, dict):
+            retire_objects.append({
+                "fully_qualified_name": str(item.get("fully_qualified_name", item.get("fqn", ""))).strip(),
+                "reason": str(item.get("reason", "")).strip(),
+            })
+        elif str(item).strip():
+            retire_objects.append({"fully_qualified_name": str(item).strip(), "reason": ""})
     contract = raw.get("contract") if isinstance(raw.get("contract"), dict) else {}
     artifact_section = raw.get("artifacts") if isinstance(raw.get("artifacts"), dict) else {}
     for key in ("cleaning_contract", "modeling_contract", "contract", "cleaning", "modeling"):
@@ -282,6 +291,23 @@ def normalize_manifest(raw: dict[str, Any], release_file: Path, package_dir: Pat
     approval = raw.get("approval") if isinstance(raw.get("approval"), dict) else {}
     git = raw.get("git") if isinstance(raw.get("git"), dict) else {}
     publish = raw.get("publish") if isinstance(raw.get("publish"), dict) else {}
+    cleanup_raw = raw.get("cleanup") if isinstance(raw.get("cleanup"), dict) else {}
+    cleanup_objects: list[dict[str, str]] = []
+    for item in as_list(cleanup_raw.get("objects")):
+        if isinstance(item, dict):
+            cleanup_objects.append({
+                "database": str(item.get("database", source.get("database", ""))).strip(),
+                "physical_name": str(item.get("physical_name", item.get("table", ""))).strip(),
+                "chinese_name": str(item.get("chinese_name", "")).strip(),
+                "reason": str(item.get("reason", "")).strip(),
+            })
+        elif str(item).strip():
+            cleanup_objects.append({
+                "database": str(source.get("database", "")).strip(),
+                "physical_name": str(item).strip(),
+                "chinese_name": "",
+                "reason": "",
+            })
     strategy = str(publish.get("strategy", "")).strip().lower()
     if not strategy and not legacy:
         strategy = "candidate_swap"
@@ -312,6 +338,7 @@ def normalize_manifest(raw: dict[str, Any], release_file: Path, package_dir: Pat
         },
         "openmetadata": {
             "contracts": contracts,
+            "retire": retire_objects,
             "mode": str(openmetadata.get("mode", "full")).strip().lower(),
             "env_file": str(openmetadata.get("env_file", "")).strip(),
         },
@@ -327,6 +354,10 @@ def normalize_manifest(raw: dict[str, Any], release_file: Path, package_dir: Pat
             "executable": str(git.get("executable", "")).strip(),
         },
         "artifacts": artifact_section,
+        "cleanup": {
+            "objects": cleanup_objects,
+            "reason": str(cleanup_raw.get("reason", "")).strip(),
+        },
         "legacy_manifest": legacy,
     }
     return normalized, ["旧 execution 结构已兼容读取，正式新发布请使用 release_api_version + publish.phases"] if legacy else []
@@ -336,6 +367,7 @@ def validate_context(ctx: ReleaseContext, requested_mode: str) -> None:
     n = ctx.normalized
     legacy = bool(n.get("legacy_manifest"))
     legacy_read_only = legacy and requested_mode in {"plan", "verify"}
+    cleanup_release = n.get("release_type") == "cleanup"
     if not ID_PATTERN.fullmatch(ctx.release_id):
         ctx.errors.append("release_id 必须是 3-128 位小写字母、数字、点、下划线或短横线")
     version = str(n.get("version", ""))
@@ -359,7 +391,7 @@ def validate_context(ctx: ReleaseContext, requested_mode: str) -> None:
             ctx.warnings.append("旧发布文件未声明 source.partitions；仅允许只读审阅")
         else:
             ctx.errors.append("source.partitions 未声明，不能确认本次发布输入快照")
-    if not n.get("targets"):
+    if not n.get("targets") and not (cleanup_release and n.get("cleanup", {}).get("objects")):
         if legacy_read_only:
             ctx.warnings.append("旧发布文件未声明 targets；仅允许只读审阅")
         else:
@@ -367,7 +399,7 @@ def validate_context(ctx: ReleaseContext, requested_mode: str) -> None:
 
     production_names: set[str] = set()
     candidate_names: set[str] = set()
-    for index, target in enumerate(n.get("targets", []), start=1):
+    for index, target in enumerate([] if cleanup_release else n.get("targets", []), start=1):
         prefix = f"targets[{index}]"
         for key in ("physical_name", "production_physical_name", "candidate_physical_name"):
             value = str(target.get(key, ""))
@@ -423,7 +455,29 @@ def validate_context(ctx: ReleaseContext, requested_mode: str) -> None:
             ctx.errors.append(f"同一个 SQL 文件被多个发布阶段重复使用: {path} -> {phases_for_path}")
 
     formal_modes = {"full", "rollback"}
-    if requested_mode in formal_modes:
+    if cleanup_release and requested_mode in formal_modes:
+        required_phases = {"preflight", "quality", "cleanup", "postcheck"}
+        missing = sorted(required_phases - set(phase_files))
+        if missing:
+            ctx.errors.append(f"清理发布缺少固定阶段 SQL: {', '.join(missing)}")
+        if n.get("publish", {}).get("strategy") != "cleanup_only":
+            ctx.errors.append("清理发布必须使用 publish.strategy=cleanup_only")
+        approval = n.get("approval", {})
+        if str(approval.get("status", "")).lower() not in {"approved", "active"}:
+            ctx.errors.append("清理发布 approval.status 必须是 approved 或 active")
+        if not bool(approval.get("cleanup_authorized", False)):
+            ctx.errors.append("清理发布必须明确授权 approval.cleanup_authorized")
+        if not n.get("openmetadata", {}).get("contracts") and not n.get("openmetadata", {}).get("retire"):
+            ctx.errors.append("清理发布必须登记 OpenMetadata 保留契约或退休对象")
+        if not bool(n.get("git", {}).get("required", False)):
+            ctx.errors.append("清理发布必须设置 git.required=true")
+        if not n.get("git", {}).get("auto_commit", False):
+            ctx.errors.append("清理发布必须开启 git.auto_commit")
+        if not n.get("git", {}).get("auto_push", False):
+            ctx.errors.append("清理发布必须开启 git.auto_push")
+        if not n.get("git", {}).get("remote") or not n.get("git", {}).get("branch"):
+            ctx.errors.append("清理发布必须声明 git.remote 和 git.branch")
+    elif requested_mode in formal_modes:
         required_phases = {"preflight", "build", "quality", "swap", "postcheck", "rollback", "cleanup"}
         missing = sorted(required_phases - set(phase_files))
         if missing:
@@ -470,7 +524,28 @@ def validate_context(ctx: ReleaseContext, requested_mode: str) -> None:
             for production in production_names:
                 if re.search(rf"\b(?:INSERT\s+INTO|DROP\s+TABLE|TRUNCATE\s+TABLE)\s+(?:IF\s+EXISTS\s+)?(?:[A-Za-z0-9_]+\.)?{re.escape(production)}\b", sql, re.IGNORECASE):
                     ctx.errors.append(f"build SQL 直接操作生产表: {production}")
-        if phase == "cleanup":
+        if phase == "cleanup" and cleanup_release:
+            declared_cleanup_names = {
+                str(item.get("physical_name", "")).strip()
+                for item in n.get("cleanup", {}).get("objects", [])
+                if str(item.get("physical_name", "")).strip()
+            }
+            cleanup_target_names: set[str] = set()
+            cleanup_target_pattern = re.compile(
+                r"\b(?:DROP\s+TABLE|TRUNCATE\s+TABLE)\s+(?:IF\s+EXISTS\s+)?"
+                r"(?:[A-Za-z_][A-Za-z0-9_]*\.)?(?P<table>[A-Za-z_][A-Za-z0-9_]*)",
+                re.IGNORECASE,
+            )
+            for match in cleanup_target_pattern.finditer(sql):
+                table_name = match.group("table")
+                cleanup_target_names.add(table_name)
+                if table_name not in declared_cleanup_names:
+                    ctx.errors.append(f"cleanup SQL 操作未声明的清理对象: {table_name}")
+            missing_cleanup_names = sorted(declared_cleanup_names - cleanup_target_names)
+            if missing_cleanup_names:
+                ctx.errors.append(
+                    "cleanup SQL 未覆盖声明的清理对象: " + ", ".join(missing_cleanup_names)
+                )
             for production in production_names:
                 if re.search(rf"\b(?:DROP\s+TABLE|TRUNCATE\s+TABLE)\s+(?:IF\s+EXISTS\s+)?(?:[A-Za-z0-9_]+\.)?{re.escape(production)}\b", sql, re.IGNORECASE):
                     ctx.errors.append(f"cleanup SQL 不得删除当前生产表: {production}")
@@ -715,7 +790,13 @@ def git_runtime_environment(git: str) -> dict[str, str]:
     merged_path = [str(path) for path in path_entries if path.exists()]
     if current_path:
         merged_path.append(current_path)
-    environment = {"PATH": os.pathsep.join(merged_path)}
+    environment = {
+        "PATH": os.pathsep.join(merged_path),
+        # A release must fail into version_record_pending instead of waiting
+        # for an interactive credential or network prompt indefinitely.
+        "GIT_TERMINAL_PROMPT": "0",
+        "GCM_INTERACTIVE": "Never",
+    }
 
     bundled_receive_pack = runtime_root / "mingw64" / "bin" / "git-receive-pack.exe"
     default_receive_pack = runtime_root / "mingw64" / "libexec" / "git-core" / "git-receive-pack.exe"
@@ -839,7 +920,7 @@ def git_push(ctx: ReleaseContext, git_info: dict[str, Any], *, follow_tags: bool
     if follow_tags:
         args.append("--follow-tags")
     args.extend([remote, f"HEAD:{branch}"])
-    pushed = run_git_command("git:push", git, args, repo_root, timeout=120)
+    pushed = run_git_command("git:push", git, args, repo_root, timeout=60)
     return {
         "ok": pushed.get("ok", False),
         "remote": remote,
@@ -993,6 +1074,19 @@ def existing_report(ctx: ReleaseContext) -> dict[str, Any] | None:
     return value if isinstance(value, dict) else None
 
 
+def update_existing_report(ctx: ReleaseContext, report: dict[str, Any], status: str, extra: dict[str, Any] | None = None) -> dict[str, Any]:
+    """Update a persisted report without rebuilding or losing prior steps."""
+    updated = dict(report)
+    updated["status"] = status
+    if extra:
+        updated.update(extra)
+    updated["finished_at"] = now_local()
+    if ctx.report_path is None:
+        raise ReleaseError("发布报告路径未初始化")
+    write_json_atomic(ctx.report_path, updated)
+    return updated
+
+
 @contextmanager
 def release_lock(ctx: ReleaseContext):
     """Prevent two agents/processes from publishing the same release at once."""
@@ -1096,6 +1190,23 @@ def run_verify(ctx: ReleaseContext, query_runner: Path, executor: Path, sync_scr
             write_release_report(ctx, "verify", "failed")
             return 1
 
+    if ctx.normalized.get("release_type") == "cleanup":
+        if "quality" in phases:
+            result = execute_clickhouse_phase(ctx, "quality", phases["quality"], executor)
+            ctx.add_step("clickhouse_quality", "passed" if result.get("ok") else "failed", result=result)
+            if not result.get("ok"):
+                write_release_report(ctx, "verify", "failed")
+                return 1
+        metadata = None
+        if ctx.normalized.get("openmetadata", {}).get("contracts") or ctx.normalized.get("openmetadata", {}).get("retire"):
+            metadata = run_openmetadata(ctx, sync_script, "plan")
+            ctx.add_step("openmetadata_plan", "passed" if metadata.get("ok") else "failed", result=metadata)
+            if not metadata.get("ok"):
+                write_release_report(ctx, "verify", "failed")
+                return 1
+        write_release_report(ctx, "verify", "verified")
+        return 0
+
     target_state = clickhouse_target_state(ctx, query_runner)
     ctx.add_step("clickhouse_target_precheck", "passed" if target_state.get("ok") else "failed", result=target_state)
     if not target_state.get("ok"):
@@ -1147,7 +1258,105 @@ def git_prepare(ctx: ReleaseContext, git_executable: str | None, report_path: Pa
     return info, prepared
 
 
+def run_cleanup_full(
+    ctx: ReleaseContext,
+    query_runner: Path,
+    executor: Path,
+    sync_script: Path,
+    git_executable: str | None,
+    rerun: bool,
+) -> int:
+    old_report = existing_report(ctx)
+    if old_report and old_report.get("manifest_fingerprint") == ctx.manifest_fingerprint and old_report.get("status") == "succeeded" and not rerun:
+        ctx.add_step("idempotency", "no_op", reason="相同清理发布指纹已成功执行")
+        report_path = write_release_report(ctx, "full", "succeeded", {"idempotent_reuse": True, "previous_report": old_report})
+        print(json.dumps({"ok": True, "status": "succeeded", "idempotent_reuse": True, "report": str(report_path)}, ensure_ascii=False, indent=2))
+        return 0
+    if old_report and old_report.get("manifest_fingerprint") and old_report.get("manifest_fingerprint") != ctx.manifest_fingerprint:
+        ctx.errors.append("同一 release_id 已存在不同发布指纹，必须使用新的 release_id")
+    if ctx.errors:
+        report_path = write_release_report(ctx, "full", "blocked")
+        print(json.dumps({"ok": False, "status": "blocked", "report": str(report_path), "errors": ctx.errors}, ensure_ascii=False, indent=2))
+        return 2
+
+    report_path = ctx.package_dir / f"release-report-{ctx.release_id}.json"
+    ctx.report_path = report_path
+    write_release_report(ctx, "full", "prepared")
+    git_info, prepared = git_prepare(ctx, git_executable, report_path)
+    if not prepared or not prepared.get("ok"):
+        write_release_report(ctx, "full", "blocked", {"failure_reason": "Git 预提交失败"})
+        return 2
+
+    health = execute_clickhouse_health(ctx, query_runner)
+    ctx.add_step("clickhouse_health", "passed" if health.get("ok") else "failed", result=health)
+    if not health.get("ok"):
+        write_release_report(ctx, "full", "failed", {"failure_reason": "ClickHouse 健康检查失败"})
+        git_stage_commit(ctx, git_info, [report_path], f"warehouse release {ctx.release_id} failed")
+        return 1
+
+    phases = phase_paths(ctx)
+    status = "succeeded"
+    failure_reason = ""
+    try:
+        for phase in ("preflight", "quality", "cleanup", "postcheck"):
+            if phase == "cleanup":
+                metadata_plan = run_openmetadata(ctx, sync_script, "plan")
+                ctx.add_step("openmetadata_plan_before_cleanup", "passed" if metadata_plan.get("ok") else "failed", result=metadata_plan)
+                if not metadata_plan.get("ok"):
+                    raise ReleaseError("OpenMetadata 清理前只读计划未通过，已阻止删除 ClickHouse 对象")
+            result = execute_clickhouse_phase(ctx, phase, phases[phase], executor)
+            ctx.add_step(f"clickhouse_{phase}", "passed" if result.get("ok") else "failed", result=result)
+            if not result.get("ok"):
+                raise ReleaseError(f"ClickHouse {phase} 阶段失败")
+        metadata = run_openmetadata(ctx, sync_script, "full")
+        ctx.add_step("openmetadata_full", "passed" if metadata.get("ok") else "failed", result=metadata)
+        if not metadata.get("ok"):
+            raise ReleaseError("OpenMetadata plan/apply/verify 未全部通过")
+    except (ReleaseError, KeyError) as exc:
+        status = "failed"
+        failure_reason = str(exc)
+
+    extra: dict[str, Any] = {"failure_reason": failure_reason} if failure_reason else {}
+    write_release_report(ctx, "full", status, extra)
+    final_paths = [report_path]
+    metadata_report = metadata_report_path(ctx)
+    if metadata_report.exists():
+        final_paths.append(metadata_report)
+    final_git = git_stage_commit(ctx, git_info, final_paths, f"warehouse release {ctx.release_id} {status}")
+    ctx.add_step("git_finalize_commit", "passed" if final_git.get("ok") else "failed", result=final_git)
+    tag: dict[str, Any] | None = None
+    if final_git.get("ok") and status == "succeeded":
+        tag = git_tag(ctx, git_info)
+        ctx.add_step("git_tag", "passed" if tag.get("ok") else "failed", result=tag)
+        if not tag.get("ok"):
+            status = "version_record_pending"
+            failure_reason = "清理已完成，但 Git 标签未成功创建"
+            write_release_report(ctx, "full", status, {"failure_reason": failure_reason, "tag_result": tag})
+    if final_git.get("ok"):
+        pushed = git_push(ctx, git_info, follow_tags=bool(tag and tag.get("ok")))
+        ctx.add_step("git_finalize_push", "passed" if pushed.get("ok") else "failed", result=pushed)
+        if not pushed.get("ok"):
+            status = "version_record_pending"
+            failure_reason = "清理和本地 Git 留痕已完成，但远程 Git 推送失败，需要运行 finalize"
+            write_release_report(ctx, "full", status, {"failure_reason": failure_reason, "push_result": pushed})
+    else:
+        status = "version_record_pending"
+        failure_reason = "清理结果已产生，但 Git 最终留痕失败，需要运行 finalize"
+        write_release_report(ctx, "full", status, {"failure_reason": failure_reason})
+
+    print(json.dumps({
+        "ok": status == "succeeded",
+        "status": status,
+        "release_id": ctx.release_id,
+        "report": str(report_path),
+        "failure_reason": failure_reason,
+    }, ensure_ascii=False, indent=2))
+    return 0 if status == "succeeded" else 1
+
+
 def run_full(ctx: ReleaseContext, query_runner: Path, executor: Path, sync_script: Path, git_executable: str | None, rerun: bool) -> int:
+    if ctx.normalized.get("release_type") == "cleanup":
+        return run_cleanup_full(ctx, query_runner, executor, sync_script, git_executable, rerun)
     old_report = existing_report(ctx)
     if old_report and old_report.get("manifest_fingerprint") == ctx.manifest_fingerprint and old_report.get("status") == "succeeded" and not rerun:
         ctx.add_step("idempotency", "no_op", reason="相同发布指纹已成功发布")
@@ -1282,10 +1491,59 @@ def run_finalize(ctx: ReleaseContext, git_executable: str | None) -> int:
     pushed = git_push(ctx, info, follow_tags=bool(tag and tag.get("ok")))
     if not pushed.get("ok"):
         raise ReleaseError(str(pushed.get("error", "Git push failed")))
-    if report.get("status") == "cleanup_pending":
-        print(json.dumps({"ok": False, "status": "cleanup_pending", "report": str(ctx.report_path), "push": pushed, "message": "已补记报告并推送，但清理门禁仍未完成，暂不创建正式发布标签"}, ensure_ascii=False, indent=2))
+
+    final_status = "cleanup_pending" if report.get("status") == "cleanup_pending" else "finalized"
+    update_existing_report(
+        ctx,
+        report,
+        final_status,
+        {
+            "finalize": {
+                "initial_status": report.get("status"),
+                "tag": tag,
+                "initial_push": pushed,
+            }
+        },
+    )
+    final_commit = git_stage_commit(
+        ctx,
+        info,
+        [ctx.report_path],
+        f"warehouse release {ctx.release_id} finalize status",
+    )
+    if not final_commit.get("ok"):
+        update_existing_report(
+            ctx,
+            existing_report(ctx) or report,
+            "version_record_pending",
+            {"failure_reason": "finalize 状态写回 Git 失败", "finalize_commit": final_commit},
+        )
+        raise ReleaseError("Git finalize 状态提交失败")
+
+    final_push = git_push(ctx, info, follow_tags=bool(tag and tag.get("ok")))
+    if not final_push.get("ok"):
+        current_report = existing_report(ctx) or report
+        update_existing_report(
+            ctx,
+            current_report,
+            "version_record_pending",
+            {
+                "failure_reason": "finalize 状态提交后远程推送失败，需要再次运行 finalize",
+                "finalize_push": final_push,
+            },
+        )
+        pending_commit = git_stage_commit(
+            ctx,
+            info,
+            [ctx.report_path],
+            f"warehouse release {ctx.release_id} finalize pending",
+        )
+        raise ReleaseError(str(final_push.get("error", "Git push failed")) + f"; pending_commit={pending_commit.get('ok', False)}")
+
+    if final_status == "cleanup_pending":
+        print(json.dumps({"ok": False, "status": "cleanup_pending", "report": str(ctx.report_path), "push": final_push, "message": "已补记报告并推送，但清理门禁仍未完成，暂不创建正式发布标签"}, ensure_ascii=False, indent=2))
         return 1
-    print(json.dumps({"ok": True, "status": "finalized", "report": str(ctx.report_path), "tag": tag}, ensure_ascii=False, indent=2))
+    print(json.dumps({"ok": True, "status": "finalized", "report": str(ctx.report_path), "tag": tag, "push": final_push}, ensure_ascii=False, indent=2))
     return 0
 
 

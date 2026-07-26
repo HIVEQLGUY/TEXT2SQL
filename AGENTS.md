@@ -252,6 +252,7 @@ C:\Users\24796\Desktop\youmei-api-ingestion-archive-20260719.zip
 ```text
 发布文件 release*.yaml / corrective-release*.yaml
   -> openmetadata.contracts 中登记 metadata-contract-*.yaml
+  -> 清理发布另登记 openmetadata.retire 退休表资产
   -> sync-openmetadata.cmd --release <发布文件名> --mode full
   -> plan -> apply -> verify
   -> openmetadata-sync-report-<发布文件名>.json
@@ -269,7 +270,7 @@ C:\Users\24796\Documents\TEXT2SQL\sync-openmetadata.cmd
 C:\Users\24796\Documents\TEXT2SQL\local\credentials\openmetadata.env
 ```
 
-后续建模和清洗交付必须把 OpenMetadata 同步视为发布门禁的一部分：没有发布文件、没有元数据契约、没有回读校验报告，不得汇报为“元数据已完成”。探索期允许只执行 `--mode plan`，正式发布必须执行 `--mode full` 并保留报告。
+后续建模和清洗交付必须把 OpenMetadata 同步视为发布门禁的一部分：没有发布文件、没有元数据契约或退休清单、没有回读校验报告，不得汇报为“元数据已完成”。探索期允许只执行 `--mode plan`，正式发布必须执行 `--mode full` 并保留报告。
 
 ## 17. 数仓显性发布与 Git 版本规则
 
@@ -285,6 +286,10 @@ C:\Users\24796\Documents\TEXT2SQL\local\credentials\openmetadata.env
 - Git 版本记录：提交本次发布涉及的 SQL、契约、元数据契约、报告和发布清单
 
 正式发布的目标状态是：每一次 SQL 发布都会生成或切换到最新版本的生产表；历史口径、历史字段、历史枚举、历史 OpenMetadata 元数据契约和发布报告全部保存在 Git 中，用 Git 记录查询和回滚依据。
+
+Git 远程同步必须由发布总控以非交互方式执行并设置有限超时；网络、凭据或超时失败统一记录为 `version_record_pending`，不得留下等待输入的后台推送进程，也不得以手工后台推送代替发布报告。恢复后必须继续使用同一发布包的 `finalize` 补记。
+
+影子表只作为业务方与建模助手的交互验证产物。影子结果获批后，必须按同一清洗契约重新构建正式候选表、通过正式门禁并切换正式表，随后删除已晋级影子表；影子结果退回或被新版本替代时，也必须通过清理发布删除。清理发布使用 `release_type: cleanup`、`publish.strategy: cleanup_only`、`cleanup.objects` 和 `approval.cleanup_authorized: true`，不得手工执行删除 SQL。
 
 不得依赖在 ClickHouse 或 OpenMetadata 中保留多张正式表来做版本管理。回滚默认依据 Git 中上一版可重建发布包重新执行并切换当前生产对象。
 
@@ -303,9 +308,11 @@ warehouse-release.cmd --release <发布YAML> --mode full
 warehouse-release.cmd --release <发布YAML> --mode finalize
 ```
 
-发布总控已经固化以下门禁：发布指纹、同一 release_id 版本漂移、同一 SQL 多阶段复用、候选表与生产表重名、只读阶段出现 DDL/DML、构建阶段直写生产表、OpenMetadata 契约重复指向同一表、Git 暂存区污染、重复发布幂等、并发发布锁、ClickHouse 阶段失败、切换后回滚、临时对象清理失败、Git 最终留痕失败和远程同步失败。
+发布总控已经固化以下门禁：发布指纹、同一 release_id 版本漂移、同一 SQL 多阶段复用、候选表与生产表重名、只读阶段出现 DDL/DML、构建阶段直写生产表、清理 SQL 未覆盖声明对象、OpenMetadata 契约重复指向同一表、Git 暂存区污染、重复发布幂等、并发发布锁、ClickHouse 阶段失败、切换后回滚、临时对象清理失败、Git 最终留痕失败和远程同步失败。
 
 正式 `full` 发布必须使用 `candidate_swap`：先 Git 预提交发布包，再只写候选表，质量通过后切换唯一正式表，执行 OpenMetadata `plan -> apply -> verify`，最后清理候选/旧表临时对象并提交报告和标签；上述平台步骤成功后，发布总控必须自动推送 Git 远程分支和标签。`release_type: shadow` 的 `full` 发布同样必须自动同步；只有 `plan`/`verify` 只读阶段不触发推送。远程推送失败标记 `version_record_pending`，使用 `finalize` 补记，不得汇报为完整发布成功。历史版本不在 ClickHouse 保留多张正式备份表，统一依据 Git 发布包重建。
+
+清理 `full` 发布只允许执行 `preflight -> quality -> OpenMetadata plan -> cleanup -> postcheck -> OpenMetadata apply/verify 退休回读 -> Git 留痕`，不创建物理备份。OpenMetadata 只读计划未通过时不得删除 ClickHouse 对象；当前正式表必须在 `postcheck` 中确认仍存在，清理对象必须确认不存在；OpenMetadata 退休失败或 Git 远程同步失败时，发布报告必须明确标记未完成并支持重跑/补记。
 
 自动同步使用发布包声明的 `git.remote`、`git.branch` 和标签，通过项目发布总控执行；不得依赖聊天后的手工推送。发布前只提交本次发布允许路径，不能把工作区其他未提交文件一并推送；发布后的远程同步必须是显性报告步骤并可由 `finalize` 重试。
 

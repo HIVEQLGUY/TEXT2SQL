@@ -21,6 +21,7 @@ from scripts.warehouse_release import (  # noqa: E402
     git_push,
     git_runtime_environment,
     release_lock,
+    run_cleanup_full,
     run_verify,
     run_finalize,
     run_full,
@@ -120,6 +121,72 @@ def create_package(root: Path, *, duplicate_phase: bool = False, direct_producti
         "  remote: origin\n"
         "  branch: main\n"
         "  tag: warehouse/test-release-1.0.0\n",
+        encoding="utf-8",
+    )
+    return release
+
+
+def create_cleanup_package(root: Path, *, authorized: bool = True, missing_object_in_sql: bool = False) -> Path:
+    package = root / "cleanup"
+    package.mkdir()
+    (package / "preflight.sql").write_text(
+        "SELECT count() FROM system.tables WHERE database = 'youmei_sandbox';\n",
+        encoding="utf-8",
+    )
+    (package / "quality.sql").write_text(
+        "SELECT count() FROM system.tables WHERE database = 'youmei_sandbox' AND name = 'dwd_old_shadow';\n",
+        encoding="utf-8",
+    )
+    cleanup_sql = "DROP TABLE IF EXISTS youmei_sandbox.dwd_old_shadow;\n"
+    if missing_object_in_sql:
+        cleanup_sql = "DROP TABLE IF EXISTS youmei_sandbox.dwd_other_shadow;\n"
+    (package / "cleanup.sql").write_text(cleanup_sql, encoding="utf-8")
+    (package / "postcheck.sql").write_text(
+        "SELECT count() FROM system.tables WHERE database = 'youmei_sandbox' AND name = 'dwd_demo';\n",
+        encoding="utf-8",
+    )
+    (package / "metadata.yaml").write_text(
+        "status: approved\n"
+        "table:\n"
+        "  fully_qualified_name: youmei_clickhouse.default.youmei_sandbox.dwd_demo\n",
+        encoding="utf-8",
+    )
+    release = package / "release.yaml"
+    release.write_text(
+        "release_api_version: warehouse-release/v1\n"
+        "release_id: test_cleanup_1_0_0\n"
+        "version: 1.0.0\n"
+        "release_type: cleanup\n"
+        "environment: test\n"
+        "status: approved\n"
+        "source:\n"
+        "  database: youmei_sandbox\n"
+        "  partitions: ['2026-07-22']\n"
+        "cleanup:\n"
+        "  objects:\n"
+        "    - database: youmei_sandbox\n"
+        "      physical_name: dwd_old_shadow\n"
+        "publish:\n"
+        "  strategy: cleanup_only\n"
+        "  phases:\n"
+        "    preflight: preflight.sql\n"
+        "    quality: quality.sql\n"
+        "    cleanup: cleanup.sql\n"
+        "    postcheck: postcheck.sql\n"
+        "openmetadata:\n"
+        "  contracts: [metadata.yaml]\n"
+        "  retire:\n"
+        "    - fully_qualified_name: youmei_clickhouse.default.youmei_sandbox.dwd_old_shadow\n"
+        "approval:\n"
+        "  status: approved\n"
+        f"  cleanup_authorized: {'true' if authorized else 'false'}\n"
+        "git:\n"
+        "  required: true\n"
+        "  auto_commit: true\n"
+        "  auto_push: true\n"
+        "  remote: origin\n"
+        "  branch: main\n"
+        "  tag: warehouse/test-cleanup-1.0.0\n",
         encoding="utf-8",
     )
     return release
@@ -337,6 +404,8 @@ class WarehouseReleaseValidationTests(unittest.TestCase):
 
                 with mock.patch.object(release_runner, "git_push", return_value={"ok": True}):
                     self.assertEqual(run_finalize(context, GIT_EXECUTABLE), 0)
+                finalized_report = json.loads(report_path.read_text(encoding="utf-8"))
+                self.assertEqual(finalized_report["status"], "finalized")
                 tag_commit = run_git(repo, "rev-parse", "refs/tags/warehouse/test-release-1.0.0^{}")
                 self.assertEqual(
                     run_git(repo, "merge-base", "--is-ancestor", tag_commit, run_git(repo, "rev-parse", "HEAD")),
@@ -441,6 +510,11 @@ class WarehouseReleaseValidationTests(unittest.TestCase):
             self.assertTrue(result["ok"], result)
             self.assertEqual(run_git(remote, "rev-parse", "refs/heads/main"), run_git(source, "rev-parse", "HEAD"))
 
+    def test_git_runtime_environment_disables_interactive_prompts(self) -> None:
+        environment = git_runtime_environment(GIT_EXECUTABLE)
+        self.assertEqual(environment["GIT_TERMINAL_PROMPT"], "0")
+        self.assertEqual(environment["GCM_INTERACTIVE"], "Never")
+
     def test_valid_candidate_swap_manifest(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             release = create_package(Path(directory))
@@ -451,6 +525,82 @@ class WarehouseReleaseValidationTests(unittest.TestCase):
             with release_lock(context):
                 self.assertTrue((Path(directory) / "release" / ".warehouse-release-test_release_1_0_0.lock").exists())
             self.assertFalse((Path(directory) / "release" / ".warehouse-release-test_release_1_0_0.lock").exists())
+
+    def test_cleanup_manifest_requires_explicit_authorization(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            release = create_cleanup_package(Path(directory), authorized=False)
+            context = build_context(release)
+            validate_context(context, "full")
+            self.assertTrue(any("cleanup_authorized" in item for item in context.errors))
+
+    def test_cleanup_manifest_validates_declared_objects(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            release = create_cleanup_package(Path(directory))
+            context = build_context(release)
+            validate_context(context, "full")
+            self.assertEqual(context.errors, [])
+
+    def test_cleanup_manifest_blocks_unlisted_drop_target(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            release = create_cleanup_package(Path(directory), missing_object_in_sql=True)
+            context = build_context(release)
+            validate_context(context, "full")
+            self.assertTrue(any("未覆盖声明的清理对象" in item for item in context.errors))
+            self.assertTrue(any("操作未声明的清理对象" in item for item in context.errors))
+
+    def test_cleanup_requires_openmetadata_plan_before_drop(self) -> None:
+        import scripts.warehouse_release as release_runner
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            repo = root / "repo"
+            remote = root / "remote.git"
+            repo.mkdir()
+            remote.mkdir()
+            run_git(remote, "init", "--bare")
+            run_git(repo, "init", "-b", "main")
+            run_git(repo, "config", "user.name", "test-user")
+            run_git(repo, "config", "user.email", "test@example.invalid")
+            (repo / "README.md").write_text("test\n", encoding="utf-8")
+            run_git(repo, "add", "README.md")
+            run_git(repo, "commit", "-m", "test baseline")
+            run_git(repo, "remote", "add", "origin", str(remote))
+
+            release = create_cleanup_package(repo)
+            context = build_context(release)
+            validate_context(context, "full")
+            self.assertEqual(context.errors, [])
+            phase_calls: list[str] = []
+
+            def fake_phase(*args, **kwargs):
+                phase_calls.append(args[1])
+                return {"ok": True}
+
+            original_root = release_runner.PROJECT_ROOT
+            release_runner.PROJECT_ROOT = repo
+            try:
+                with (
+                    mock.patch.object(release_runner, "execute_clickhouse_health", return_value={"ok": True}),
+                    mock.patch.object(release_runner, "execute_clickhouse_phase", side_effect=fake_phase),
+                    mock.patch.object(release_runner, "run_openmetadata", return_value={"ok": False}),
+                    mock.patch.object(release_runner, "git_push", return_value={"ok": True}),
+                ):
+                    with release_lock(context):
+                        status = run_cleanup_full(
+                            context,
+                            root / "unused-query.py",
+                            root / "unused-executor.py",
+                            root / "unused-metadata.py",
+                            GIT_EXECUTABLE,
+                            False,
+                        )
+            finally:
+                release_runner.PROJECT_ROOT = original_root
+
+            self.assertEqual(status, 1)
+            self.assertEqual(phase_calls, ["preflight", "quality"])
+            report = json.loads((release.parent / "release-report-test_cleanup_1_0_0.json").read_text(encoding="utf-8"))
+            self.assertEqual(report["status"], "failed")
 
     def test_duplicate_phase_file_is_blocked(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

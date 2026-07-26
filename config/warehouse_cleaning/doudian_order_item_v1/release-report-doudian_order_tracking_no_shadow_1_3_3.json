@@ -1,0 +1,103 @@
+{
+  "report_version": "warehouse-release-report/v1",
+  "status": "blocked",
+  "release_id": "doudian_order_tracking_no_shadow_1_3_3",
+  "version": "1.3.3",
+  "release_type": "shadow",
+  "environment": "test",
+  "requested_mode": "full",
+  "started_at": "2026-07-24T15:28:07+08:00",
+  "package_dir": "config/warehouse_cleaning/doudian_order_item_v1",
+  "release_file": "config/warehouse_cleaning/doudian_order_item_v1/shadow-release-tracking-no-1.3.3.yaml",
+  "source": {
+    "database": "youmei_sandbox",
+    "partitions": [
+      "2026-07-23"
+    ],
+    "chinese_name": "ODS_销售订单列表信息表(抖店API)",
+    "physical_name": "ods_api_dd_sale_order_list_info_f"
+  },
+  "targets": [
+    {
+      "chinese_name": "DWD_抖店订单物流快递单号粒度影子表",
+      "physical_name": "dwd_trade_order_logistics_tracking_no_shadow_1_3_3",
+      "production_physical_name": "dwd_trade_order_logistics_tracking_no_shadow_1_3_3",
+      "candidate_physical_name": "dwd_trade_order_logistics_tracking_no_shadow_1_3_3__candidate__1_3_3",
+      "previous_physical_name": "dwd_trade_order_logistics_tracking_no_shadow_1_3_3__previous__1_3_3",
+      "database": "youmei_sandbox",
+      "grain": "店铺ID(shop_id) + 店铺订单号(shop_order_id) + 快递单号(tracking_no)",
+      "key": [
+        "shop_id",
+        "shop_order_id",
+        "tracking_no"
+      ]
+    }
+  ],
+  "manifest_fingerprint": "bc99843225293189f5dbd6fcfd9a82364708ff50aad5a575e287d5f89f506c6c",
+  "artifact_hashes": {
+    "metadata-contract-shadow-logistics-tracking-no-1.3.3.yaml": "e48c5198e9ca83dd31bf4092dde47ba6f56fb11c5671e02000a5fd954494134a",
+    "shadow-logistics-tracking-no-build-1.3.3.sql": "3840a05c5e13a9d035a94d6350747ac2ad4d707c9b795d1187822e85ba3ec998",
+    "shadow-logistics-tracking-no-cleanup-1.3.3.sql": "ec968e73e4ec4dc7378b6e62710ca774edc19d7e5cff5c3704432d0cc8fbcc0c",
+    "shadow-logistics-tracking-no-postcheck-1.3.3.sql": "8e5fb0e1fcceacc6fbcd3b1b969802deb76408957a7e02747061288f21f7547b",
+    "shadow-logistics-tracking-no-preflight-1.3.3.sql": "956f8024068bdbbfcf6942bd5cacd35dd6aa1714159c331f24a79d43feadc57b",
+    "shadow-logistics-tracking-no-quality-1.3.3.sql": "d97f1eeafa5fbf7e30a5ce381a7c05083f6ab294b5c85134c641a658d130d5f9",
+    "shadow-logistics-tracking-no-rollback-1.3.3.sql": "0e24ff100e076a235f74ceb2a6966784f19b042cdef38bfec0f282ce13724441",
+    "shadow-logistics-tracking-no-swap-1.3.3.sql": "f2f0c30cecb748678037c22f4c7cbd89028fb2aa13cd12c488d5255936c5d358",
+    "shadow-release-tracking-no-1.3.3.yaml": "bffc09ad879ed629603b52b0bbfe7d4e6045e771084803cc45d279bded285e72"
+  },
+  "warnings": [],
+  "validation_errors": [],
+  "steps": [
+    {
+      "name": "git_preflight",
+      "status": "passed",
+      "at": "2026-07-24T15:28:07+08:00",
+      "result": {
+        "ok": true,
+        "git": "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\git\\cmd\\git.exe",
+        "repo_root": "C:\\Users\\24796\\Documents\\TEXT2SQL",
+        "worktree_status": " M .gitignore\n M \"TEXT2SQL-codex-handoff/docs/RESOURCE-\\350\\265\\204\\346\\272\\220\\347\\231\\273\\350\\256\\260.md\"\n M TEXT2SQL-codex-handoff/docs/STATE-CURRENT.md\n M docs/clickhouse-query-workbench-evaluation.md\n M docs/warehouse-release-process.md\n M scripts/warehouse_release.py\n M tests/test_warehouse_release.py\n M tools/clickhouse-query-workbench/README.md\n M tools/clickhouse-query-workbench/eslint.config.js\n M tools/clickhouse-query-workbench/package.json\n M tools/clickhouse-query-workbench/server/clickhouse.ts\n M tools/clickhouse-query-workbench/server/sqlGuard.ts\n M tools/clickhouse-query-workbench/vite.config.ts\n?? \" .Destination}}{{end}}\"\n?? config/warehouse_cleaning/doudian_order_item_v1/.warehouse-release-doudian_order_tracking_no_shadow_1_3_3.lock\n?? config/warehouse_cleaning/doudian_order_item_v1/metadata-contract-shadow-logistics-tracking-no-1.3.3.yaml\n?? config/warehouse_cleaning/doudian_order_item_v1/release-plan-doudian_order_tracking_no_shadow_1_3_3.json\n?? config/warehouse_cleaning/doudian_order_item_v1/release-report-doudian_order_tracking_no_shadow_1_3_3.json\n?? config/warehouse_cleaning/doudian_order_item_v1/shadow-logistics-tracking-no-build-1.3.3.sql\n?? config/warehouse_cleaning/doudian_order_item_v1/shadow-logistics-tracking-no-cleanup-1.3.3.sql\n?? config/warehouse_cleaning/doudian_order_item_v1/shadow-logistics-tracking-no-execution-1.3.3.sql\n?? config/warehouse_cleaning/doudian_order_item_v1/shadow-logistics-tracking-no-postcheck-1.3.3.sql\n?? config/warehouse_cleaning/doudian_order_item_v1/shadow-logistics-tracking-no-preflight-1.3.3.sql\n?? config/warehouse_cleaning/doudian_order_item_v1/shadow-logistics-tracking-no-quality-1.3.3.sql\n?? config/warehouse_cleaning/doudian_order_item_v1/shadow-logistics-tracking-no-quality-checks-1.3.3.sql\n?? config/warehouse_cleaning/doudian_order_item_v1/shadow-logistics-tracking-no-rollback-1.3.3.sql\n?? config/warehouse_cleaning/doudian_order_item_v1/shadow-logistics-tracking-no-swap-1.3.3.sql\n?? config/warehouse_cleaning/doudian_order_item_v1/shadow-release-tracking-no-1.3.3.yaml\n?? tools/ch-ui/\n?? tools/clickhouse-query-workbench/check-workbench.ps1\n?? tools/clickhouse-query-workbench/pnpm-lock.yaml\n?? tools/clickhouse-query-workbench/pnpm-workspace.yaml\n?? tools/clickhouse-query-workbench/start-workbench.ps1\n"
+      }
+    },
+    {
+      "name": "git_prepare_commit",
+      "status": "failed",
+      "at": "2026-07-24T15:28:07+08:00",
+      "result": {
+        "ok": false,
+        "add": {
+          "label": "git:add",
+          "ok": false,
+          "returncode": 128,
+          "stdout": "",
+          "stderr": "fatal: Unable to create 'C:/Users/24796/Documents/TEXT2SQL/.git/index.lock': Permission denied\n",
+          "command": [
+            "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\git\\cmd\\git.exe",
+            "add",
+            "--",
+            "config/warehouse_cleaning/doudian_order_item_v1/shadow-release-tracking-no-1.3.3.yaml",
+            "config/warehouse_cleaning/doudian_order_item_v1/shadow-logistics-tracking-no-preflight-1.3.3.sql",
+            "config/warehouse_cleaning/doudian_order_item_v1/shadow-logistics-tracking-no-build-1.3.3.sql",
+            "config/warehouse_cleaning/doudian_order_item_v1/shadow-logistics-tracking-no-quality-1.3.3.sql",
+            "config/warehouse_cleaning/doudian_order_item_v1/shadow-logistics-tracking-no-swap-1.3.3.sql",
+            "config/warehouse_cleaning/doudian_order_item_v1/shadow-logistics-tracking-no-postcheck-1.3.3.sql",
+            "config/warehouse_cleaning/doudian_order_item_v1/shadow-logistics-tracking-no-rollback-1.3.3.sql",
+            "config/warehouse_cleaning/doudian_order_item_v1/shadow-logistics-tracking-no-cleanup-1.3.3.sql",
+            "config/warehouse_cleaning/doudian_order_item_v1/metadata-contract-shadow-logistics-tracking-no-1.3.3.yaml",
+            "config/warehouse_cleaning/doudian_order_item_v1/release-report-doudian_order_tracking_no_shadow_1_3_3.json"
+          ]
+        },
+        "error": "Git stage 失败"
+      }
+    }
+  ],
+  "git": {
+    "required": true,
+    "auto_push": false,
+    "remote": "origin",
+    "branch": "main",
+    "tag": "warehouse/doudian-order-tracking-shadow-1.3.3"
+  },
+  "failure_reason": "Git 预提交失败",
+  "finished_at": "2026-07-24T15:28:07+08:00"
+}

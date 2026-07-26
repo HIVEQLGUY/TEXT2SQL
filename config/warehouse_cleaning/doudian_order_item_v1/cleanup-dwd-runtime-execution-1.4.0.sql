@@ -1,0 +1,10 @@
+DROP TABLE IF EXISTS youmei_sandbox.dwd_trade_order_shadow_1_2_0;
+DROP TABLE IF EXISTS youmei_sandbox.dwd_trade_order_item_shadow_1_2_0;
+DROP TABLE IF EXISTS youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2;
+DROP TABLE IF EXISTS youmei_sandbox.dwd_trade_order_logistics_package_validation_1_3_1;
+DROP TABLE IF EXISTS youmei_sandbox.dwd_trade_order_logistics_package_item_validation_1_3_1;
+DROP TABLE IF EXISTS youmei_sandbox.dwd_trade_order_df_backup_1_2_0;
+DROP TABLE IF EXISTS youmei_sandbox.dwd_trade_order_item_df_backup_1_2_0;
+DROP TABLE IF EXISTS youmei_sandbox.dwd_trade_order_item_df_direct_logistics_backup_1_3_1;
+DROP TABLE IF EXISTS youmei_sandbox.dwd_deprecated_actual_receive_amount_detail_backup_1_2_1;
+DROP TABLE IF EXISTS youmei_sandbox.dwd_deprecated_logistics_info_backup_1_2_1;
