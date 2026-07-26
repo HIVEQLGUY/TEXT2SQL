@@ -1,12 +1,12 @@
 {
   "report_version": "warehouse-release-report/v1",
-  "status": "prepared",
+  "status": "failed_rolled_back",
   "release_id": "doudian_order_logistics_tracking_no_formal_1_4_2",
   "version": "1.4.2",
   "release_type": "formal",
   "environment": "test",
   "requested_mode": "full",
-  "started_at": "2026-07-26T13:27:14+08:00",
+  "started_at": "2026-07-26T13:27:21+08:00",
   "package_dir": "config/warehouse_cleaning/doudian_order_item_v1",
   "release_file": "config/warehouse_cleaning/doudian_order_item_v1/formal-release-logistics-tracking-no-1.4.2.yaml",
   "source": {
@@ -52,7 +52,232 @@
   },
   "warnings": [],
   "validation_errors": [],
-  "steps": [],
+  "steps": [
+    {
+      "name": "git_preflight",
+      "status": "passed",
+      "at": "2026-07-26T13:27:14+08:00",
+      "result": {
+        "ok": true,
+        "git": "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\git\\cmd\\git.EXE",
+        "repo_root": "C:\\Users\\24796\\Documents\\TEXT2SQL",
+        "worktree_status": " M .gitignore\n M docs/clickhouse-query-workbench-evaluation.md\n M tools/clickhouse-query-workbench/README.md\n M tools/clickhouse-query-workbench/client/main.tsx\n M tools/clickhouse-query-workbench/client/styles.css\n M tools/clickhouse-query-workbench/eslint.config.js\n M tools/clickhouse-query-workbench/package.json\n M tools/clickhouse-query-workbench/server/clickhouse.ts\n M tools/clickhouse-query-workbench/server/sqlGuard.ts\n M tools/clickhouse-query-workbench/vite.config.ts\n?? \" .Destination}}{{end}}\"\n?? config/warehouse_cleaning/doudian_order_item_v1/.warehouse-release-doudian_order_logistics_tracking_no_formal_1_4_2.lock\n?? config/warehouse_cleaning/doudian_order_item_v1/formal-logistics-tracking-no-build-1.4.2.sql\n?? config/warehouse_cleaning/doudian_order_item_v1/formal-logistics-tracking-no-cleaning-contract-1.4.2.yaml\n?? config/warehouse_cleaning/doudian_order_item_v1/formal-logistics-tracking-no-cleanup-1.4.2.sql\n?? config/warehouse_cleaning/doudian_order_item_v1/formal-logistics-tracking-no-postcheck-1.4.2.sql\n?? config/warehouse_cleaning/doudian_order_item_v1/formal-logistics-tracking-no-preflight-1.4.2.sql\n?? config/warehouse_cleaning/doudian_order_item_v1/formal-logistics-tracking-no-quality-1.4.2.sql\n?? config/warehouse_cleaning/doudian_order_item_v1/formal-logistics-tracking-no-rollback-1.4.2.sql\n?? config/warehouse_cleaning/doudian_order_item_v1/formal-logistics-tracking-no-swap-1.4.2.sql\n?? config/warehouse_cleaning/doudian_order_item_v1/formal-release-logistics-tracking-no-1.4.2.yaml\n?? config/warehouse_cleaning/doudian_order_item_v1/metadata-contract-formal-logistics-tracking-no-1.4.2.yaml\n?? config/warehouse_cleaning/doudian_order_item_v1/release-plan-doudian_order_logistics_tracking_no_formal_1_4_2.json\n?? config/warehouse_cleaning/doudian_order_item_v1/release-report-doudian_order_logistics_tracking_no_formal_1_4_2.json\n?? config/warehouse_cleaning/doudian_order_item_v1/快递单号粒度正式清洗契约说明-1.4.2.md\n?? tools/clickhouse-query-workbench/check-workbench.ps1\n?? tools/clickhouse-query-workbench/pnpm-lock.yaml\n?? tools/clickhouse-query-workbench/pnpm-workspace.yaml\n?? tools/clickhouse-query-workbench/start-workbench.ps1\n"
+      }
+    },
+    {
+      "name": "git_prepare_commit",
+      "status": "passed",
+      "at": "2026-07-26T13:27:15+08:00",
+      "result": {
+        "ok": true,
+        "commit": {
+          "label": "git:commit",
+          "ok": true,
+          "returncode": 0,
+          "stdout": "[main 126da27] warehouse release doudian_order_logistics_tracking_no_formal_1_4_2 prepare\n 12 files changed, 631 insertions(+)\n create mode 100644 config/warehouse_cleaning/doudian_order_item_v1/formal-logistics-tracking-no-build-1.4.2.sql\n create mode 100644 config/warehouse_cleaning/doudian_order_item_v1/formal-logistics-tracking-no-cleaning-contract-1.4.2.yaml\n create mode 100644 config/warehouse_cleaning/doudian_order_item_v1/formal-logistics-tracking-no-cleanup-1.4.2.sql\n create mode 100644 config/warehouse_cleaning/doudian_order_item_v1/formal-logistics-tracking-no-postcheck-1.4.2.sql\n create mode 100644 config/warehouse_cleaning/doudian_order_item_v1/formal-logistics-tracking-no-preflight-1.4.2.sql\n create mode 100644 config/warehouse_cleaning/doudian_order_item_v1/formal-logistics-tracking-no-quality-1.4.2.sql\n create mode 100644 config/warehouse_cleaning/doudian_order_item_v1/formal-logistics-tracking-no-rollback-1.4.2.sql\n create mode 100644 config/warehouse_cleaning/doudian_order_item_v1/formal-logistics-tracking-no-swap-1.4.2.sql\n create mode 100644 config/warehouse_cleaning/doudian_order_item_v1/formal-release-logistics-tracking-no-1.4.2.yaml\n create mode 100644 config/warehouse_cleaning/doudian_order_item_v1/metadata-contract-formal-logistics-tracking-no-1.4.2.yaml\n create mode 100644 config/warehouse_cleaning/doudian_order_item_v1/release-report-doudian_order_logistics_tracking_no_formal_1_4_2.json\n create mode 100644 config/warehouse_cleaning/doudian_order_item_v1/快递单号粒度正式清洗契约说明-1.4.2.md\n",
+          "stderr": "",
+          "command": [
+            "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\git\\cmd\\git.EXE",
+            "commit",
+            "-m",
+            "warehouse release doudian_order_logistics_tracking_no_formal_1_4_2 prepare"
+          ]
+        },
+        "head": "126da2716da1882a69b75eaaae1ec227a1f7b1a8"
+      }
+    },
+    {
+      "name": "clickhouse_health",
+      "status": "passed",
+      "at": "2026-07-26T13:27:15+08:00",
+      "result": {
+        "label": "clickhouse:health",
+        "ok": true,
+        "returncode": 0,
+        "stdout": "{\"database\":\"youmei_sandbox\",\"version\":\"26.6.1.1193\"}\n",
+        "stderr": "",
+        "command": [
+          "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+          "C:\\Users\\24796\\.codex\\skills\\clickhouse-sql-dev\\scripts\\run_clickhouse_sql.py",
+          "--host",
+          "127.0.0.1",
+          "--port",
+          "8123",
+          "--database",
+          "youmei_sandbox",
+          "--query",
+          "SELECT currentDatabase() AS database, version() AS version",
+          "--format",
+          "JSONEachRow"
+        ]
+      }
+    },
+    {
+      "name": "clickhouse_preflight",
+      "status": "passed",
+      "at": "2026-07-26T13:27:16+08:00",
+      "result": {
+        "label": "clickhouse:preflight",
+        "ok": true,
+        "returncode": 0,
+        "stdout": "youmei_sandbox\t26.6.1.1193\n0\n0\n0\n0\n0\n{\"ok\": true, \"sql_file\": \"C:\\\\Users\\\\24796\\\\Documents\\\\TEXT2SQL\\\\config\\\\warehouse_cleaning\\\\doudian_order_item_v1\\\\formal-logistics-tracking-no-preflight-1.4.2.sql\", \"executed_statements\": 6}\n",
+        "stderr": "",
+        "command": [
+          "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+          "C:\\Users\\24796\\.codex\\skills\\data-warehouse-cleaning\\scripts\\execute_clickhouse_sql.py",
+          "--sql-file",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\formal-logistics-tracking-no-preflight-1.4.2.sql",
+          "--base-url",
+          "http://127.0.0.1:8123",
+          "--database",
+          "youmei_sandbox",
+          "--print-results"
+        ]
+      }
+    },
+    {
+      "name": "clickhouse_build",
+      "status": "passed",
+      "at": "2026-07-26T13:27:16+08:00",
+      "result": {
+        "label": "clickhouse:build",
+        "ok": true,
+        "returncode": 0,
+        "stdout": "{\"ok\": true, \"sql_file\": \"C:\\\\Users\\\\24796\\\\Documents\\\\TEXT2SQL\\\\config\\\\warehouse_cleaning\\\\doudian_order_item_v1\\\\formal-logistics-tracking-no-build-1.4.2.sql\", \"executed_statements\": 3}\n",
+        "stderr": "",
+        "command": [
+          "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+          "C:\\Users\\24796\\.codex\\skills\\data-warehouse-cleaning\\scripts\\execute_clickhouse_sql.py",
+          "--sql-file",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\formal-logistics-tracking-no-build-1.4.2.sql",
+          "--base-url",
+          "http://127.0.0.1:8123",
+          "--database",
+          "youmei_sandbox",
+          "--print-results"
+        ]
+      }
+    },
+    {
+      "name": "clickhouse_quality",
+      "status": "passed",
+      "at": "2026-07-26T13:27:17+08:00",
+      "result": {
+        "label": "clickhouse:quality",
+        "ok": true,
+        "returncode": 0,
+        "stdout": "formal_tracking_no_key_quality\t41140\t41140\t0\n0\n0\n0\n0\n0\n{\"ok\": true, \"sql_file\": \"C:\\\\Users\\\\24796\\\\Documents\\\\TEXT2SQL\\\\config\\\\warehouse_cleaning\\\\doudian_order_item_v1\\\\formal-logistics-tracking-no-quality-1.4.2.sql\", \"executed_statements\": 6}\n",
+        "stderr": "",
+        "command": [
+          "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+          "C:\\Users\\24796\\.codex\\skills\\data-warehouse-cleaning\\scripts\\execute_clickhouse_sql.py",
+          "--sql-file",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\formal-logistics-tracking-no-quality-1.4.2.sql",
+          "--base-url",
+          "http://127.0.0.1:8123",
+          "--database",
+          "youmei_sandbox",
+          "--print-results"
+        ]
+      }
+    },
+    {
+      "name": "clickhouse_swap",
+      "status": "passed",
+      "at": "2026-07-26T13:27:17+08:00",
+      "result": {
+        "label": "clickhouse:swap",
+        "ok": true,
+        "returncode": 0,
+        "stdout": "{\"ok\": true, \"sql_file\": \"C:\\\\Users\\\\24796\\\\Documents\\\\TEXT2SQL\\\\config\\\\warehouse_cleaning\\\\doudian_order_item_v1\\\\formal-logistics-tracking-no-swap-1.4.2.sql\", \"executed_statements\": 3}\n",
+        "stderr": "",
+        "command": [
+          "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+          "C:\\Users\\24796\\.codex\\skills\\data-warehouse-cleaning\\scripts\\execute_clickhouse_sql.py",
+          "--sql-file",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\formal-logistics-tracking-no-swap-1.4.2.sql",
+          "--base-url",
+          "http://127.0.0.1:8123",
+          "--database",
+          "youmei_sandbox",
+          "--print-results"
+        ]
+      }
+    },
+    {
+      "name": "clickhouse_postcheck",
+      "status": "passed",
+      "at": "2026-07-26T13:27:18+08:00",
+      "result": {
+        "label": "clickhouse:postcheck",
+        "ok": true,
+        "returncode": 0,
+        "stdout": "0\n0\n0\n0\nformal_tracking_no_postcheck\t41140\t41140\t18\n{\"ok\": true, \"sql_file\": \"C:\\\\Users\\\\24796\\\\Documents\\\\TEXT2SQL\\\\config\\\\warehouse_cleaning\\\\doudian_order_item_v1\\\\formal-logistics-tracking-no-postcheck-1.4.2.sql\", \"executed_statements\": 5}\n",
+        "stderr": "",
+        "command": [
+          "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+          "C:\\Users\\24796\\.codex\\skills\\data-warehouse-cleaning\\scripts\\execute_clickhouse_sql.py",
+          "--sql-file",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\formal-logistics-tracking-no-postcheck-1.4.2.sql",
+          "--base-url",
+          "http://127.0.0.1:8123",
+          "--database",
+          "youmei_sandbox",
+          "--print-results"
+        ]
+      }
+    },
+    {
+      "name": "openmetadata_full",
+      "status": "failed",
+      "at": "2026-07-26T13:27:21+08:00",
+      "result": {
+        "label": "openmetadata:full",
+        "ok": false,
+        "returncode": 1,
+        "stdout": "{\n  \"ok\": false,\n  \"release_file\": \"C:\\\\Users\\\\24796\\\\Documents\\\\TEXT2SQL\\\\config\\\\warehouse_cleaning\\\\doudian_order_item_v1\\\\formal-release-logistics-tracking-no-1.4.2.yaml\",\n  \"contract_count\": 1,\n  \"mode\": \"full\",\n  \"report\": \"C:\\\\Users\\\\24796\\\\Documents\\\\TEXT2SQL\\\\config\\\\warehouse_cleaning\\\\doudian_order_item_v1\\\\openmetadata-sync-report-formal-release-logistics-tracking-no-1.4.2.json\"\n}\n",
+        "stderr": "",
+        "command": [
+          "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\scripts\\sync_openmetadata_release.py",
+          "--package-dir",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1",
+          "--release",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\formal-release-logistics-tracking-no-1.4.2.yaml",
+          "--env-file",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\local\\credentials\\openmetadata.env",
+          "--mode",
+          "full",
+          "--report",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\openmetadata-sync-report-formal-release-logistics-tracking-no-1.4.2.json"
+        ],
+        "report_path": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\openmetadata-sync-report-formal-release-logistics-tracking-no-1.4.2.json"
+      }
+    },
+    {
+      "name": "clickhouse_rollback",
+      "status": "passed",
+      "at": "2026-07-26T13:27:21+08:00",
+      "result": {
+        "label": "clickhouse:rollback",
+        "ok": true,
+        "returncode": 0,
+        "stdout": "{\"ok\": true, \"sql_file\": \"C:\\\\Users\\\\24796\\\\Documents\\\\TEXT2SQL\\\\config\\\\warehouse_cleaning\\\\doudian_order_item_v1\\\\formal-logistics-tracking-no-rollback-1.4.2.sql\", \"executed_statements\": 3}\n",
+        "stderr": "",
+        "command": [
+          "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+          "C:\\Users\\24796\\.codex\\skills\\data-warehouse-cleaning\\scripts\\execute_clickhouse_sql.py",
+          "--sql-file",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\formal-logistics-tracking-no-rollback-1.4.2.sql",
+          "--base-url",
+          "http://127.0.0.1:8123",
+          "--database",
+          "youmei_sandbox",
+          "--print-results"
+        ]
+      }
+    }
+  ],
   "git": {
     "required": true,
     "auto_push": true,
@@ -60,5 +285,24 @@
     "branch": "main",
     "tag": "warehouse/doudian-order-logistics-tracking-no-1.4.2"
   },
-  "finished_at": "2026-07-26T13:27:14+08:00"
+  "failure_reason": "OpenMetadata plan/apply/verify 未全部通过",
+  "rollback": {
+    "label": "clickhouse:rollback",
+    "ok": true,
+    "returncode": 0,
+    "stdout": "{\"ok\": true, \"sql_file\": \"C:\\\\Users\\\\24796\\\\Documents\\\\TEXT2SQL\\\\config\\\\warehouse_cleaning\\\\doudian_order_item_v1\\\\formal-logistics-tracking-no-rollback-1.4.2.sql\", \"executed_statements\": 3}\n",
+    "stderr": "",
+    "command": [
+      "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+      "C:\\Users\\24796\\.codex\\skills\\data-warehouse-cleaning\\scripts\\execute_clickhouse_sql.py",
+      "--sql-file",
+      "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\formal-logistics-tracking-no-rollback-1.4.2.sql",
+      "--base-url",
+      "http://127.0.0.1:8123",
+      "--database",
+      "youmei_sandbox",
+      "--print-results"
+    ]
+  },
+  "finished_at": "2026-07-26T13:27:21+08:00"
 }
