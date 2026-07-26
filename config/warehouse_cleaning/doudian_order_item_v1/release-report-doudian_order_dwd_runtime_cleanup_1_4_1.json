@@ -1,6 +1,6 @@
 {
   "report_version": "warehouse-release-report/v1",
-  "status": "version_record_pending",
+  "status": "finalized",
   "release_id": "doudian_order_dwd_runtime_cleanup_1_4_1",
   "version": "1.4.1",
   "release_type": "cleanup",
@@ -341,5 +341,38 @@
     },
     "error": "Git 远程推送失败，需修复远程状态后运行 finalize"
   },
-  "finished_at": "2026-07-26T11:46:14+08:00"
+  "finished_at": "2026-07-26T12:03:10+08:00",
+  "finalize": {
+    "initial_status": "version_record_pending",
+    "tag": {
+      "ok": true,
+      "tag": "warehouse/doudian-order-dwd-runtime-cleanup-1.4.1",
+      "already_exists": true,
+      "commit": "11676432e3b99157568862e7763ead282e3eb91c",
+      "current_head": "744924415a796e03ed0c9042d8b7ee8848a529c2",
+      "reason": "同一发布的补记提交位于既有标签之后，保留原标签"
+    },
+    "initial_push": {
+      "ok": true,
+      "remote": "origin",
+      "branch": "main",
+      "follow_tags": true,
+      "result": {
+        "label": "git:push",
+        "ok": true,
+        "returncode": 0,
+        "stdout": "To https://github.com/HIVEQLGUY/TEXT2SQL.git\n=\tHEAD:refs/heads/main\t[up to date]\nDone\n",
+        "stderr": "",
+        "command": [
+          "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\git\\cmd\\git.EXE",
+          "push",
+          "--porcelain",
+          "--follow-tags",
+          "origin",
+          "HEAD:main"
+        ]
+      },
+      "error": null
+    }
+  }
 }
