@@ -1,0 +1,446 @@
+{
+  "ok": false,
+  "run_time": "2026-07-26T11:40:11+08:00",
+  "package_dir": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1",
+  "release_file": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\cleanup-dwd-runtime-1.4.1.yaml",
+  "mode": "full",
+  "contract_count": 2,
+  "contracts": [
+    "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\metadata-contract-formal-order-1.3.1.yaml",
+    "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\metadata-contract-formal-item-parent-1.3.1.yaml"
+  ],
+  "retire_count": 10,
+  "retire_objects": [
+    {
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_shadow_1_2_0",
+      "reason": "已晋级正式订单主单事实表"
+    },
+    {
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0",
+      "reason": "已晋级正式订单商品明细事实表"
+    },
+    {
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2",
+      "reason": "已被快递单号粒度影子版本1.3.3替代"
+    },
+    {
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_package_validation_1_3_1",
+      "reason": "包裹ID不作为当前目标业务粒度"
+    },
+    {
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_package_item_validation_1_3_1",
+      "reason": "包裹ID不作为当前目标业务粒度"
+    },
+    {
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_df_backup_1_2_0",
+      "reason": "历史物理备份改由Git发布包管理"
+    },
+    {
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_df_backup_1_2_0",
+      "reason": "历史物理备份改由Git发布包管理"
+    },
+    {
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_df_direct_logistics_backup_1_3_1",
+      "reason": "已撤回的历史物流直连物理备份"
+    },
+    {
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_deprecated_actual_receive_amount_detail_backup_1_2_1",
+      "reason": "已废弃的商家收入明细项物理备份"
+    },
+    {
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_deprecated_logistics_info_backup_1_2_1",
+      "reason": "已废弃的物流信息物理备份"
+    }
+  ],
+  "env_file": "C:\\Users\\24796\\Documents\\TEXT2SQL\\local\\credentials\\openmetadata.env",
+  "env_loaded_keys": [
+    "OPENMETADATA_BASE_URL",
+    "OPENMETADATA_PASSWORD",
+    "OPENMETADATA_USERNAME"
+  ],
+  "results": [
+    {
+      "contract": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\metadata-contract-formal-order-1.3.1.yaml",
+      "mode": "plan",
+      "returncode": 0,
+      "ok": true,
+      "stdout": {
+        "ok": true,
+        "mode": "plan",
+        "services": [
+          {
+            "name": "youmei_clickhouse",
+            "serviceType": "Clickhouse",
+            "displayName": null,
+            "databaseSchema": "youmei_sandbox",
+            "hostPort": "172.16.240.1:18124"
+          },
+          {
+            "name": "youmei_doris",
+            "serviceType": "Doris",
+            "displayName": "佑美 Doris 数仓",
+            "databaseSchema": "agent_warehouse",
+            "hostPort": "100.115.222.97:9030"
+          }
+        ],
+        "diff": {
+          "table_fqn": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_df",
+          "exists": true,
+          "desired_columns": 82,
+          "desired_custom_properties": 26
+        }
+      },
+      "stderr": ""
+    },
+    {
+      "contract": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\metadata-contract-formal-order-1.3.1.yaml",
+      "mode": "apply",
+      "returncode": 0,
+      "ok": true,
+      "stdout": {
+        "ok": true,
+        "mode": "apply",
+        "method": "PUT",
+        "fqn": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_df",
+        "verified": true,
+        "id": "ba1148a2-781f-4e11-86f8-4d782da59684"
+      },
+      "stderr": ""
+    },
+    {
+      "contract": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\metadata-contract-formal-order-1.3.1.yaml",
+      "mode": "verify",
+      "returncode": 0,
+      "ok": true,
+      "stdout": {
+        "ok": true,
+        "mode": "verify",
+        "verification": {
+          "table_fqn": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_df",
+          "table_exists": true,
+          "expected_column_count": 82,
+          "actual_column_count": 82,
+          "missing_columns": [],
+          "unexpected_columns": [],
+          "column_mismatches": [],
+          "custom_property_mismatches": [],
+          "actual_extension_keys": [
+            "amount_conversion_status",
+            "amount_rule_version",
+            "amount_unit_strategy",
+            "business_field_retention_policy",
+            "business_table_name_zh",
+            "cleaning_contract_id",
+            "cleaning_contract_version",
+            "data_quality_status",
+            "enum_dictionary_json",
+            "enum_dictionary_version",
+            "grain",
+            "json_business_relation_count",
+            "json_documented_path_count",
+            "json_documented_scalar_field_count",
+            "json_expansion_policy",
+            "json_field_contract_version",
+            "json_inventory_version",
+            "json_relation_contract_version",
+            "json_transport_array_not_materialized",
+            "null_value_policy",
+            "refresh_mode",
+            "source_api",
+            "source_api_doc",
+            "source_system",
+            "technical_key_fields",
+            "warehouse_layer"
+          ],
+          "actual_first_column_tags": [],
+          "ok": true
+        }
+      },
+      "stderr": ""
+    },
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_shadow_1_2_0",
+        "mode": "verify",
+        "ok": true,
+        "action": "already_absent",
+        "reason": "已晋级正式订单主单事实表"
+      },
+      "mode": "verify",
+      "returncode": 0,
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_shadow_1_2_0",
+      "ok": true,
+      "action": "already_absent",
+      "reason": "已晋级正式订单主单事实表"
+    },
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0",
+        "mode": "verify",
+        "ok": false,
+        "action": "still_present",
+        "reason": "已晋级正式订单商品明细事实表"
+      },
+      "mode": "verify",
+      "returncode": 1,
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0",
+      "ok": false,
+      "action": "still_present",
+      "reason": "已晋级正式订单商品明细事实表"
+    },
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2",
+        "mode": "verify",
+        "ok": false,
+        "action": "still_present",
+        "reason": "已被快递单号粒度影子版本1.3.3替代"
+      },
+      "mode": "verify",
+      "returncode": 1,
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2",
+      "ok": false,
+      "action": "still_present",
+      "reason": "已被快递单号粒度影子版本1.3.3替代"
+    },
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_package_validation_1_3_1",
+        "mode": "verify",
+        "ok": true,
+        "action": "already_absent",
+        "reason": "包裹ID不作为当前目标业务粒度"
+      },
+      "mode": "verify",
+      "returncode": 0,
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_package_validation_1_3_1",
+      "ok": true,
+      "action": "already_absent",
+      "reason": "包裹ID不作为当前目标业务粒度"
+    },
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_package_item_validation_1_3_1",
+        "mode": "verify",
+        "ok": true,
+        "action": "already_absent",
+        "reason": "包裹ID不作为当前目标业务粒度"
+      },
+      "mode": "verify",
+      "returncode": 0,
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_package_item_validation_1_3_1",
+      "ok": true,
+      "action": "already_absent",
+      "reason": "包裹ID不作为当前目标业务粒度"
+    },
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_df_backup_1_2_0",
+        "mode": "verify",
+        "ok": true,
+        "action": "already_absent",
+        "reason": "历史物理备份改由Git发布包管理"
+      },
+      "mode": "verify",
+      "returncode": 0,
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_df_backup_1_2_0",
+      "ok": true,
+      "action": "already_absent",
+      "reason": "历史物理备份改由Git发布包管理"
+    },
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_df_backup_1_2_0",
+        "mode": "verify",
+        "ok": true,
+        "action": "already_absent",
+        "reason": "历史物理备份改由Git发布包管理"
+      },
+      "mode": "verify",
+      "returncode": 0,
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_df_backup_1_2_0",
+      "ok": true,
+      "action": "already_absent",
+      "reason": "历史物理备份改由Git发布包管理"
+    },
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_df_direct_logistics_backup_1_3_1",
+        "mode": "verify",
+        "ok": true,
+        "action": "already_absent",
+        "reason": "已撤回的历史物流直连物理备份"
+      },
+      "mode": "verify",
+      "returncode": 0,
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_df_direct_logistics_backup_1_3_1",
+      "ok": true,
+      "action": "already_absent",
+      "reason": "已撤回的历史物流直连物理备份"
+    },
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_deprecated_actual_receive_amount_detail_backup_1_2_1",
+        "mode": "verify",
+        "ok": true,
+        "action": "already_absent",
+        "reason": "已废弃的商家收入明细项物理备份"
+      },
+      "mode": "verify",
+      "returncode": 0,
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_deprecated_actual_receive_amount_detail_backup_1_2_1",
+      "ok": true,
+      "action": "already_absent",
+      "reason": "已废弃的商家收入明细项物理备份"
+    },
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_deprecated_logistics_info_backup_1_2_1",
+        "mode": "verify",
+        "ok": true,
+        "action": "already_absent",
+        "reason": "已废弃的物流信息物理备份"
+      },
+      "mode": "verify",
+      "returncode": 0,
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_deprecated_logistics_info_backup_1_2_1",
+      "ok": true,
+      "action": "already_absent",
+      "reason": "已废弃的物流信息物理备份"
+    },
+    {
+      "contract": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\metadata-contract-formal-item-parent-1.3.1.yaml",
+      "mode": "plan",
+      "returncode": null,
+      "ok": false,
+      "skipped": true,
+      "stderr": "Skipped after previous failure."
+    },
+    {
+      "contract": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\metadata-contract-formal-item-parent-1.3.1.yaml",
+      "mode": "apply",
+      "returncode": null,
+      "ok": false,
+      "skipped": true,
+      "stderr": "Skipped after previous failure."
+    },
+    {
+      "contract": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\metadata-contract-formal-item-parent-1.3.1.yaml",
+      "mode": "verify",
+      "returncode": null,
+      "ok": false,
+      "skipped": true,
+      "stderr": "Skipped after previous failure."
+    },
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_shadow_1_2_0",
+        "reason": "已晋级正式订单主单事实表"
+      },
+      "mode": "verify",
+      "returncode": null,
+      "ok": false,
+      "skipped": true,
+      "stderr": "Skipped after previous failure."
+    },
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_shadow_1_2_0",
+        "reason": "已晋级正式订单商品明细事实表"
+      },
+      "mode": "verify",
+      "returncode": null,
+      "ok": false,
+      "skipped": true,
+      "stderr": "Skipped after previous failure."
+    },
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_shadow_1_3_2",
+        "reason": "已被快递单号粒度影子版本1.3.3替代"
+      },
+      "mode": "verify",
+      "returncode": null,
+      "ok": false,
+      "skipped": true,
+      "stderr": "Skipped after previous failure."
+    },
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_package_validation_1_3_1",
+        "reason": "包裹ID不作为当前目标业务粒度"
+      },
+      "mode": "verify",
+      "returncode": null,
+      "ok": false,
+      "skipped": true,
+      "stderr": "Skipped after previous failure."
+    },
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_package_item_validation_1_3_1",
+        "reason": "包裹ID不作为当前目标业务粒度"
+      },
+      "mode": "verify",
+      "returncode": null,
+      "ok": false,
+      "skipped": true,
+      "stderr": "Skipped after previous failure."
+    },
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_df_backup_1_2_0",
+        "reason": "历史物理备份改由Git发布包管理"
+      },
+      "mode": "verify",
+      "returncode": null,
+      "ok": false,
+      "skipped": true,
+      "stderr": "Skipped after previous failure."
+    },
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_df_backup_1_2_0",
+        "reason": "历史物理备份改由Git发布包管理"
+      },
+      "mode": "verify",
+      "returncode": null,
+      "ok": false,
+      "skipped": true,
+      "stderr": "Skipped after previous failure."
+    },
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_df_direct_logistics_backup_1_3_1",
+        "reason": "已撤回的历史物流直连物理备份"
+      },
+      "mode": "verify",
+      "returncode": null,
+      "ok": false,
+      "skipped": true,
+      "stderr": "Skipped after previous failure."
+    },
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_deprecated_actual_receive_amount_detail_backup_1_2_1",
+        "reason": "已废弃的商家收入明细项物理备份"
+      },
+      "mode": "verify",
+      "returncode": null,
+      "ok": false,
+      "skipped": true,
+      "stderr": "Skipped after previous failure."
+    },
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_deprecated_logistics_info_backup_1_2_1",
+        "reason": "已废弃的物流信息物理备份"
+      },
+      "mode": "verify",
+      "returncode": null,
+      "ok": false,
+      "skipped": true,
+      "stderr": "Skipped after previous failure."
+    }
+  ]
+}
