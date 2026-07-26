@@ -1,12 +1,12 @@
 {
   "report_version": "warehouse-release-report/v1",
-  "status": "prepared",
+  "status": "succeeded",
   "release_id": "doudian_order_logistics_tracking_no_empty_rollback_cleanup_1_0_0",
   "version": "1.0.0",
   "release_type": "cleanup",
   "environment": "test",
   "requested_mode": "full",
-  "started_at": "2026-07-26T13:31:59+08:00",
+  "started_at": "2026-07-26T13:32:08+08:00",
   "package_dir": "config/warehouse_cleaning/doudian_order_item_v1",
   "release_file": "config/warehouse_cleaning/doudian_order_item_v1/cleanup-release-formal-empty-1.0.0.yaml",
   "source": {
@@ -28,7 +28,213 @@
   },
   "warnings": [],
   "validation_errors": [],
-  "steps": [],
+  "steps": [
+    {
+      "name": "git_preflight",
+      "status": "passed",
+      "at": "2026-07-26T13:31:59+08:00",
+      "result": {
+        "ok": true,
+        "git": "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\git\\cmd\\git.EXE",
+        "repo_root": "C:\\Users\\24796\\Documents\\TEXT2SQL",
+        "worktree_status": " M .gitignore\n M config/warehouse_cleaning/doudian_order_item_v1/metadata-contract-formal-logistics-tracking-no-1.4.2.yaml\n M docs/clickhouse-query-workbench-evaluation.md\n M tools/clickhouse-query-workbench/README.md\n M tools/clickhouse-query-workbench/client/main.tsx\n M tools/clickhouse-query-workbench/client/styles.css\n M tools/clickhouse-query-workbench/eslint.config.js\n M tools/clickhouse-query-workbench/package.json\n M tools/clickhouse-query-workbench/server/clickhouse.ts\n M tools/clickhouse-query-workbench/server/sqlGuard.ts\n M tools/clickhouse-query-workbench/vite.config.ts\n?? \" .Destination}}{{end}}\"\n?? config/warehouse_cleaning/doudian_order_item_v1/.warehouse-release-doudian_order_logistics_tracking_no_empty_rollback_cleanup_1_0_0.lock\n?? config/warehouse_cleaning/doudian_order_item_v1/cleanup-formal-empty-execution-1.0.0.sql\n?? config/warehouse_cleaning/doudian_order_item_v1/cleanup-formal-empty-postcheck-1.0.0.sql\n?? config/warehouse_cleaning/doudian_order_item_v1/cleanup-formal-empty-preflight-1.0.0.sql\n?? config/warehouse_cleaning/doudian_order_item_v1/cleanup-formal-empty-quality-1.0.0.sql\n?? config/warehouse_cleaning/doudian_order_item_v1/cleanup-release-formal-empty-1.0.0.yaml\n?? config/warehouse_cleaning/doudian_order_item_v1/openmetadata-sync-report-cleanup-release-formal-empty-1.0.0.json\n?? config/warehouse_cleaning/doudian_order_item_v1/release-plan-doudian_order_logistics_tracking_no_empty_rollback_cleanup_1_0_0.json\n?? config/warehouse_cleaning/doudian_order_item_v1/release-plan-doudian_order_logistics_tracking_no_formal_1_4_2.json\n?? config/warehouse_cleaning/doudian_order_item_v1/release-report-doudian_order_logistics_tracking_no_empty_rollback_cleanup_1_0_0.json\n?? tools/clickhouse-query-workbench/check-workbench.ps1\n?? tools/clickhouse-query-workbench/pnpm-lock.yaml\n?? tools/clickhouse-query-workbench/pnpm-workspace.yaml\n?? tools/clickhouse-query-workbench/start-workbench.ps1\n"
+      }
+    },
+    {
+      "name": "git_prepare_commit",
+      "status": "passed",
+      "at": "2026-07-26T13:32:00+08:00",
+      "result": {
+        "ok": true,
+        "commit": {
+          "label": "git:commit",
+          "ok": true,
+          "returncode": 0,
+          "stdout": "[main b6e2d24] warehouse release doudian_order_logistics_tracking_no_empty_rollback_cleanup_1_0_0 prepare\n 6 files changed, 126 insertions(+)\n create mode 100644 config/warehouse_cleaning/doudian_order_item_v1/cleanup-formal-empty-execution-1.0.0.sql\n create mode 100644 config/warehouse_cleaning/doudian_order_item_v1/cleanup-formal-empty-postcheck-1.0.0.sql\n create mode 100644 config/warehouse_cleaning/doudian_order_item_v1/cleanup-formal-empty-preflight-1.0.0.sql\n create mode 100644 config/warehouse_cleaning/doudian_order_item_v1/cleanup-formal-empty-quality-1.0.0.sql\n create mode 100644 config/warehouse_cleaning/doudian_order_item_v1/cleanup-release-formal-empty-1.0.0.yaml\n create mode 100644 config/warehouse_cleaning/doudian_order_item_v1/release-report-doudian_order_logistics_tracking_no_empty_rollback_cleanup_1_0_0.json\n",
+          "stderr": "",
+          "command": [
+            "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\git\\cmd\\git.EXE",
+            "commit",
+            "-m",
+            "warehouse release doudian_order_logistics_tracking_no_empty_rollback_cleanup_1_0_0 prepare"
+          ]
+        },
+        "head": "b6e2d243eeee0c0ae1290cad191a27fdc270e568"
+      }
+    },
+    {
+      "name": "clickhouse_health",
+      "status": "passed",
+      "at": "2026-07-26T13:32:00+08:00",
+      "result": {
+        "label": "clickhouse:health",
+        "ok": true,
+        "returncode": 0,
+        "stdout": "{\"database\":\"youmei_sandbox\",\"version\":\"26.6.1.1193\"}\n",
+        "stderr": "",
+        "command": [
+          "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+          "C:\\Users\\24796\\.codex\\skills\\clickhouse-sql-dev\\scripts\\run_clickhouse_sql.py",
+          "--host",
+          "127.0.0.1",
+          "--port",
+          "8123",
+          "--database",
+          "youmei_sandbox",
+          "--query",
+          "SELECT currentDatabase() AS database, version() AS version",
+          "--format",
+          "JSONEachRow"
+        ]
+      }
+    },
+    {
+      "name": "clickhouse_preflight",
+      "status": "passed",
+      "at": "2026-07-26T13:32:01+08:00",
+      "result": {
+        "label": "clickhouse:preflight",
+        "ok": true,
+        "returncode": 0,
+        "stdout": "youmei_sandbox\t26.6.1.1193\n0\n0\n{\"ok\": true, \"sql_file\": \"C:\\\\Users\\\\24796\\\\Documents\\\\TEXT2SQL\\\\config\\\\warehouse_cleaning\\\\doudian_order_item_v1\\\\cleanup-formal-empty-preflight-1.0.0.sql\", \"executed_statements\": 3}\n",
+        "stderr": "",
+        "command": [
+          "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+          "C:\\Users\\24796\\.codex\\skills\\data-warehouse-cleaning\\scripts\\execute_clickhouse_sql.py",
+          "--sql-file",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\cleanup-formal-empty-preflight-1.0.0.sql",
+          "--base-url",
+          "http://127.0.0.1:8123",
+          "--database",
+          "youmei_sandbox",
+          "--print-results"
+        ]
+      }
+    },
+    {
+      "name": "clickhouse_quality",
+      "status": "passed",
+      "at": "2026-07-26T13:32:01+08:00",
+      "result": {
+        "label": "clickhouse:quality",
+        "ok": true,
+        "returncode": 0,
+        "stdout": "formal_empty_rollback_artifact_quality\t0\t18\n0\n{\"ok\": true, \"sql_file\": \"C:\\\\Users\\\\24796\\\\Documents\\\\TEXT2SQL\\\\config\\\\warehouse_cleaning\\\\doudian_order_item_v1\\\\cleanup-formal-empty-quality-1.0.0.sql\", \"executed_statements\": 2}\n",
+        "stderr": "",
+        "command": [
+          "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+          "C:\\Users\\24796\\.codex\\skills\\data-warehouse-cleaning\\scripts\\execute_clickhouse_sql.py",
+          "--sql-file",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\cleanup-formal-empty-quality-1.0.0.sql",
+          "--base-url",
+          "http://127.0.0.1:8123",
+          "--database",
+          "youmei_sandbox",
+          "--print-results"
+        ]
+      }
+    },
+    {
+      "name": "openmetadata_plan_before_cleanup",
+      "status": "passed",
+      "at": "2026-07-26T13:32:04+08:00",
+      "result": {
+        "label": "openmetadata:plan",
+        "ok": true,
+        "returncode": 0,
+        "stdout": "{\n  \"ok\": true,\n  \"release_file\": \"C:\\\\Users\\\\24796\\\\Documents\\\\TEXT2SQL\\\\config\\\\warehouse_cleaning\\\\doudian_order_item_v1\\\\cleanup-release-formal-empty-1.0.0.yaml\",\n  \"contract_count\": 0,\n  \"mode\": \"plan\",\n  \"report\": \"C:\\\\Users\\\\24796\\\\Documents\\\\TEXT2SQL\\\\config\\\\warehouse_cleaning\\\\doudian_order_item_v1\\\\openmetadata-sync-report-cleanup-release-formal-empty-1.0.0.json\"\n}\n",
+        "stderr": "",
+        "command": [
+          "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\scripts\\sync_openmetadata_release.py",
+          "--package-dir",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1",
+          "--release",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\cleanup-release-formal-empty-1.0.0.yaml",
+          "--env-file",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\local\\credentials\\openmetadata.env",
+          "--mode",
+          "plan",
+          "--report",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\openmetadata-sync-report-cleanup-release-formal-empty-1.0.0.json"
+        ],
+        "report_path": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\openmetadata-sync-report-cleanup-release-formal-empty-1.0.0.json"
+      }
+    },
+    {
+      "name": "clickhouse_cleanup",
+      "status": "passed",
+      "at": "2026-07-26T13:32:05+08:00",
+      "result": {
+        "label": "clickhouse:cleanup",
+        "ok": true,
+        "returncode": 0,
+        "stdout": "{\"ok\": true, \"sql_file\": \"C:\\\\Users\\\\24796\\\\Documents\\\\TEXT2SQL\\\\config\\\\warehouse_cleaning\\\\doudian_order_item_v1\\\\cleanup-formal-empty-execution-1.0.0.sql\", \"executed_statements\": 1}\n",
+        "stderr": "",
+        "command": [
+          "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+          "C:\\Users\\24796\\.codex\\skills\\data-warehouse-cleaning\\scripts\\execute_clickhouse_sql.py",
+          "--sql-file",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\cleanup-formal-empty-execution-1.0.0.sql",
+          "--base-url",
+          "http://127.0.0.1:8123",
+          "--database",
+          "youmei_sandbox",
+          "--print-results"
+        ]
+      }
+    },
+    {
+      "name": "clickhouse_postcheck",
+      "status": "passed",
+      "at": "2026-07-26T13:32:05+08:00",
+      "result": {
+        "label": "clickhouse:postcheck",
+        "ok": true,
+        "returncode": 0,
+        "stdout": "0\nformal_empty_rollback_artifact_postcheck\t0\n{\"ok\": true, \"sql_file\": \"C:\\\\Users\\\\24796\\\\Documents\\\\TEXT2SQL\\\\config\\\\warehouse_cleaning\\\\doudian_order_item_v1\\\\cleanup-formal-empty-postcheck-1.0.0.sql\", \"executed_statements\": 2}\n",
+        "stderr": "",
+        "command": [
+          "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+          "C:\\Users\\24796\\.codex\\skills\\data-warehouse-cleaning\\scripts\\execute_clickhouse_sql.py",
+          "--sql-file",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\cleanup-formal-empty-postcheck-1.0.0.sql",
+          "--base-url",
+          "http://127.0.0.1:8123",
+          "--database",
+          "youmei_sandbox",
+          "--print-results"
+        ]
+      }
+    },
+    {
+      "name": "openmetadata_full",
+      "status": "passed",
+      "at": "2026-07-26T13:32:08+08:00",
+      "result": {
+        "label": "openmetadata:full",
+        "ok": true,
+        "returncode": 0,
+        "stdout": "{\n  \"ok\": true,\n  \"release_file\": \"C:\\\\Users\\\\24796\\\\Documents\\\\TEXT2SQL\\\\config\\\\warehouse_cleaning\\\\doudian_order_item_v1\\\\cleanup-release-formal-empty-1.0.0.yaml\",\n  \"contract_count\": 0,\n  \"mode\": \"full\",\n  \"report\": \"C:\\\\Users\\\\24796\\\\Documents\\\\TEXT2SQL\\\\config\\\\warehouse_cleaning\\\\doudian_order_item_v1\\\\openmetadata-sync-report-cleanup-release-formal-empty-1.0.0.json\"\n}\n",
+        "stderr": "",
+        "command": [
+          "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\scripts\\sync_openmetadata_release.py",
+          "--package-dir",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1",
+          "--release",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\cleanup-release-formal-empty-1.0.0.yaml",
+          "--env-file",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\local\\credentials\\openmetadata.env",
+          "--mode",
+          "full",
+          "--report",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\openmetadata-sync-report-cleanup-release-formal-empty-1.0.0.json"
+        ],
+        "report_path": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\openmetadata-sync-report-cleanup-release-formal-empty-1.0.0.json"
+      }
+    }
+  ],
   "git": {
     "required": true,
     "auto_push": true,
@@ -36,5 +242,5 @@
     "branch": "main",
     "tag": "warehouse/doudian-order-logistics-tracking-no-empty-rollback-cleanup-1.0.0"
   },
-  "finished_at": "2026-07-26T13:31:59+08:00"
+  "finished_at": "2026-07-26T13:32:08+08:00"
 }

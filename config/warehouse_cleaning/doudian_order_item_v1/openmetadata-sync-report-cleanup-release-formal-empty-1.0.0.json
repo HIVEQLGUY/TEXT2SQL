@@ -1,0 +1,69 @@
+{
+  "ok": true,
+  "run_time": "2026-07-26T13:32:08+08:00",
+  "package_dir": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1",
+  "release_file": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\cleanup-release-formal-empty-1.0.0.yaml",
+  "mode": "full",
+  "contract_count": 0,
+  "contracts": [],
+  "retire_count": 1,
+  "retire_objects": [
+    {
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_df",
+      "reason": "回滚遗留空正式表未完成元数据创建，清理前后确认正式资产不存在"
+    }
+  ],
+  "env_file": "C:\\Users\\24796\\Documents\\TEXT2SQL\\local\\credentials\\openmetadata.env",
+  "env_loaded_keys": [
+    "OPENMETADATA_BASE_URL",
+    "OPENMETADATA_PASSWORD",
+    "OPENMETADATA_USERNAME"
+  ],
+  "results": [
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_df",
+        "mode": "plan",
+        "ok": true,
+        "action": "already_absent",
+        "reason": "回滚遗留空正式表未完成元数据创建，清理前后确认正式资产不存在"
+      },
+      "mode": "plan",
+      "returncode": 0,
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_df",
+      "ok": true,
+      "action": "already_absent",
+      "reason": "回滚遗留空正式表未完成元数据创建，清理前后确认正式资产不存在"
+    },
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_df",
+        "mode": "apply",
+        "ok": true,
+        "action": "already_absent",
+        "reason": "回滚遗留空正式表未完成元数据创建，清理前后确认正式资产不存在"
+      },
+      "mode": "apply",
+      "returncode": 0,
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_df",
+      "ok": true,
+      "action": "already_absent",
+      "reason": "回滚遗留空正式表未完成元数据创建，清理前后确认正式资产不存在"
+    },
+    {
+      "retire": {
+        "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_df",
+        "mode": "verify",
+        "ok": true,
+        "action": "already_absent",
+        "reason": "回滚遗留空正式表未完成元数据创建，清理前后确认正式资产不存在"
+      },
+      "mode": "verify",
+      "returncode": 0,
+      "fully_qualified_name": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_df",
+      "ok": true,
+      "action": "already_absent",
+      "reason": "回滚遗留空正式表未完成元数据创建，清理前后确认正式资产不存在"
+    }
+  ]
+}
