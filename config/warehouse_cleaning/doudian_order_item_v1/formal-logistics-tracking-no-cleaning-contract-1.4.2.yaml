@@ -1,0 +1,63 @@
+contract_id: doudian_order_logistics_tracking_no
+contract_version: 1.3.3
+status: approved
+purpose: 将已通过影子验证的物流信息按快递单号业务粒度正式化，供运费匹配和履约分析使用。
+source:
+  database: youmei_sandbox
+  table: dwd_trade_order_logistics_tracking_no_shadow_1_3_3
+  chinese_name: DWD_抖店订单物流快递单号粒度影子表
+  upstream_database: youmei_sandbox
+  upstream_table: ods_api_dd_sale_order_list_info_f
+  upstream_chinese_name: ODS_销售订单列表信息表(抖店API)
+  upstream_api: order.searchList
+  upstream_api_doc: https://op.jinritemai.com/docs/api-docs/15/1342
+  approved_snapshot_partition: '2026-07-23'
+  current_ods_note: 当前ODS已滚动到2026-07-24，正式化使用已批准的2026-07-23影子结果，避免重建输入漂移。
+target:
+  database: youmei_sandbox
+  table: dwd_trade_order_logistics_tracking_no_df
+  chinese_name: DWD_抖店订单物流快递单号粒度事实全量快照表
+  layer: DWD
+  refresh_mode: window_full_snapshot
+  grain: 店铺ID(shop_id) + 店铺订单号(shop_order_id) + 快递单号(tracking_no)
+  key: [shop_id, shop_order_id, tracking_no]
+  package_id_policy: 包裹ID不作为目标粒度；包裹ID粒度数值字段先按快递单号汇总，平均型指标按快递单号取平均。
+field_rules:
+  json_expansion: 所有物流字段已按接口文档展开；物流商品关系按快递单号聚合，不保留原始JSON。
+  chinese_name_policy: 物理字段保留英文标识，业务字段统一使用中文名和中文注释。
+  null_policy: 空字符串或空值转NULL；非空非法值进入异常统计；合法0保留为0。
+  numeric_policy: 数值字段按业务语义转换为数值类型，标识字段保留String。
+  amount_policy: 金额字段逐字段依据单位证据处理，不按整表统一换算。
+amount_rules:
+  target_scale: 2
+  sign_policy: 保留源值正负号，不取绝对值。
+  source_fen_fields:
+    - guarantee_amount
+    - sp_discount_price
+    - sp_price
+    - sp_total_price
+    - price
+  source_fen_action: 除以100后按元写入Decimal(38,2)。
+  average_metric: avg_product_price_amount按快递单号粒度取平均。
+  additive_metrics:
+    - guarantee_amount
+    - platform_delivery_discount_amount
+    - platform_delivery_paid_amount
+    - platform_delivery_payable_amount
+quality:
+  expected_shadow_row_count: 41140
+  expected_key_unique: true
+  tracking_no_null_count: 0
+  raw_json_in_target: false
+  package_id_column_in_target: false
+  formalization_reconciliation: 正式候选表必须与已批准影子结果逐项保持行数及汇总值一致。
+approval:
+  shadow_release: shadow-release-tracking-no-1.3.3.yaml
+  shadow_quality_status: passed
+  formal_publish_authorized: true
+  authorized_by: 用户明确要求将DWD_抖店订单物流快递单号粒度影子表正式发布
+  authorized_at: '2026-07-26T00:00:00+08:00'
+version_management:
+  source_of_truth: Git发布包
+  physical_backup_table: false
+  rollback: 按Git中的上一版发布包重建候选表后切换，不保留物理备份表。
