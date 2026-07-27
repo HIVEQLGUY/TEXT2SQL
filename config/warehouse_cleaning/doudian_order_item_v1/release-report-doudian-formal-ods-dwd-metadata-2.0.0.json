@@ -1,6 +1,6 @@
 {
   "report_version": "warehouse-release-report/v1",
-  "status": "succeeded",
+  "status": "finalized",
   "release_id": "doudian-formal-ods-dwd-metadata-2.0.0",
   "version": "2.0.0",
   "release_type": "metadata",
@@ -96,5 +96,48 @@
     "branch": "main",
     "tag": "warehouse/doudian-formal-ods-dwd-metadata-2.0.0"
   },
-  "finished_at": "2026-07-27T17:54:02+08:00"
+  "finished_at": "2026-07-27T17:59:42+08:00",
+  "finalize": {
+    "initial_status": "succeeded",
+    "tag": {
+      "ok": true,
+      "tag": "warehouse/doudian-formal-ods-dwd-metadata-2.0.0",
+      "already_exists": true,
+      "commit": "076e6e03c1d0a44bd6d2bf5a88efa65ccdb84833",
+      "current_head": "3d754831a4539983d9b7e31d711879203877817c",
+      "reason": "同一发布的补记提交位于既有标签之后，保留原标签"
+    },
+    "initial_push": {
+      "ok": true,
+      "remote": "origin",
+      "branch": "main",
+      "follow_tags": true,
+      "attempt": 1,
+      "attempts": [
+        {
+          "attempt": 1,
+          "ok": true,
+          "returncode": 0,
+          "stdout": "To https://github.com/HIVEQLGUY/TEXT2SQL.git\n=\tHEAD:refs/heads/main\t[up to date]\nDone\n",
+          "stderr": ""
+        }
+      ],
+      "result": {
+        "label": "git:push",
+        "ok": true,
+        "returncode": 0,
+        "stdout": "To https://github.com/HIVEQLGUY/TEXT2SQL.git\n=\tHEAD:refs/heads/main\t[up to date]\nDone\n",
+        "stderr": "",
+        "command": [
+          "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\git\\cmd\\git.EXE",
+          "push",
+          "--porcelain",
+          "--follow-tags",
+          "origin",
+          "HEAD:main"
+        ]
+      },
+      "error": null
+    }
+  }
 }
