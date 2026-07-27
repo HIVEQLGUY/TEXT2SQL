@@ -365,7 +365,7 @@ def normalize_manifest(raw: dict[str, Any], release_file: Path, package_dir: Pat
             ],
         },
         "git": {
-            "required": bool(git.get("required", release_type in {"formal", "corrective", "rollback"})),
+        "required": bool(git.get("required", release_type in {"formal", "corrective", "rollback", "metadata"})),
             "auto_commit": bool(git.get("auto_commit", True)),
             "auto_push": bool(git.get("auto_push", True)),
             "remote": str(git.get("remote", "origin")).strip(),
@@ -391,6 +391,7 @@ def validate_context(ctx: ReleaseContext, requested_mode: str) -> None:
     legacy = bool(n.get("legacy_manifest"))
     legacy_read_only = legacy and requested_mode in {"plan", "verify"}
     cleanup_release = n.get("release_type") == "cleanup"
+    metadata_release = n.get("release_type") == "metadata"
     if not ID_PATTERN.fullmatch(ctx.release_id):
         ctx.errors.append("release_id 必须是 3-128 位小写字母、数字、点、下划线或短横线")
     version = str(n.get("version", ""))
@@ -404,17 +405,17 @@ def validate_context(ctx: ReleaseContext, requested_mode: str) -> None:
             ctx.warnings.append("旧发布文件未声明 environment；仅允许只读审阅")
         else:
             ctx.errors.append("environment 必须明确为 test、staging 或 production")
-    if not n.get("source", {}).get("database"):
+    if not metadata_release and not n.get("source", {}).get("database"):
         if legacy_read_only:
             ctx.warnings.append("旧发布文件未声明 source.database；仅允许只读审阅")
         else:
             ctx.errors.append("source.database 未声明")
-    if not n.get("source", {}).get("partitions"):
+    if not metadata_release and not n.get("source", {}).get("partitions"):
         if legacy_read_only:
             ctx.warnings.append("旧发布文件未声明 source.partitions；仅允许只读审阅")
         else:
             ctx.errors.append("source.partitions 未声明，不能确认本次发布输入快照")
-    if not n.get("targets") and not (cleanup_release and n.get("cleanup", {}).get("objects")):
+    if not n.get("targets") and not metadata_release and not (cleanup_release and n.get("cleanup", {}).get("objects")):
         if legacy_read_only:
             ctx.warnings.append("旧发布文件未声明 targets；仅允许只读审阅")
         else:
@@ -422,7 +423,7 @@ def validate_context(ctx: ReleaseContext, requested_mode: str) -> None:
 
     production_names: set[str] = set()
     candidate_names: set[str] = set()
-    for index, target in enumerate([] if cleanup_release else n.get("targets", []), start=1):
+    for index, target in enumerate([] if cleanup_release or metadata_release else n.get("targets", []), start=1):
         prefix = f"targets[{index}]"
         for key in ("physical_name", "production_physical_name", "candidate_physical_name"):
             value = str(target.get(key, ""))
@@ -478,7 +479,19 @@ def validate_context(ctx: ReleaseContext, requested_mode: str) -> None:
             ctx.errors.append(f"同一个 SQL 文件被多个发布阶段重复使用: {path} -> {phases_for_path}")
 
     formal_modes = {"full", "rollback"}
-    if cleanup_release and requested_mode in formal_modes:
+    if metadata_release:
+        if n.get("publish", {}).get("strategy") != "metadata_only":
+            ctx.errors.append("元数据修订发布必须使用 publish.strategy=metadata_only")
+        if phase_files:
+            ctx.errors.append("元数据修订发布不得登记 ClickHouse SQL 阶段")
+        approval = n.get("approval", {})
+        if str(approval.get("status", "")).lower() not in {"approved", "active"} or not bool(approval.get("metadata_sync_authorized", False)):
+            ctx.errors.append("元数据修订发布必须明确授权 approval.metadata_sync_authorized")
+        if not n.get("openmetadata", {}).get("contracts"):
+            ctx.errors.append("元数据修订发布必须登记 openmetadata.contracts")
+        if not bool(n.get("git", {}).get("required", False)) or not n.get("git", {}).get("auto_commit", False) or not n.get("git", {}).get("auto_push", False):
+            ctx.errors.append("元数据修订发布必须启用 Git 提交和远程同步")
+    elif cleanup_release and requested_mode in formal_modes:
         required_phases = {"preflight", "quality", "cleanup", "postcheck"}
         missing = sorted(required_phases - set(phase_files))
         if missing:
@@ -1583,6 +1596,11 @@ def run_verify(ctx: ReleaseContext, query_runner: Path, executor: Path, sync_scr
     if ctx.errors:
         write_release_report(ctx, "verify", "blocked")
         return 2
+    if ctx.normalized.get("release_type") == "metadata":
+        metadata = run_openmetadata(ctx, sync_script, "plan")
+        ctx.add_step("openmetadata_plan", "passed" if metadata.get("ok") else "failed", result=metadata)
+        write_release_report(ctx, "verify", "verified" if metadata.get("ok") else "failed")
+        return 0 if metadata.get("ok") else 1
     health = execute_clickhouse_health(ctx, query_runner)
     ctx.add_step("clickhouse_health", "passed" if health.get("ok") else "failed", result=health)
     if not health.get("ok"):
@@ -1764,7 +1782,51 @@ def run_cleanup_full(
     return 0 if status == "succeeded" else 1
 
 
+def run_metadata_full(ctx: ReleaseContext, sync_script: Path, git_executable: str | None, rerun: bool) -> int:
+    """Publish metadata only: no ClickHouse DDL/DML, swap, or cleanup is allowed."""
+    old_report = existing_report(ctx)
+    if old_report and old_report.get("manifest_fingerprint") == ctx.manifest_fingerprint and old_report.get("status") in {"succeeded", "finalized"} and not rerun:
+        print(json.dumps({"ok": True, "status": old_report.get("status"), "idempotent_reuse": True, "report": str(ctx.package_dir / f"release-report-{ctx.release_id}.json")}, ensure_ascii=False, indent=2))
+        return 0
+    if old_report and old_report.get("manifest_fingerprint") and old_report.get("manifest_fingerprint") != ctx.manifest_fingerprint:
+        ctx.errors.append("同一 release_id 已存在不同发布指纹，必须使用新的 release_id")
+    if ctx.errors:
+        report_path = write_release_report(ctx, "full", "blocked")
+        print(json.dumps({"ok": False, "status": "blocked", "report": str(report_path), "errors": ctx.errors}, ensure_ascii=False, indent=2))
+        return 2
+    report_path = ctx.package_dir / f"release-report-{ctx.release_id}.json"
+    ctx.report_path = report_path
+    write_release_report(ctx, "full", "prepared")
+    git_info, prepared = git_prepare(ctx, git_executable, report_path)
+    if not prepared or not prepared.get("ok"):
+        write_release_report(ctx, "full", "blocked", {"failure_reason": "Git 预提交失败"})
+        return 2
+    metadata = run_openmetadata(ctx, sync_script, "full")
+    ctx.add_step("openmetadata_full", "passed" if metadata.get("ok") else "failed", result=metadata)
+    status = "succeeded" if metadata.get("ok") else "failed"
+    write_release_report(ctx, "full", status, {} if metadata.get("ok") else {"failure_reason": "OpenMetadata plan/apply/verify 未全部通过"})
+    final_paths = [report_path]
+    metadata_report = metadata_report_path(ctx)
+    if metadata_report.exists(): final_paths.append(metadata_report)
+    final_git = git_stage_commit(ctx, git_info, final_paths, f"warehouse metadata release {ctx.release_id} {status}")
+    ctx.add_step("git_finalize_commit", "passed" if final_git.get("ok") else "failed", result=final_git)
+    if not final_git.get("ok"):
+        write_release_report(ctx, "full", "version_record_pending", {"failure_reason": "元数据已同步，但 Git 留痕失败"})
+        return 1
+    tag = git_tag(ctx, git_info) if status == "succeeded" else None
+    if tag: ctx.add_step("git_tag", "passed" if tag.get("ok") else "failed", result=tag)
+    pushed = git_push(ctx, git_info, follow_tags=bool(tag and tag.get("ok")))
+    ctx.add_step("git_finalize_push", "passed" if pushed.get("ok") else "failed", result=pushed)
+    if not pushed.get("ok"):
+        write_release_report(ctx, "full", "version_record_pending", {"failure_reason": "元数据已同步，本地 Git 已留痕，但远程同步失败", "push_result": pushed})
+        return 1
+    print(json.dumps({"ok": status == "succeeded", "status": status, "release_id": ctx.release_id, "report": str(report_path)}, ensure_ascii=False, indent=2))
+    return 0 if status == "succeeded" else 1
+
+
 def run_full(ctx: ReleaseContext, query_runner: Path, executor: Path, sync_script: Path, git_executable: str | None, rerun: bool) -> int:
+    if ctx.normalized.get("release_type") == "metadata":
+        return run_metadata_full(ctx, sync_script, git_executable, rerun)
     if ctx.normalized.get("release_type") == "cleanup":
         return run_cleanup_full(ctx, query_runner, executor, sync_script, git_executable, rerun)
     old_report = existing_report(ctx)

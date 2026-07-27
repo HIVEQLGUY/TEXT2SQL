@@ -29,12 +29,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_PACKAGE_DIR = PROJECT_ROOT / "config" / "warehouse_cleaning" / "doudian_order_item_v1"
 DEFAULT_ENV_FILE = PROJECT_ROOT / "local" / "credentials" / "openmetadata.env"
 DEFAULT_SYNC_SCRIPT = (
-    Path.home()
-    / ".codex"
-    / "skills"
-    / "data-warehouse-cleaning"
-    / "scripts"
-    / "sync_openmetadata_metadata.py"
+    PROJECT_ROOT / "scripts" / "sync_openmetadata_metadata.py"
 )
 
 
