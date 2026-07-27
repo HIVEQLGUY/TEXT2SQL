@@ -1,6 +1,6 @@
 {
-  "ok": false,
-  "run_time": "2026-07-27T17:48:21+08:00",
+  "ok": true,
+  "run_time": "2026-07-27T17:54:02+08:00",
   "package_dir": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1",
   "release_file": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\metadata-release-formal-ods-dwd-2.0.0.yaml",
   "mode": "full",
@@ -131,578 +131,23 @@
     {
       "contract": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\metadata-contract-minimal-ods-2.0.0.yaml",
       "mode": "apply",
-      "returncode": 1,
-      "ok": false,
+      "returncode": 0,
+      "ok": true,
       "stdout": {
-        "ok": false,
+        "ok": true,
         "mode": "apply",
         "table_fqn": "youmei_clickhouse.default.youmei_sandbox.ods_api_dd_sale_order_list_info_f",
         "entity_id": "05c04071-6786-4e0b-87c5-23d046c9c4c0",
         "verification": {
-          "ok": false,
+          "ok": true,
           "table_exists": true,
           "table_fqn": "youmei_clickhouse.default.youmei_sandbox.ods_api_dd_sale_order_list_info_f",
           "expected_column_count": 92,
           "actual_column_count": 92,
           "missing_columns": [],
           "unexpected_columns": [],
-          "column_mismatches": [
-            {
-              "name": "accept_order_status",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "address_tag_ui",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "app_id",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "appointment_ship_time",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "author_cost_amount",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "b_type",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "b_type_desc",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "biz",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "biz_desc",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "buyer_words",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "cancel_reason",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "channel_payment_no",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "create_time",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "d_car_shop_biz_data",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "doudian_open_id",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "dt",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "earliest_receipt_time",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "early_arrival",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "encrypt_pay_tel",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "encrypt_post_receiver",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "encrypt_post_tel",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "exp_ship_time",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "finish_time",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "greet_words",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "latest_receipt_time",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "logistics_info",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "main_status",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "main_status_desc",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "mask_pay_tel",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "mask_post_addr",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "mask_post_receiver",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "mask_post_tel",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "modify_amount",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "modify_post_amount",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "only_platform_cost_amount",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "open_address_id",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "open_id",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "order_amount",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "order_expire_time",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "order_id",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "order_level",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "order_phase_list",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "order_status",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "order_status_desc",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "order_type",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "order_type_desc",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "origin_data",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "packing_amount",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "pay_amount",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "pay_tel",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "pay_time",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "pay_type",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "platform_cost_amount",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "post_addr",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "post_amount",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "post_insurance_amount",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "post_origin_amount",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "post_promotion_amount",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "post_receiver",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "post_tel",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "promise_info",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "promotion_amount",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "promotion_pay_amount",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "promotion_platform_amount",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "promotion_redpack_amount",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "promotion_redpack_platform_amount",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "promotion_redpack_talent_amount",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "promotion_shop_amount",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "promotion_talent_amount",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "seller_remark_stars",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "seller_words",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "serial_number_list",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "ship_time",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "shop_cost_amount",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "shop_id",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "shop_name",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "shop_order_tag_ui",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "sku_order_list",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "sub_b_type",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "sub_b_type_desc",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "supermarket_order_serial_no",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "target_arrival_time",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "tax_amount",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "total_promotion_amount",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "trade_type",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "trade_type_desc",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "update_time",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "user_coordinate",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "user_tag_ui",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "yuce_cube_shop_id",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "yuce_data_create_time",
-              "failed_checks": [
-                "tags"
-              ]
-            },
-            {
-              "name": "yuce_task_instance_id",
-              "failed_checks": [
-                "tags"
-              ]
-            }
-          ],
-          "table_failed_checks": [
-            "tags"
-          ],
+          "column_mismatches": [],
+          "table_failed_checks": [],
           "actual_table_extension_keys": [
             "composite_key_fields",
             "refresh_mode",
@@ -716,58 +161,204 @@
     {
       "contract": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\metadata-contract-minimal-formal-order-2.0.0.yaml",
       "mode": "apply",
-      "returncode": null,
-      "ok": false,
-      "skipped": true,
-      "stderr": "Skipped after previous failure."
+      "returncode": 0,
+      "ok": true,
+      "stdout": {
+        "ok": true,
+        "mode": "apply",
+        "table_fqn": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_df",
+        "entity_id": "ba1148a2-781f-4e11-86f8-4d782da59684",
+        "verification": {
+          "ok": true,
+          "table_exists": true,
+          "table_fqn": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_df",
+          "expected_column_count": 82,
+          "actual_column_count": 82,
+          "missing_columns": [],
+          "unexpected_columns": [],
+          "column_mismatches": [],
+          "table_failed_checks": [],
+          "actual_table_extension_keys": [
+            "composite_key_fields",
+            "refresh_mode",
+            "upstream_tables",
+            "warehouse_layer"
+          ]
+        }
+      },
+      "stderr": ""
     },
     {
       "contract": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\metadata-contract-minimal-formal-item-2.0.0.yaml",
       "mode": "apply",
-      "returncode": null,
-      "ok": false,
-      "skipped": true,
-      "stderr": "Skipped after previous failure."
+      "returncode": 0,
+      "ok": true,
+      "stdout": {
+        "ok": true,
+        "mode": "apply",
+        "table_fqn": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_df",
+        "entity_id": "993d379f-a0ff-4d24-ba97-1e1aedc72c0f",
+        "verification": {
+          "ok": true,
+          "table_exists": true,
+          "table_fqn": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_df",
+          "expected_column_count": 37,
+          "actual_column_count": 37,
+          "missing_columns": [],
+          "unexpected_columns": [],
+          "column_mismatches": [],
+          "table_failed_checks": [],
+          "actual_table_extension_keys": [
+            "composite_key_fields",
+            "refresh_mode",
+            "upstream_tables",
+            "warehouse_layer"
+          ]
+        }
+      },
+      "stderr": ""
     },
     {
       "contract": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\metadata-contract-minimal-formal-logistics-tracking-no-2.0.0.yaml",
       "mode": "apply",
-      "returncode": null,
-      "ok": false,
-      "skipped": true,
-      "stderr": "Skipped after previous failure."
+      "returncode": 0,
+      "ok": true,
+      "stdout": {
+        "ok": true,
+        "mode": "apply",
+        "table_fqn": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_df",
+        "entity_id": "d12c213a-161b-46a6-aed3-ea364b4b236b",
+        "verification": {
+          "ok": true,
+          "table_exists": true,
+          "table_fqn": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_df",
+          "expected_column_count": 18,
+          "actual_column_count": 18,
+          "missing_columns": [],
+          "unexpected_columns": [],
+          "column_mismatches": [],
+          "table_failed_checks": [],
+          "actual_table_extension_keys": [
+            "composite_key_fields",
+            "refresh_mode",
+            "upstream_tables",
+            "warehouse_layer"
+          ]
+        }
+      },
+      "stderr": ""
     },
     {
       "contract": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\metadata-contract-minimal-ods-2.0.0.yaml",
       "mode": "verify",
-      "returncode": null,
-      "ok": false,
-      "skipped": true,
-      "stderr": "Skipped after previous failure."
+      "returncode": 0,
+      "ok": true,
+      "stdout": {
+        "ok": true,
+        "mode": "verify",
+        "verification": {
+          "ok": true,
+          "table_exists": true,
+          "table_fqn": "youmei_clickhouse.default.youmei_sandbox.ods_api_dd_sale_order_list_info_f",
+          "expected_column_count": 92,
+          "actual_column_count": 92,
+          "missing_columns": [],
+          "unexpected_columns": [],
+          "column_mismatches": [],
+          "table_failed_checks": [],
+          "actual_table_extension_keys": [
+            "composite_key_fields",
+            "refresh_mode",
+            "upstream_tables",
+            "warehouse_layer"
+          ]
+        }
+      },
+      "stderr": ""
     },
     {
       "contract": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\metadata-contract-minimal-formal-order-2.0.0.yaml",
       "mode": "verify",
-      "returncode": null,
-      "ok": false,
-      "skipped": true,
-      "stderr": "Skipped after previous failure."
+      "returncode": 0,
+      "ok": true,
+      "stdout": {
+        "ok": true,
+        "mode": "verify",
+        "verification": {
+          "ok": true,
+          "table_exists": true,
+          "table_fqn": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_df",
+          "expected_column_count": 82,
+          "actual_column_count": 82,
+          "missing_columns": [],
+          "unexpected_columns": [],
+          "column_mismatches": [],
+          "table_failed_checks": [],
+          "actual_table_extension_keys": [
+            "composite_key_fields",
+            "refresh_mode",
+            "upstream_tables",
+            "warehouse_layer"
+          ]
+        }
+      },
+      "stderr": ""
     },
     {
       "contract": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\metadata-contract-minimal-formal-item-2.0.0.yaml",
       "mode": "verify",
-      "returncode": null,
-      "ok": false,
-      "skipped": true,
-      "stderr": "Skipped after previous failure."
+      "returncode": 0,
+      "ok": true,
+      "stdout": {
+        "ok": true,
+        "mode": "verify",
+        "verification": {
+          "ok": true,
+          "table_exists": true,
+          "table_fqn": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_item_df",
+          "expected_column_count": 37,
+          "actual_column_count": 37,
+          "missing_columns": [],
+          "unexpected_columns": [],
+          "column_mismatches": [],
+          "table_failed_checks": [],
+          "actual_table_extension_keys": [
+            "composite_key_fields",
+            "refresh_mode",
+            "upstream_tables",
+            "warehouse_layer"
+          ]
+        }
+      },
+      "stderr": ""
     },
     {
       "contract": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\metadata-contract-minimal-formal-logistics-tracking-no-2.0.0.yaml",
       "mode": "verify",
-      "returncode": null,
-      "ok": false,
-      "skipped": true,
-      "stderr": "Skipped after previous failure."
+      "returncode": 0,
+      "ok": true,
+      "stdout": {
+        "ok": true,
+        "mode": "verify",
+        "verification": {
+          "ok": true,
+          "table_exists": true,
+          "table_fqn": "youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_df",
+          "expected_column_count": 18,
+          "actual_column_count": 18,
+          "missing_columns": [],
+          "unexpected_columns": [],
+          "column_mismatches": [],
+          "table_failed_checks": [],
+          "actual_table_extension_keys": [
+            "composite_key_fields",
+            "refresh_mode",
+            "upstream_tables",
+            "warehouse_layer"
+          ]
+        }
+      },
+      "stderr": ""
     }
   ]
 }
