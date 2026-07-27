@@ -1,0 +1,40 @@
+release_api_version: warehouse-release/v1
+release_id: doudian-formal-ods-dwd-metadata-2.0.0
+version: 2.0.0
+release_type: metadata
+environment: test
+status: approved
+
+publish:
+  strategy: metadata_only
+
+openmetadata:
+  mode: full
+  contracts:
+    - metadata-contract-minimal-ods-2.0.0.yaml
+    - metadata-contract-minimal-formal-order-2.0.0.yaml
+    - metadata-contract-minimal-formal-item-2.0.0.yaml
+    - metadata-contract-minimal-formal-logistics-tracking-no-2.0.0.yaml
+
+approval:
+  status: approved
+  metadata_sync_authorized: true
+  authorized_by: 用户确认
+  authorized_at: '2026-07-27T00:00:00+08:00'
+  user_confirmation: 仅同步当前正式ODS和DWD表元数据；不处理影子、候选、临时和历史表，不重建ClickHouse业务数据。
+
+git:
+  required: true
+  auto_commit: true
+  auto_push: true
+  remote: origin
+  branch: main
+  tag: warehouse/doudian-formal-ods-dwd-metadata-2.0.0
+  push_retries: 3
+  push_retry_backoff_seconds: 3
+  include_paths:
+    - metadata-release-formal-ods-dwd-2.0.0.yaml
+    - metadata-contract-minimal-ods-2.0.0.yaml
+    - metadata-contract-minimal-formal-order-2.0.0.yaml
+    - metadata-contract-minimal-formal-item-2.0.0.yaml
+    - metadata-contract-minimal-formal-logistics-tracking-no-2.0.0.yaml

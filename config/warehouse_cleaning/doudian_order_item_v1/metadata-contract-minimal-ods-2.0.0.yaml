@@ -1,0 +1,1633 @@
+contract_id: openmetadata_minimal_ods_api_dd_sale_order_list_info_f
+contract_version: 2.0.0
+status: approved
+table:
+  name: ods_api_dd_sale_order_list_info_f
+  display_name: ODS_销售订单列表信息表(抖店API)
+  database_schema_fqn: youmei_clickhouse.default.youmei_sandbox
+  fully_qualified_name: youmei_clickhouse.default.youmei_sandbox.ods_api_dd_sale_order_list_info_f
+table_metadata:
+  composite_key_fields:
+  - chinese_name: 店铺订单号
+    physical_name: order_id
+  refresh_mode:
+    code: window_full_snapshot
+    chinese_name: 窗口全量快照
+  upstream_tables: []
+  warehouse_layer: ODS
+columns:
+- chinese_name: 小时达订单接单状态
+  physical_name: accept_order_status
+  data_type: String
+  data_type_display: String
+  business_meaning: 小时达订单接单状态
+  source_fields:
+  - accept_order_status
+  calculation_logic:
+    operation: direct_mapping
+    formula: accept_order_status 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 5c20113d6994a71d1562c03c27badd16b7c3c3128570724961430c72e51db577
+- chinese_name: 店铺ID
+  physical_name: shop_id
+  data_type: String
+  data_type_display: String
+  business_meaning: 店铺ID
+  source_fields:
+  - shop_id
+  calculation_logic:
+    operation: direct_mapping
+    formula: shop_id 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: e342040fa9b161de6136ddde020b2b45a54d14eb8f30e57458c7d623b31d89ba
+- chinese_name: 商户名称
+  physical_name: shop_name
+  data_type: String
+  data_type_display: String
+  business_meaning: 商户名称
+  source_fields:
+  - shop_name
+  calculation_logic:
+    operation: direct_mapping
+    formula: shop_name 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 2e09e69b71055d2355f222fea49d605d6707f2752736a9e0766a6debd761e221
+- chinese_name: 抖音小程序ID
+  physical_name: open_id
+  data_type: String
+  data_type_display: String
+  business_meaning: 抖音小程序ID
+  source_fields:
+  - open_id
+  calculation_logic:
+    operation: direct_mapping
+    formula: open_id 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: dc3d7e0ee124dce11653ffd668519c1e955d14b0855e8627a5f9aa52528746ce
+- chinese_name: 店铺订单号
+  physical_name: order_id
+  data_type: String
+  data_type_display: String
+  business_meaning: 店铺订单号
+  source_fields:
+  - order_id
+  calculation_logic:
+    operation: direct_mapping
+    formula: order_id 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 2e4150b33caa1dbc93cd74d9003f20a0d29123f5345c138a3c4267a1dff419fd
+- chinese_name: 订单层级
+  physical_name: order_level
+  data_type: String
+  data_type_display: String
+  business_meaning: 订单层级
+  source_fields:
+  - order_level
+  calculation_logic:
+    operation: direct_mapping
+    formula: order_level 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: f6b01bac2053d1a292fc32276cf77bc65273dcdf5d4c54a54510870c8af5b472
+- chinese_name: 业务来源
+  physical_name: biz
+  data_type: String
+  data_type_display: String
+  business_meaning: 业务来源
+  source_fields:
+  - biz
+  calculation_logic:
+    operation: direct_mapping
+    formula: biz 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: a132eba40b58dee8e24b8b1831da07e7ebb08cc8a0777cc8f730e5c7e30f9082
+- chinese_name: 业务来源描述
+  physical_name: biz_desc
+  data_type: String
+  data_type_display: String
+  business_meaning: 业务来源描述
+  source_fields:
+  - biz_desc
+  calculation_logic:
+    operation: direct_mapping
+    formula: biz_desc 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 2ceca83a4953661c13c8fa57780fbdcb97561c98064885c153289c8acb970551
+- chinese_name: 订单类型
+  physical_name: order_type
+  data_type: String
+  data_type_display: String
+  business_meaning: 订单类型
+  source_fields:
+  - order_type
+  calculation_logic:
+    operation: direct_mapping
+    formula: order_type 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: ae1ec5b0ac71f536f15d5d5e905a944db875c467983a203caec301dcd0ecc5e5
+- chinese_name: 订单类型描述
+  physical_name: order_type_desc
+  data_type: String
+  data_type_display: String
+  business_meaning: 订单类型描述
+  source_fields:
+  - order_type_desc
+  calculation_logic:
+    operation: direct_mapping
+    formula: order_type_desc 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: ee72f4ad8479d4f97a2368e2f365702264c2928fae73edb82a327076e4d7c2cb
+- chinese_name: 交易类型(弃用)
+  physical_name: trade_type
+  data_type: String
+  data_type_display: String
+  business_meaning: 交易类型(弃用)
+  source_fields:
+  - trade_type
+  calculation_logic:
+    operation: direct_mapping
+    formula: trade_type 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: aed78c5c3d72d8b62c6a3c83670e7452b94516235484f9407476605a1659912d
+- chinese_name: 交易类型描述(弃用)
+  physical_name: trade_type_desc
+  data_type: String
+  data_type_display: String
+  business_meaning: 交易类型描述(弃用)
+  source_fields:
+  - trade_type_desc
+  calculation_logic:
+    operation: direct_mapping
+    formula: trade_type_desc 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: ef184b193c42df2b62311178694e094f4b45060cc6073d615b36264375a77727
+- chinese_name: 订单状态
+  physical_name: order_status
+  data_type: String
+  data_type_display: String
+  business_meaning: 订单状态
+  source_fields:
+  - order_status
+  calculation_logic:
+    operation: direct_mapping
+    formula: order_status 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 77301b9a59e924b84ba4babe66b05807ac6993beb1fa592ba33c3dc06d7cbe0e
+- chinese_name: 订单状态描述
+  physical_name: order_status_desc
+  data_type: String
+  data_type_display: String
+  business_meaning: 订单状态描述
+  source_fields:
+  - order_status_desc
+  calculation_logic:
+    operation: direct_mapping
+    formula: order_status_desc 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 51c9df5bb3cf1e1a8fc2de2ba42ee7a28a31b7e38fa7bb8c0225cdfdf19523f9
+- chinese_name: 主流程状态
+  physical_name: main_status
+  data_type: String
+  data_type_display: String
+  business_meaning: 主流程状态
+  source_fields:
+  - main_status
+  calculation_logic:
+    operation: direct_mapping
+    formula: main_status 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 6bc0eced92c1a0f848c709eacdcc206bd298780a7c10e8fba83f7def07bacf75
+- chinese_name: 主流程状态描述
+  physical_name: main_status_desc
+  data_type: String
+  data_type_display: String
+  business_meaning: 主流程状态描述
+  source_fields:
+  - main_status_desc
+  calculation_logic:
+    operation: direct_mapping
+    formula: main_status_desc 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 8e2042827728c3b06958899f2529de3f5feb24c8e18bde6ed722a5de95806e63
+- chinese_name: 支付时间
+  physical_name: pay_time
+  data_type: String
+  data_type_display: String
+  business_meaning: 支付时间
+  source_fields:
+  - pay_time
+  calculation_logic:
+    operation: direct_mapping
+    formula: pay_time 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: af3fad71a950ac310ea5175a077e91ac3f99fc7162789b18447ad41919fa6a05
+- chinese_name: 订单过期时间
+  physical_name: order_expire_time
+  data_type: String
+  data_type_display: String
+  business_meaning: 订单过期时间
+  source_fields:
+  - order_expire_time
+  calculation_logic:
+    operation: direct_mapping
+    formula: order_expire_time 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 40249a17d5a3e6f564e4a4fcbd2192f31ecf0be44acb67a5ee9c6f13e10b9038
+- chinese_name: 订单完成时间
+  physical_name: finish_time
+  data_type: String
+  data_type_display: String
+  business_meaning: 订单完成时间
+  source_fields:
+  - finish_time
+  calculation_logic:
+    operation: direct_mapping
+    formula: finish_time 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 0f36b54ade6037e90b1e664bb54e579601cd88358f354faa3fa1f29fe820da48
+- chinese_name: 下单时间
+  physical_name: create_time
+  data_type: String
+  data_type_display: String
+  business_meaning: 下单时间
+  source_fields:
+  - create_time
+  calculation_logic:
+    operation: direct_mapping
+    formula: create_time 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 4fb152294848f1e3f53e73f17183d0c42f3693a79cd8017364814ceb50b3f767
+- chinese_name: 订单更新时间
+  physical_name: update_time
+  data_type: String
+  data_type_display: String
+  business_meaning: 订单更新时间
+  source_fields:
+  - update_time
+  calculation_logic:
+    operation: direct_mapping
+    formula: update_time 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: c182400673f0fdd1cbca05ec08674f3ce3f4270a3143161262b951c2e0994ebf
+- chinese_name: 取消原因
+  physical_name: cancel_reason
+  data_type: String
+  data_type_display: String
+  business_meaning: 取消原因
+  source_fields:
+  - cancel_reason
+  calculation_logic:
+    operation: direct_mapping
+    formula: cancel_reason 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 058333b6019c27faf7d3ef3ad519bc52b11bc4912da4adf3cb5e8791e2dc9032
+- chinese_name: 买家留言
+  physical_name: buyer_words
+  data_type: String
+  data_type_display: String
+  business_meaning: 买家留言
+  source_fields:
+  - buyer_words
+  calculation_logic:
+    operation: direct_mapping
+    formula: buyer_words 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: ef1f301a598bdb6177c60272d5951906d3d24f95a4897765c06d4a6b5f115080
+- chinese_name: 商家备注
+  physical_name: seller_words
+  data_type: String
+  data_type_display: String
+  business_meaning: 商家备注
+  source_fields:
+  - seller_words
+  calculation_logic:
+    operation: direct_mapping
+    formula: seller_words 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: c0918705c9e9c6528db77eb3eac55ac9643fc1884d5869505684adaf4b7f71b8
+- chinese_name: 下单端编码
+  physical_name: b_type
+  data_type: String
+  data_type_display: String
+  business_meaning: 下单端编码
+  source_fields:
+  - b_type
+  calculation_logic:
+    operation: direct_mapping
+    formula: b_type 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: b122285a2641c68a21ad3c38a6d044616fe151178b1d23796f4c78e7786244a4
+- chinese_name: 下单端描述
+  physical_name: b_type_desc
+  data_type: String
+  data_type_display: String
+  business_meaning: 下单端描述
+  source_fields:
+  - b_type_desc
+  calculation_logic:
+    operation: direct_mapping
+    formula: b_type_desc 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: e3b153b19042277410f3c120cb75fbc51490df575f88ee2007fad16757b1d3d3
+- chinese_name: 下单场景编码
+  physical_name: sub_b_type
+  data_type: String
+  data_type_display: String
+  business_meaning: 下单场景编码
+  source_fields:
+  - sub_b_type
+  calculation_logic:
+    operation: direct_mapping
+    formula: sub_b_type 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 96b8df7e39c7215a85cf603dab16f829df6f6d3f8c298e467b286e11e6c35cc5
+- chinese_name: 下单场景描述
+  physical_name: sub_b_type_desc
+  data_type: String
+  data_type_display: String
+  business_meaning: 下单场景描述
+  source_fields:
+  - sub_b_type_desc
+  calculation_logic:
+    operation: direct_mapping
+    formula: sub_b_type_desc 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: b01a69d0ff20bc24f8632be8d1d82fe74f6ee8744d7e4582654d2e8c79aef64f
+- chinese_name: 具体小程序ID
+  physical_name: app_id
+  data_type: String
+  data_type_display: String
+  business_meaning: 具体小程序ID
+  source_fields:
+  - app_id
+  calculation_logic:
+    operation: direct_mapping
+    formula: app_id 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 08b278cf898715f987abf8d08fa7e2b0730b686b2cdb7e7e553efe723fcca19c
+- chinese_name: 支付类型
+  physical_name: pay_type
+  data_type: String
+  data_type_display: String
+  business_meaning: 支付类型
+  source_fields:
+  - pay_type
+  calculation_logic:
+    operation: direct_mapping
+    formula: pay_type 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: d72321a378a8ad32a29838aab09b96f7336c4afad4105ad812fa9178e23c307b
+- chinese_name: 支付渠道流水号
+  physical_name: channel_payment_no
+  data_type: String
+  data_type_display: String
+  business_meaning: 支付渠道流水号
+  source_fields:
+  - channel_payment_no
+  calculation_logic:
+    operation: direct_mapping
+    formula: channel_payment_no 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 9eb02787621d859fb9fcc684aba6f0f2091fb732f499ebdf0c04bbd1f0d957fd
+- chinese_name: 订单金额
+  physical_name: order_amount
+  data_type: String
+  data_type_display: String
+  business_meaning: 订单金额
+  source_fields:
+  - order_amount
+  calculation_logic:
+    operation: decimal_standardization
+    formula: toDecimal(order_amount)
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+    source_unit: 元
+    target_unit: 元
+    precision: 2
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 255872739c10d25a35e626ab8e53ec989cc5de60d2803e4e563b76d8373576cf
+- chinese_name: 支付金额
+  physical_name: pay_amount
+  data_type: String
+  data_type_display: String
+  business_meaning: 支付金额
+  source_fields:
+  - pay_amount
+  calculation_logic:
+    operation: decimal_standardization
+    formula: toDecimal(pay_amount)
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+    source_unit: 元
+    target_unit: 元
+    precision: 2
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 78ffd9b8cf9eedc80ef16d70270b3edf69dea12a0fcd7b20711ecd3e7a7c2269
+- chinese_name: 快递费
+  physical_name: post_amount
+  data_type: String
+  data_type_display: String
+  business_meaning: 快递费
+  source_fields:
+  - post_amount
+  calculation_logic:
+    operation: direct_mapping
+    formula: post_amount 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 79e2b00cc6823f7438b97b8d4141d90f780e410db0729b24747abbbdb9f889a1
+- chinese_name: 运费险金额
+  physical_name: post_insurance_amount
+  data_type: String
+  data_type_display: String
+  business_meaning: 运费险金额
+  source_fields:
+  - post_insurance_amount
+  calculation_logic:
+    operation: decimal_standardization
+    formula: toDecimal(post_insurance_amount)
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+    source_unit: 元
+    target_unit: 元
+    precision: 2
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: ec6d686d19394d4e4ddae55d698fc83ac1945a657c84b25463019e3afb84cefe
+- chinese_name: 改价金额变化量
+  physical_name: modify_amount
+  data_type: String
+  data_type_display: String
+  business_meaning: 改价金额变化量
+  source_fields:
+  - modify_amount
+  calculation_logic:
+    operation: decimal_standardization
+    formula: toDecimal(modify_amount)
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+    source_unit: 元
+    target_unit: 元
+    precision: 2
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 3c6b0efde5754d51f14cbaf17e51dc49ec3947054198e18743e62f79b34043f0
+- chinese_name: 改价运费金额变化量
+  physical_name: modify_post_amount
+  data_type: String
+  data_type_display: String
+  business_meaning: 改价运费金额变化量
+  source_fields:
+  - modify_post_amount
+  calculation_logic:
+    operation: decimal_standardization
+    formula: toDecimal(modify_post_amount)
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+    source_unit: 元
+    target_unit: 元
+    precision: 2
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: acd9d234a9c53070b106ab6aa54da66fa904888c1edfb902c2eeb9f20b00670d
+- chinese_name: 订单优惠总金额
+  physical_name: promotion_amount
+  data_type: String
+  data_type_display: String
+  business_meaning: 订单优惠总金额
+  source_fields:
+  - promotion_amount
+  calculation_logic:
+    operation: decimal_standardization
+    formula: toDecimal(promotion_amount)
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+    source_unit: 元
+    target_unit: 元
+    precision: 2
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 3cb179f44c2778b2762e30182466d2b126f94c5abda60952c900561206bff637
+- chinese_name: 店铺优惠金额
+  physical_name: promotion_shop_amount
+  data_type: String
+  data_type_display: String
+  business_meaning: 店铺优惠金额
+  source_fields:
+  - promotion_shop_amount
+  calculation_logic:
+    operation: decimal_standardization
+    formula: toDecimal(promotion_shop_amount)
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+    source_unit: 元
+    target_unit: 元
+    precision: 2
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 529b3c469a9fb73cd8daef786029c7469a397e9cd780ead38bf55a497c6d4bd7
+- chinese_name: 平台优惠金额
+  physical_name: promotion_platform_amount
+  data_type: String
+  data_type_display: String
+  business_meaning: 平台优惠金额
+  source_fields:
+  - promotion_platform_amount
+  calculation_logic:
+    operation: decimal_standardization
+    formula: toDecimal(promotion_platform_amount)
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+    source_unit: 元
+    target_unit: 元
+    precision: 2
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 1deed2a18b1b2996cd14815fcd056e00e317c7ca48a21b31bf54b15016070401
+- chinese_name: 商家承担金额
+  physical_name: shop_cost_amount
+  data_type: String
+  data_type_display: String
+  business_meaning: 商家承担金额
+  source_fields:
+  - shop_cost_amount
+  calculation_logic:
+    operation: decimal_standardization
+    formula: toDecimal(shop_cost_amount)
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+    source_unit: 元
+    target_unit: 元
+    precision: 2
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: a9bb9654735513c75e00b3d3b053ee5c9b14d20888363f76d6a535f003695ec6
+- chinese_name: 平台承担金额
+  physical_name: platform_cost_amount
+  data_type: String
+  data_type_display: String
+  business_meaning: 平台承担金额
+  source_fields:
+  - platform_cost_amount
+  calculation_logic:
+    operation: decimal_standardization
+    formula: toDecimal(platform_cost_amount)
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+    source_unit: 元
+    target_unit: 元
+    precision: 2
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 6814dba3aff88e0594c1d2fd04f11a5ff47ef186944f47f08de754b937b690aa
+- chinese_name: 达人优惠金额
+  physical_name: promotion_talent_amount
+  data_type: String
+  data_type_display: String
+  business_meaning: 达人优惠金额
+  source_fields:
+  - promotion_talent_amount
+  calculation_logic:
+    operation: decimal_standardization
+    formula: toDecimal(promotion_talent_amount)
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+    source_unit: 元
+    target_unit: 元
+    precision: 2
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 754c730403da92358b4d5e55459661f7c196084ad78fa6ec4dd57c040665df56
+- chinese_name: 支付优惠金额
+  physical_name: promotion_pay_amount
+  data_type: String
+  data_type_display: String
+  business_meaning: 支付优惠金额
+  source_fields:
+  - promotion_pay_amount
+  calculation_logic:
+    operation: decimal_standardization
+    formula: toDecimal(promotion_pay_amount)
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+    source_unit: 元
+    target_unit: 元
+    precision: 2
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 586afd2fc04d607c145f991323d2f696965791f0d1dd13f2f640bf2575e6df61
+- chinese_name: 收件人电话
+  physical_name: encrypt_post_tel
+  data_type: String
+  data_type_display: String
+  business_meaning: 收件人电话
+  source_fields:
+  - encrypt_post_tel
+  calculation_logic:
+    operation: direct_mapping
+    formula: encrypt_post_tel 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 38c71ccbb739ade7826bc406ec309abe98a718a18a2732fe695a3f719ef92dda
+- chinese_name: 收件人姓名
+  physical_name: encrypt_post_receiver
+  data_type: String
+  data_type_display: String
+  business_meaning: 收件人姓名
+  source_fields:
+  - encrypt_post_receiver
+  calculation_logic:
+    operation: direct_mapping
+    formula: encrypt_post_receiver 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: ba4d1dd43f6bace04b335f4bf898192d72254732a8398910edcd14806e2db3b9
+- chinese_name: 收件人地址
+  physical_name: post_addr
+  data_type: String
+  data_type_display: String
+  business_meaning: 收件人地址
+  source_fields:
+  - post_addr
+  calculation_logic:
+    operation: direct_mapping
+    formula: post_addr 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 282e3445d62ed0c4d6ded61c04bc32bbe5d778d8805beb77f87c6d65857caa64
+- chinese_name: 预计发货时间
+  physical_name: exp_ship_time
+  data_type: String
+  data_type_display: String
+  business_meaning: 预计发货时间
+  source_fields:
+  - exp_ship_time
+  calculation_logic:
+    operation: direct_mapping
+    formula: exp_ship_time 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 710da52b4d95430ca75155d51b624ab193bcbb3425f9ef760c4e6af532903e18
+- chinese_name: 发货时间
+  physical_name: ship_time
+  data_type: String
+  data_type_display: String
+  business_meaning: 发货时间
+  source_fields:
+  - ship_time
+  calculation_logic:
+    operation: direct_mapping
+    formula: ship_time 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 5661653b7ce7ff46226cbd299d1503f028ef6c5bb9414170b08ba79de502e267
+- chinese_name: 物流信息
+  physical_name: logistics_info
+  data_type: String
+  data_type_display: String
+  business_meaning: 物流信息
+  source_fields:
+  - logistics_info
+  calculation_logic:
+    operation: direct_mapping
+    formula: logistics_info 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: fc7f75a0d3f72cfcd6ec9280a8c4eb6604b9e8b1b3c12eb54450e960f37e2f2c
+- chinese_name: 订单详情信息
+  physical_name: sku_order_list
+  data_type: String
+  data_type_display: String
+  business_meaning: 订单详情信息
+  source_fields:
+  - sku_order_list
+  calculation_logic:
+    operation: direct_mapping
+    formula: sku_order_list 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 153b80e1fd3cd1a4977c5341d9118d5566040af6b8e0275b463e7ddde4236868
+- chinese_name: 插旗信息
+  physical_name: seller_remark_stars
+  data_type: String
+  data_type_display: String
+  business_meaning: 插旗信息
+  source_fields:
+  - seller_remark_stars
+  calculation_logic:
+    operation: direct_mapping
+    formula: seller_remark_stars 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: bc57c5dc0d4d9277c3bdfeeae69628f4437199e29aa57f7fcc9b3e2928d45a7f
+- chinese_name: 定金预售阶段单
+  physical_name: order_phase_list
+  data_type: String
+  data_type_display: String
+  business_meaning: 定金预售阶段单
+  source_fields:
+  - order_phase_list
+  calculation_logic:
+    operation: direct_mapping
+    formula: order_phase_list 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 47faf5075cfdecceac0a3f2a444d9c3a819a214b631a74b2f028fa670b95cc00
+- chinese_name: 加密用户ID串
+  physical_name: doudian_open_id
+  data_type: String
+  data_type_display: String
+  business_meaning: 加密用户ID串
+  source_fields:
+  - doudian_open_id
+  calculation_logic:
+    operation: direct_mapping
+    formula: doudian_open_id 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 7157001a48e8efa24f5be8bffa934d40485cd3766c063f4cf2853ff8a5aaa0c1
+- chinese_name: 商品序列号
+  physical_name: serial_number_list
+  data_type: String
+  data_type_display: String
+  business_meaning: 商品序列号
+  source_fields:
+  - serial_number_list
+  calculation_logic:
+    operation: direct_mapping
+    formula: serial_number_list 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 47bfc0ca8505b9991a6b19538c93d2ea044462a8065ac2fd079befda30a33989
+- chinese_name: 红包优惠金额
+  physical_name: promotion_redpack_amount
+  data_type: String
+  data_type_display: String
+  business_meaning: 红包优惠金额
+  source_fields:
+  - promotion_redpack_amount
+  calculation_logic:
+    operation: decimal_standardization
+    formula: toDecimal(promotion_redpack_amount)
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+    source_unit: 元
+    target_unit: 元
+    precision: 2
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 5ae23e30dec8da2e7409ef78b7b905d85e2aa5e99c9e36d23145ad624c00bd35
+- chinese_name: 平台优惠信息
+  physical_name: promotion_redpack_platform_amount
+  data_type: String
+  data_type_display: String
+  business_meaning: 平台优惠信息
+  source_fields:
+  - promotion_redpack_platform_amount
+  calculation_logic:
+    operation: direct_mapping
+    formula: promotion_redpack_platform_amount 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: fd4ec6d9d6f13f3d363d02f96414a3354d83066cf02aec31c1e9fb01bca7709e
+- chinese_name: 达人优惠信息
+  physical_name: promotion_redpack_talent_amount
+  data_type: String
+  data_type_display: String
+  business_meaning: 达人优惠信息
+  source_fields:
+  - promotion_redpack_talent_amount
+  calculation_logic:
+    operation: direct_mapping
+    formula: promotion_redpack_talent_amount 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: e205c7e5291af4f0854424988f9865053c3b6aa9fda2f1376436a8bb19d37622
+- chinese_name: 预约发货时间
+  physical_name: appointment_ship_time
+  data_type: String
+  data_type_display: String
+  business_meaning: 预约发货时间
+  source_fields:
+  - appointment_ship_time
+  calculation_logic:
+    operation: direct_mapping
+    formula: appointment_ship_time 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 6ca4e870fc0d1774642fdd1522ead99d8f62801823b6f26b7165600d084a0fa5
+- chinese_name: 懂车帝购车信息
+  physical_name: d_car_shop_biz_data
+  data_type: String
+  data_type_display: String
+  business_meaning: 懂车帝购车信息
+  source_fields:
+  - d_car_shop_biz_data
+  calculation_logic:
+    operation: direct_mapping
+    formula: d_car_shop_biz_data 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: daa1b4791cc5be4270a8c386235fc3d3c90e5b239e70b0f0a159ecc2c83c776c
+- chinese_name: 店铺单标签
+  physical_name: shop_order_tag_ui
+  data_type: String
+  data_type_display: String
+  business_meaning: 店铺单标签
+  source_fields:
+  - shop_order_tag_ui
+  calculation_logic:
+    operation: direct_mapping
+    formula: shop_order_tag_ui 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 211d0fd9744ce5a4293a5d48834c677841289738025818bae8b4d8f1d5e41003
+- chinese_name: 总优惠金额
+  physical_name: total_promotion_amount
+  data_type: String
+  data_type_display: String
+  business_meaning: 总优惠金额
+  source_fields:
+  - total_promotion_amount
+  calculation_logic:
+    operation: decimal_standardization
+    formula: toDecimal(total_promotion_amount)
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+    source_unit: 元
+    target_unit: 元
+    precision: 2
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 1ecc4a0ac53ffc3c07bd99853e6a21350084bae53035d16c5df2b4941710629e
+- chinese_name: 运费原价
+  physical_name: post_origin_amount
+  data_type: String
+  data_type_display: String
+  business_meaning: 运费原价
+  source_fields:
+  - post_origin_amount
+  calculation_logic:
+    operation: direct_mapping
+    formula: post_origin_amount 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: c0e7ae466d8129252c83d403ebd85974c3baf9511f31a89eb85a2b3fd64c4d97
+- chinese_name: 运费优惠金额
+  physical_name: post_promotion_amount
+  data_type: String
+  data_type_display: String
+  business_meaning: 运费优惠金额
+  source_fields:
+  - post_promotion_amount
+  calculation_logic:
+    operation: decimal_standardization
+    formula: toDecimal(post_promotion_amount)
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+    source_unit: 元
+    target_unit: 元
+    precision: 2
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: c451d0944253baf92a39958a798db900708216bc8c919187887ebdf7fbd6764c
+- chinese_name: 用户特征标签
+  physical_name: user_tag_ui
+  data_type: String
+  data_type_display: String
+  business_meaning: 用户特征标签
+  source_fields:
+  - user_tag_ui
+  calculation_logic:
+    operation: direct_mapping
+    formula: user_tag_ui 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: f3bd66e74a01d56eb175b686c53761947196c069d8c4711f32e58e11b49d6141
+- chinese_name: 作者达人承担金额
+  physical_name: author_cost_amount
+  data_type: String
+  data_type_display: String
+  business_meaning: 作者达人承担金额
+  source_fields:
+  - author_cost_amount
+  calculation_logic:
+    operation: decimal_standardization
+    formula: toDecimal(author_cost_amount)
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+    source_unit: 元
+    target_unit: 元
+    precision: 2
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: f5e314931632a26d8d4b389890416340f957c028b2f6ce98256ac8f903958229
+- chinese_name: 仅平台承担金额
+  physical_name: only_platform_cost_amount
+  data_type: String
+  data_type_display: String
+  business_meaning: 仅平台承担金额
+  source_fields:
+  - only_platform_cost_amount
+  calculation_logic:
+    operation: decimal_standardization
+    formula: toDecimal(only_platform_cost_amount)
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+    source_unit: 元
+    target_unit: 元
+    precision: 2
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: f71a73a91f09d4b3c7947c8a4b70b413aad424db4f9d09a1b272c75e6cf75976
+- chinese_name: 履约时效信息
+  physical_name: promise_info
+  data_type: String
+  data_type_display: String
+  business_meaning: 履约时效信息
+  source_fields:
+  - promise_info
+  calculation_logic:
+    operation: direct_mapping
+    formula: promise_info 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: b5edcbbf501444c800875941a0376e2bc52f80f6c3bc798cdfd9f7624a9626b8
+- chinese_name: 收件人姓名(脱敏)
+  physical_name: mask_post_receiver
+  data_type: String
+  data_type_display: String
+  business_meaning: 收件人姓名(脱敏)
+  source_fields:
+  - mask_post_receiver
+  calculation_logic:
+    operation: direct_mapping
+    formula: mask_post_receiver 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 394a4035b4472cc7c614d34e48ba725723c2065216923bd595e539162f08acbe
+- chinese_name: 收件人电话(脱敏)
+  physical_name: mask_post_tel
+  data_type: String
+  data_type_display: String
+  business_meaning: 收件人电话(脱敏)
+  source_fields:
+  - mask_post_tel
+  calculation_logic:
+    operation: direct_mapping
+    formula: mask_post_tel 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 28e6929b76bcf09e8ae0fed2dcb72ea784a0d5ace66c3f047c7e3d660031c341
+- chinese_name: 收件人地址(脱敏)
+  physical_name: mask_post_addr
+  data_type: String
+  data_type_display: String
+  business_meaning: 收件人地址(脱敏)
+  source_fields:
+  - mask_post_addr
+  calculation_logic:
+    operation: direct_mapping
+    formula: mask_post_addr 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 625c797de1c08f30fa06ab10e013fcb8dd7be22c8bbe0e7c2b6b5b5032a04cdb
+- chinese_name: 收货地址经纬度信息
+  physical_name: user_coordinate
+  data_type: String
+  data_type_display: String
+  business_meaning: 收货地址经纬度信息
+  source_fields:
+  - user_coordinate
+  calculation_logic:
+    operation: direct_mapping
+    formula: user_coordinate 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 0e0fa121bb4da1434acac939cb559a6b366186b1ff727d32e2145fb1a5ab44bb
+- chinese_name: 预计最早到达时间
+  physical_name: earliest_receipt_time
+  data_type: String
+  data_type_display: String
+  business_meaning: 预计最早到达时间
+  source_fields:
+  - earliest_receipt_time
+  calculation_logic:
+    operation: direct_mapping
+    formula: earliest_receipt_time 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 0090f79db571b7e4c5daa2570cd92fba2fa0836c9cad89e0f7518afdc0174cff
+- chinese_name: 预计最晚到达时间
+  physical_name: latest_receipt_time
+  data_type: String
+  data_type_display: String
+  business_meaning: 预计最晚到达时间
+  source_fields:
+  - latest_receipt_time
+  calculation_logic:
+    operation: direct_mapping
+    formula: latest_receipt_time 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 3d514678d25328ad768831c9e2ac378af857747c5cbffc1e504ead6a1e0e99af
+- chinese_name: 是否尽快送达
+  physical_name: early_arrival
+  data_type: String
+  data_type_display: String
+  business_meaning: 是否尽快送达
+  source_fields:
+  - early_arrival
+  calculation_logic:
+    operation: direct_mapping
+    formula: early_arrival 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 420b6ac9abefb3fd27a538017a6a0bfe289dd0ad4ac1cb992074620f409b5bda
+- chinese_name: 尽快送达时间点
+  physical_name: target_arrival_time
+  data_type: String
+  data_type_display: String
+  business_meaning: 尽快送达时间点
+  source_fields:
+  - target_arrival_time
+  calculation_logic:
+    operation: direct_mapping
+    formula: target_arrival_time 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 63c1e00229f539cb76a3a6363e0a15102c04a9e3a1c7be75829b764870da3a94
+- chinese_name: 打包费
+  physical_name: packing_amount
+  data_type: String
+  data_type_display: String
+  business_meaning: 打包费
+  source_fields:
+  - packing_amount
+  calculation_logic:
+    operation: direct_mapping
+    formula: packing_amount 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: cd65e19cf37e29912dfea660f3c50263a56d0fe325888d6a5ef98ab9d10862a8
+- chinese_name: 门店流水号
+  physical_name: supermarket_order_serial_no
+  data_type: String
+  data_type_display: String
+  business_meaning: 门店流水号
+  source_fields:
+  - supermarket_order_serial_no
+  calculation_logic:
+    operation: direct_mapping
+    formula: supermarket_order_serial_no 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: a4e85888393770f0a122ecd2d27e88e89b31386090d9e6fb4b94d1d153632a33
+- chinese_name: 税费
+  physical_name: tax_amount
+  data_type: String
+  data_type_display: String
+  business_meaning: 税费
+  source_fields:
+  - tax_amount
+  calculation_logic:
+    operation: direct_mapping
+    formula: tax_amount 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 41244e72998a038d907dc0f6bbcbd9b9ff39dd19a1650f0f10a03173e745cc54
+- chinese_name: 地址标签列表
+  physical_name: address_tag_ui
+  data_type: String
+  data_type_display: String
+  business_meaning: 地址标签列表
+  source_fields:
+  - address_tag_ui
+  calculation_logic:
+    operation: direct_mapping
+    formula: address_tag_ui 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: e48da8c23b20aa2650b6164292f433dbe8383664394c2a3b9a7d37a92877ae71
+- chinese_name: 脱敏下单人手机号(鲜花订单)
+  physical_name: mask_pay_tel
+  data_type: String
+  data_type_display: String
+  business_meaning: 脱敏下单人手机号(鲜花订单)
+  source_fields:
+  - mask_pay_tel
+  calculation_logic:
+    operation: direct_mapping
+    formula: mask_pay_tel 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 1c66a5d0a1e85aef3e457067302d8952c48ebf5c134ba03af076bc42232fc0de
+- chinese_name: 下单人手机号(鲜花订单)加密
+  physical_name: encrypt_pay_tel
+  data_type: String
+  data_type_display: String
+  business_meaning: 下单人手机号(鲜花订单)加密
+  source_fields:
+  - encrypt_pay_tel
+  calculation_logic:
+    operation: direct_mapping
+    formula: encrypt_pay_tel 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: eb67778d8637bce53bc30557f2643bdd3152efc3c3c5d364aaf7e51fecc5a790
+- chinese_name: 贺卡文字(鲜花订单)
+  physical_name: greet_words
+  data_type: String
+  data_type_display: String
+  business_meaning: 贺卡文字(鲜花订单)
+  source_fields:
+  - greet_words
+  calculation_logic:
+    operation: direct_mapping
+    formula: greet_words 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 074a42a6e31f258a9cb95047d51157eb12d6c584466cbf310e5b5f25652a5191
+- chinese_name: 下单人手机号
+  physical_name: pay_tel
+  data_type: String
+  data_type_display: String
+  business_meaning: 下单人手机号
+  source_fields:
+  - pay_tel
+  calculation_logic:
+    operation: direct_mapping
+    formula: pay_tel 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 58f0309a69bb20c8906ed480941e8c0cf78bdd57a28231086ee93f6d6ed77720
+- chinese_name: 收件人姓名
+  physical_name: post_receiver
+  data_type: String
+  data_type_display: String
+  business_meaning: 收件人姓名
+  source_fields:
+  - post_receiver
+  calculation_logic:
+    operation: direct_mapping
+    formula: post_receiver 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: fb044f415c8f3bffbd171420cb426bb4d8a78fe4f8fdc312dd798937d4cd3391
+- chinese_name: 标识收件人地址的id
+  physical_name: open_address_id
+  data_type: String
+  data_type_display: String
+  business_meaning: 标识收件人地址的id
+  source_fields:
+  - open_address_id
+  calculation_logic:
+    operation: direct_mapping
+    formula: open_address_id 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 1175df301720f5b81a973a5f55ef1c19829fce01bd9b9b155e289ca94f87972e
+- chinese_name: 收件人电话
+  physical_name: post_tel
+  data_type: String
+  data_type_display: String
+  business_meaning: 收件人电话
+  source_fields:
+  - post_tel
+  calculation_logic:
+    operation: direct_mapping
+    formula: post_tel 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 216715cb8beb243629ea6f7897a37263b416f6444d9a65dcba481daf47be091e
+- chinese_name: 原始数据
+  physical_name: origin_data
+  data_type: String
+  data_type_display: String
+  business_meaning: 原始数据
+  source_fields:
+  - origin_data
+  calculation_logic:
+    operation: direct_mapping
+    formula: origin_data 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 96b89448da0482a9b5800cd7c263aae4340434b9f6d2b23155535f3e363e61e0
+- chinese_name: 日分区
+  physical_name: dt
+  data_type: String
+  data_type_display: String
+  business_meaning: 日分区
+  source_fields:
+  - dt
+  calculation_logic:
+    operation: direct_mapping
+    formula: dt 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 013969f478525532bd3a61740796aeff724d626c39c50069b7c4f47b5032a394
+- chinese_name: 魔方店铺标识
+  physical_name: yuce_cube_shop_id
+  data_type: String
+  data_type_display: String
+  business_meaning: 魔方店铺标识
+  source_fields:
+  - yuce_cube_shop_id
+  calculation_logic:
+    operation: direct_mapping
+    formula: yuce_cube_shop_id 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: a384ff6365bff8a2ed67ad2ea96351e526bbba2488b7f0455312a9ee23341864
+- chinese_name: 任务实例id
+  physical_name: yuce_task_instance_id
+  data_type: String
+  data_type_display: String
+  business_meaning: 任务实例id
+  source_fields:
+  - yuce_task_instance_id
+  calculation_logic:
+    operation: direct_mapping
+    formula: yuce_task_instance_id 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: e73adad1f1fb540dee5260edd7582f7b8aecbbaea717b7bff057feff9ee0d02d
+- chinese_name: 数据创建时间
+  physical_name: yuce_data_create_time
+  data_type: String
+  data_type_display: String
+  business_meaning: 数据创建时间
+  source_fields:
+  - yuce_data_create_time
+  calculation_logic:
+    operation: direct_mapping
+    formula: yuce_data_create_time 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-22T00:00:00+08:00'
+  logic_fingerprint: 6d973708ef99508214dc0989970159bd2c17df2a01d92dc03c59bb06c2ce1db3

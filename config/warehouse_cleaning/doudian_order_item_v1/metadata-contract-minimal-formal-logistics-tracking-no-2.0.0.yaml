@@ -1,0 +1,352 @@
+contract_id: openmetadata_minimal_dwd_trade_order_logistics_tracking_no_df
+contract_version: 2.0.0
+status: approved
+table:
+  name: dwd_trade_order_logistics_tracking_no_df
+  display_name: DWD_抖店订单物流快递单号粒度事实全量快照表
+  database_schema_fqn: youmei_clickhouse.default.youmei_sandbox
+  fully_qualified_name: youmei_clickhouse.default.youmei_sandbox.dwd_trade_order_logistics_tracking_no_df
+table_metadata:
+  composite_key_fields:
+  - chinese_name: 店铺ID
+    physical_name: shop_id
+  - chinese_name: 店铺订单号
+    physical_name: shop_order_id
+  - chinese_name: 快递单号；用于后续运费匹配
+    physical_name: tracking_no
+  refresh_mode:
+    code: window_full_snapshot
+    chinese_name: 窗口全量快照
+  upstream_tables:
+  - chinese_name: ODS_销售订单列表信息表(抖店API)
+    physical_name: ods_api_dd_sale_order_list_info_f
+    fully_qualified_name: youmei_clickhouse.default.youmei_sandbox.ods_api_dd_sale_order_list_info_f
+  warehouse_layer: DWD
+columns:
+- chinese_name: 数据快照日期
+  physical_name: snapshot_date
+  data_type: Date
+  data_type_display: Date
+  business_meaning: 数据快照日期
+  source_fields:
+  - youmei_clickhouse.default.youmei_sandbox.ods_api_dd_sale_order_list_info_f.dt
+  calculation_logic:
+    operation: direct_mapping
+    formula: youmei_clickhouse.default.youmei_sandbox.ods_api_dd_sale_order_list_info_f.dt 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-26T00:00:00+08:00'
+  logic_fingerprint: 117d7af00559a5b2ed1f07bc2e1e6b961cbcb28c9dcf8dcb18eb2bfabb00f32a
+- chinese_name: 店铺ID
+  physical_name: shop_id
+  data_type: String
+  data_type_display: String
+  business_meaning: 店铺ID
+  source_fields:
+  - youmei_clickhouse.default.youmei_sandbox.ods_api_dd_sale_order_list_info_f.shop_id
+  calculation_logic:
+    operation: direct_mapping
+    formula: youmei_clickhouse.default.youmei_sandbox.ods_api_dd_sale_order_list_info_f.shop_id 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-26T00:00:00+08:00'
+  logic_fingerprint: e1e63ec948316889bf2d43ee7a4dd2448f3591f3dab3d50ef8697fc6660c4d8c
+- chinese_name: 店铺名称
+  physical_name: shop_name
+  data_type: Nullable(String)
+  data_type_display: Nullable(String)
+  business_meaning: 店铺名称
+  source_fields:
+  - youmei_clickhouse.default.youmei_sandbox.ods_api_dd_sale_order_list_info_f.shop_name
+  calculation_logic:
+    operation: direct_mapping
+    formula: youmei_clickhouse.default.youmei_sandbox.ods_api_dd_sale_order_list_info_f.shop_name 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-26T00:00:00+08:00'
+  logic_fingerprint: 0fef856bff530e431548b56970a4453e432c111b9b54ff785fcfeaedb7492b62
+- chinese_name: 店铺订单号
+  physical_name: shop_order_id
+  data_type: String
+  data_type_display: String
+  business_meaning: 店铺订单号
+  source_fields:
+  - youmei_clickhouse.default.youmei_sandbox.ods_api_dd_sale_order_list_info_f.order_id
+  calculation_logic:
+    operation: direct_mapping
+    formula: youmei_clickhouse.default.youmei_sandbox.ods_api_dd_sale_order_list_info_f.order_id 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-26T00:00:00+08:00'
+  logic_fingerprint: 03e8ab4ffb629eda1c84ae00393b27f27e2cb06f16bc36c06aa4bce8ad63afde
+- chinese_name: 快递单号；用于后续运费匹配
+  physical_name: tracking_no
+  data_type: String
+  data_type_display: String
+  business_meaning: 快递单号；用于后续运费匹配
+  source_fields:
+  - youmei_clickhouse.default.youmei_sandbox.ods_api_dd_sale_order_list_info_f.tracking_no
+  calculation_logic:
+    operation: direct_mapping
+    formula: youmei_clickhouse.default.youmei_sandbox.ods_api_dd_sale_order_list_info_f.tracking_no 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-26T00:00:00+08:00'
+  logic_fingerprint: 87ec324d4f39264257ce42ea7c166ea610e83ff8d86794bfba23289c56830601
+- chinese_name: 物流公司名称列表，按快递单号粒度去重拼接
+  physical_name: logistics_company_names
+  data_type: Nullable(String)
+  data_type_display: Nullable(String)
+  business_meaning: 物流公司名称列表，按快递单号粒度去重拼接
+  source_fields:
+  - youmei_clickhouse.default.youmei_sandbox.ods_api_dd_sale_order_list_info_f.logistics_company_names
+  calculation_logic:
+    operation: direct_mapping
+    formula: youmei_clickhouse.default.youmei_sandbox.ods_api_dd_sale_order_list_info_f.logistics_company_names 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-26T00:00:00+08:00'
+  logic_fingerprint: 4d82b4e83f784682b4e8e5f95df1d063b8d7f6fdd6bd4a7e73b74e50f42c70cf
+- chinese_name: 最早发货时间
+  physical_name: first_shipped_at
+  data_type: Nullable(DateTime('Asia/Shanghai'))
+  data_type_display: Nullable(DateTime('Asia/Shanghai'))
+  business_meaning: 最早发货时间
+  source_fields:
+  - youmei_clickhouse.default.youmei_sandbox.ods_api_dd_sale_order_list_info_f.first_shipped_at
+  calculation_logic:
+    operation: time_standardization
+    formula: parse youmei_clickhouse.default.youmei_sandbox.ods_api_dd_sale_order_list_info_f.first_shipped_at as Asia/Shanghai
+      datetime
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+    timezone: Asia/Shanghai
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-26T00:00:00+08:00'
+  logic_fingerprint: 1a1ca13387bd58f713cfae37fbd85b2dbcc6ac3dcfd2388e9dced481c29c4237
+- chinese_name: 最晚发货时间
+  physical_name: latest_shipped_at
+  data_type: Nullable(DateTime('Asia/Shanghai'))
+  data_type_display: Nullable(DateTime('Asia/Shanghai'))
+  business_meaning: 最晚发货时间
+  source_fields:
+  - youmei_clickhouse.default.youmei_sandbox.ods_api_dd_sale_order_list_info_f.latest_shipped_at
+  calculation_logic:
+    operation: time_standardization
+    formula: parse youmei_clickhouse.default.youmei_sandbox.ods_api_dd_sale_order_list_info_f.latest_shipped_at as Asia/Shanghai
+      datetime
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+    timezone: Asia/Shanghai
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-26T00:00:00+08:00'
+  logic_fingerprint: 5197bfdc230d3109708898a4f0b8191bfbcd10c05cc2c75fb5e9d3a7c8b94b22
+- chinese_name: 快递单号下源包裹记录数；包裹ID不作为业务粒度，仅用于汇总计数
+  physical_name: package_count
+  data_type: UInt16
+  data_type_display: UInt16
+  business_meaning: 快递单号下源包裹记录数；包裹ID不作为业务粒度，仅用于汇总计数
+  source_fields:
+  - youmei_clickhouse.default.youmei_sandbox.ods_api_dd_sale_order_list_info_f.package_count
+  calculation_logic:
+    operation: numeric_standardization
+    formula: cast youmei_clickhouse.default.youmei_sandbox.ods_api_dd_sale_order_list_info_f.package_count to UInt16
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-26T00:00:00+08:00'
+  logic_fingerprint: d90c5e33222d583e653e0aacb385289d7191330e10bd7abaa06e479b84819768
+- chinese_name: 快递单号下物流商品关系行数
+  physical_name: package_product_row_count
+  data_type: UInt32
+  data_type_display: UInt32
+  business_meaning: 快递单号下物流商品关系行数
+  source_fields:
+  - youmei_clickhouse.default.youmei_sandbox.ods_api_dd_sale_order_list_info_f.package_product_row_count
+  calculation_logic:
+    operation: numeric_standardization
+    formula: cast youmei_clickhouse.default.youmei_sandbox.ods_api_dd_sale_order_list_info_f.package_product_row_count to
+      UInt32
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-26T00:00:00+08:00'
+  logic_fingerprint: dc2f9aae2fd5474a021343eb549677dd3ea55d1b3bee8e12f6420620c160f029
+- chinese_name: 快递单号下商品子单数
+  physical_name: sku_order_count
+  data_type: UInt32
+  data_type_display: UInt32
+  business_meaning: 快递单号下商品子单数
+  source_fields:
+  - youmei_clickhouse.default.youmei_sandbox.ods_api_dd_sale_order_list_info_f.sku_order_count
+  calculation_logic:
+    operation: numeric_standardization
+    formula: cast youmei_clickhouse.default.youmei_sandbox.ods_api_dd_sale_order_list_info_f.sku_order_count to UInt32
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-26T00:00:00+08:00'
+  logic_fingerprint: d93a600083f14c96cf30687a40f93ccf68aaaba091e5ac102271cda6b6868366
+- chinese_name: 商品子单号列表，按快递单号粒度去重拼接
+  physical_name: sku_order_ids
+  data_type: Nullable(String)
+  data_type_display: Nullable(String)
+  business_meaning: 商品子单号列表，按快递单号粒度去重拼接
+  source_fields:
+  - youmei_clickhouse.default.youmei_sandbox.ods_api_dd_sale_order_list_info_f.sku_order_ids
+  calculation_logic:
+    operation: direct_mapping
+    formula: youmei_clickhouse.default.youmei_sandbox.ods_api_dd_sale_order_list_info_f.sku_order_ids 直接映射
+    aggregation: none
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-26T00:00:00+08:00'
+  logic_fingerprint: f32725efbc7b6d62eb13449dd7b886b32e75db8c68efd5f593050fdf10f6368f
+- chinese_name: 发货商品数量合计
+  physical_name: shipped_product_count
+  data_type: Nullable(Int64)
+  data_type_display: Nullable(Int64)
+  business_meaning: 发货商品数量合计
+  source_fields:
+  - youmei_clickhouse.default.youmei_sandbox.ods_api_dd_sale_order_list_info_f.shipped_product_count
+  calculation_logic:
+    operation: direct_mapping
+    formula: youmei_clickhouse.default.youmei_sandbox.ods_api_dd_sale_order_list_info_f.shipped_product_count 直接映射
+    aggregation: sum
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-26T00:00:00+08:00'
+  logic_fingerprint: b6e4452413af217d0882ddeb0dfbc056cf6602501422da750ba1d6c51cdeb2a4
+- chinese_name: 物流保价金额合计，源单位分，清洗后单位元
+  physical_name: guarantee_amount
+  data_type: Nullable(Decimal(38, 2))
+  data_type_display: Nullable(Decimal(38, 2))
+  business_meaning: 物流保价金额合计，源单位分，清洗后单位元
+  source_fields:
+  - youmei_clickhouse.default.youmei_sandbox.ods_api_dd_sale_order_list_info_f.guarantee_amount
+  calculation_logic:
+    operation: unit_conversion
+    formula: toDecimal(youmei_clickhouse.default.youmei_sandbox.ods_api_dd_sale_order_list_info_f.guarantee_amount) / 100
+    aggregation: sum
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+    source_unit: 分
+    target_unit: 元
+    precision: 2
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-26T00:00:00+08:00'
+  logic_fingerprint: fa3c220690c910109d8ccfb4361f3b5f578c8d7ad5695bb9d67317c12f5ed514
+- chinese_name: 即时零售平台运力配送优惠金额合计，源单位分，清洗后单位元
+  physical_name: platform_delivery_discount_amount
+  data_type: Nullable(Decimal(38, 2))
+  data_type_display: Nullable(Decimal(38, 2))
+  business_meaning: 即时零售平台运力配送优惠金额合计，源单位分，清洗后单位元
+  source_fields:
+  - youmei_clickhouse.default.youmei_sandbox.ods_api_dd_sale_order_list_info_f.platform_delivery_discount_amount
+  calculation_logic:
+    operation: unit_conversion
+    formula: toDecimal(youmei_clickhouse.default.youmei_sandbox.ods_api_dd_sale_order_list_info_f.platform_delivery_discount_amount)
+      / 100
+    aggregation: sum
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+    source_unit: 分
+    target_unit: 元
+    precision: 2
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-26T00:00:00+08:00'
+  logic_fingerprint: ed9984b9c094ed7c42800ab46dd8a07ca522758131c3dd4cd702d1c37592f4f1
+- chinese_name: 即时零售平台运力配送实付金额合计，源单位分，清洗后单位元
+  physical_name: platform_delivery_paid_amount
+  data_type: Nullable(Decimal(38, 2))
+  data_type_display: Nullable(Decimal(38, 2))
+  business_meaning: 即时零售平台运力配送实付金额合计，源单位分，清洗后单位元
+  source_fields:
+  - youmei_clickhouse.default.youmei_sandbox.ods_api_dd_sale_order_list_info_f.platform_delivery_paid_amount
+  calculation_logic:
+    operation: unit_conversion
+    formula: toDecimal(youmei_clickhouse.default.youmei_sandbox.ods_api_dd_sale_order_list_info_f.platform_delivery_paid_amount)
+      / 100
+    aggregation: sum
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+    source_unit: 分
+    target_unit: 元
+    precision: 2
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-26T00:00:00+08:00'
+  logic_fingerprint: ed259e92066d7e8a101e4db5141419a4c7b96f12c982254d510f649fbf6f1e94
+- chinese_name: 即时零售平台运力配送应付金额合计，源单位分，清洗后单位元
+  physical_name: platform_delivery_payable_amount
+  data_type: Nullable(Decimal(38, 2))
+  data_type_display: Nullable(Decimal(38, 2))
+  business_meaning: 即时零售平台运力配送应付金额合计，源单位分，清洗后单位元
+  source_fields:
+  - youmei_clickhouse.default.youmei_sandbox.ods_api_dd_sale_order_list_info_f.platform_delivery_payable_amount
+  calculation_logic:
+    operation: unit_conversion
+    formula: toDecimal(youmei_clickhouse.default.youmei_sandbox.ods_api_dd_sale_order_list_info_f.platform_delivery_payable_amount)
+      / 100
+    aggregation: sum
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+    source_unit: 分
+    target_unit: 元
+    precision: 2
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-26T00:00:00+08:00'
+  logic_fingerprint: e713bc4b73580b3d9c8cdc798b7d53ddd2b220c440e3310a179a7232154e1de5
+- chinese_name: 物流商品单价平均值，源单位分，清洗后单位元；平均型指标按快递单号粒度取平均
+  physical_name: avg_product_price_amount
+  data_type: Nullable(Decimal(38, 2))
+  data_type_display: Nullable(Decimal(38, 2))
+  business_meaning: 物流商品单价平均值，源单位分，清洗后单位元；平均型指标按快递单号粒度取平均
+  source_fields:
+  - youmei_clickhouse.default.youmei_sandbox.ods_api_dd_sale_order_list_info_f.avg_product_price_amount
+  calculation_logic:
+    operation: unit_conversion
+    formula: toDecimal(youmei_clickhouse.default.youmei_sandbox.ods_api_dd_sale_order_list_info_f.avg_product_price_amount)
+      / 100
+    aggregation: average
+    null_policy: 空值转NULL
+    invalid_policy: 非空非法值进入异常统计
+  enum_values: []
+  field_logic_version: 1.0.0
+  field_logic_updated_at: '2026-07-26T00:00:00+08:00'
+  logic_fingerprint: 7ea9f4243b3e07f9db4d69c336b2ad39a25323a823b817541e94250e23a4157c

@@ -1,0 +1,39 @@
+{
+  "report_version": "warehouse-release-report/v1",
+  "status": "prepared",
+  "release_id": "doudian-formal-ods-dwd-metadata-2.0.0",
+  "version": "2.0.0",
+  "release_type": "metadata",
+  "environment": "test",
+  "requested_mode": "full",
+  "started_at": "2026-07-27T17:46:16+08:00",
+  "package_dir": "config/warehouse_cleaning/doudian_order_item_v1",
+  "release_file": "config/warehouse_cleaning/doudian_order_item_v1/metadata-release-formal-ods-dwd-2.0.0.yaml",
+  "source": {
+    "database": "",
+    "partitions": [],
+    "chinese_name": "",
+    "physical_name": "",
+    "source_role": ""
+  },
+  "targets": [],
+  "manifest_fingerprint": "77865dc953b68e0b31447106f3c68038c5b2c7089efbc174e7dedc6f3af93296",
+  "artifact_hashes": {
+    "metadata-contract-minimal-formal-item-2.0.0.yaml": "621fe878b51337ff595729060bd05cd6cea6936feb3cbdcacf92fe97ed908cc5",
+    "metadata-contract-minimal-formal-logistics-tracking-no-2.0.0.yaml": "b5a84512609fc56e1da641ac21327dabacc4ad14d6e4e53b594f6d085f1d97c6",
+    "metadata-contract-minimal-formal-order-2.0.0.yaml": "3ae02a73143cf133111f8c551f01137e93e43f9563d6f71a679179385465759e",
+    "metadata-contract-minimal-ods-2.0.0.yaml": "d489006f874db02ccfd4870ffd6c41c6031c7764f038c8089af5415f9e6a09d7",
+    "metadata-release-formal-ods-dwd-2.0.0.yaml": "9bd0c5bd69625af5db6bb1a66e7e8b10024d8a0f5c9a82746fa73338575d772a"
+  },
+  "warnings": [],
+  "validation_errors": [],
+  "steps": [],
+  "git": {
+    "required": true,
+    "auto_push": true,
+    "remote": "origin",
+    "branch": "main",
+    "tag": "warehouse/doudian-formal-ods-dwd-metadata-2.0.0"
+  },
+  "finished_at": "2026-07-27T17:46:16+08:00"
+}
