@@ -1,12 +1,12 @@
 {
   "report_version": "warehouse-release-report/v1",
-  "status": "prepared",
+  "status": "failed",
   "release_id": "doudian-formal-ods-dwd-metadata-2.0.0",
   "version": "2.0.0",
   "release_type": "metadata",
   "environment": "test",
   "requested_mode": "full",
-  "started_at": "2026-07-27T17:48:03+08:00",
+  "started_at": "2026-07-27T17:48:21+08:00",
   "package_dir": "config/warehouse_cleaning/doudian_order_item_v1",
   "release_file": "config/warehouse_cleaning/doudian_order_item_v1/metadata-release-formal-ods-dwd-2.0.0.yaml",
   "source": {
@@ -27,7 +27,68 @@
   },
   "warnings": [],
   "validation_errors": [],
-  "steps": [],
+  "steps": [
+    {
+      "name": "git_preflight",
+      "status": "passed",
+      "at": "2026-07-27T17:48:04+08:00",
+      "result": {
+        "ok": true,
+        "git": "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\git\\cmd\\git.EXE",
+        "repo_root": "C:\\Users\\24796\\Documents\\TEXT2SQL",
+        "worktree_status": " M .gitignore\n M AGENTS.md\n M TEXT2SQL-codex-handoff/docs/AGENT-CONTEXT.md\n M TEXT2SQL-codex-handoff/docs/CONTEXT-长期前置上下文.md\n M TEXT2SQL-codex-handoff/docs/RESOURCE-资源登记.md\n M TEXT2SQL-codex-handoff/docs/RUNBOOK-组件启停与稳定性.md\n M TEXT2SQL-codex-handoff/docs/STATE-CURRENT.md\n M config/warehouse_cleaning/doudian_order_item_v1/release-report-doudian-formal-ods-dwd-metadata-2.0.0.json\n D docs/clickhouse-query-workbench-evaluation.md\n M scripts/sync_openmetadata_release.py\n M scripts/warehouse_release.py\n D tools/clickhouse-query-workbench/.env.example\n D tools/clickhouse-query-workbench/README.md\n D tools/clickhouse-query-workbench/client/main.tsx\n D tools/clickhouse-query-workbench/client/styles.css\n D tools/clickhouse-query-workbench/eslint.config.js\n D tools/clickhouse-query-workbench/index.html\n D tools/clickhouse-query-workbench/package.json\n D tools/clickhouse-query-workbench/server/audit.ts\n D tools/clickhouse-query-workbench/server/clickhouse.ts\n D tools/clickhouse-query-workbench/server/config.ts\n D tools/clickhouse-query-workbench/server/demo.ts\n D tools/clickhouse-query-workbench/server/index.ts\n D tools/clickhouse-query-workbench/server/sqlGuard.ts\n D tools/clickhouse-query-workbench/tests/sqlGuard.test.ts\n D tools/clickhouse-query-workbench/tsconfig.json\n D tools/clickhouse-query-workbench/vite.config.ts\n?? \" .Destination}}{{end}}\"\n?? config/warehouse_cleaning/doudian_order_item_v1/.warehouse-release-doudian-formal-ods-dwd-metadata-2.0.0.lock\n?? config/warehouse_cleaning/doudian_order_item_v1/release-plan-doudian-formal-ods-dwd-metadata-2.0.0.json\n?? config/warehouse_cleaning/doudian_order_item_v1/release-plan-doudian_order_logistics_tracking_no_empty_rollback_cleanup_1_0_0.json\n?? config/warehouse_cleaning/doudian_order_item_v1/release-plan-doudian_order_logistics_tracking_no_formal_1_4_2.json\n?? config/warehouse_cleaning/doudian_order_item_v1/release-plan-doudian_order_logistics_tracking_no_formal_1_4_3.json\n?? config/warehouse_cleaning/doudian_order_item_v1/validation-report-dwd-logistics-vs-yuce-20260726.json\n?? docs/aliyun-prod-ecs-ssh-connection.md\n?? framework.cmd\n?? scripts/framework-stack.ps1\n?? scripts/install-weekly-refresh-task.ps1\n?? scripts/migrate_openmetadata_minimal_contracts.py\n?? scripts/refresh-warehouse-workbench.ps1\n?? scripts/start-warehouse-workbench.ps1\n?? scripts/sync_openmetadata_metadata.py\n?? scripts/validate_dwd_logistics_vs_yuce.py\n?? tools/warehouse-model-workbench/\n?? warehouse-workbench-refresh.cmd\n?? warehouse-workbench.cmd\n"
+      }
+    },
+    {
+      "name": "git_prepare_commit",
+      "status": "passed",
+      "at": "2026-07-27T17:48:04+08:00",
+      "result": {
+        "ok": true,
+        "commit": {
+          "label": "git:commit",
+          "ok": true,
+          "returncode": 0,
+          "stdout": "[main e4daebc] warehouse release doudian-formal-ods-dwd-metadata-2.0.0 prepare\n 1 file changed, 4 insertions(+), 66 deletions(-)\n",
+          "stderr": "",
+          "command": [
+            "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\git\\cmd\\git.EXE",
+            "commit",
+            "-m",
+            "warehouse release doudian-formal-ods-dwd-metadata-2.0.0 prepare"
+          ]
+        },
+        "head": "e4daebc97f15ee6e295cc656164a3937ccbb367e"
+      }
+    },
+    {
+      "name": "openmetadata_full",
+      "status": "failed",
+      "at": "2026-07-27T17:48:21+08:00",
+      "result": {
+        "label": "openmetadata:full",
+        "ok": false,
+        "returncode": 1,
+        "stdout": "{\n  \"ok\": false,\n  \"release_file\": \"C:\\\\Users\\\\24796\\\\Documents\\\\TEXT2SQL\\\\config\\\\warehouse_cleaning\\\\doudian_order_item_v1\\\\metadata-release-formal-ods-dwd-2.0.0.yaml\",\n  \"contract_count\": 4,\n  \"mode\": \"full\",\n  \"report\": \"C:\\\\Users\\\\24796\\\\Documents\\\\TEXT2SQL\\\\config\\\\warehouse_cleaning\\\\doudian_order_item_v1\\\\openmetadata-sync-report-metadata-release-formal-ods-dwd-2.0.0.json\"\n}\n",
+        "stderr": "",
+        "command": [
+          "C:\\Users\\24796\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\scripts\\sync_openmetadata_release.py",
+          "--package-dir",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1",
+          "--release",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\metadata-release-formal-ods-dwd-2.0.0.yaml",
+          "--env-file",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\local\\credentials\\openmetadata.env",
+          "--mode",
+          "full",
+          "--report",
+          "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\openmetadata-sync-report-metadata-release-formal-ods-dwd-2.0.0.json"
+        ],
+        "report_path": "C:\\Users\\24796\\Documents\\TEXT2SQL\\config\\warehouse_cleaning\\doudian_order_item_v1\\openmetadata-sync-report-metadata-release-formal-ods-dwd-2.0.0.json"
+      }
+    }
+  ],
   "git": {
     "required": true,
     "auto_push": true,
@@ -35,5 +96,6 @@
     "branch": "main",
     "tag": "warehouse/doudian-formal-ods-dwd-metadata-2.0.0"
   },
-  "finished_at": "2026-07-27T17:48:03+08:00"
+  "failure_reason": "OpenMetadata plan/apply/verify 未全部通过",
+  "finished_at": "2026-07-27T17:48:21+08:00"
 }
